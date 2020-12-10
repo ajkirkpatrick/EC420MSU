@@ -41,7 +41,7 @@ require(here)
 
 layout: true
 
-<div class="msu-header"></div> 
+<div class="msu-header"></div>  
 
 ---
 
