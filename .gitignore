@@ -27,3 +27,6 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 *.Rproj
+*/caches/*
+/caches
+/caches/
