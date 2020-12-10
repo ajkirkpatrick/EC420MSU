@@ -22,8 +22,9 @@ library(magick)
 library(here)
 opts_chunk$set(
   fig.align="center",fig.height=4, #fig.width=7,# out.width="748px", #out.length="520.75px",
-  dpi=300, #fig.path='Figs/',
+  dpi=300, fig.path='figs/',
   cache=T,
+  cache.path = 'caches/',
   echo=F,
   engine.path=list(stata="C:/Program Files/Stata16/StataIC-64.exe")#, warning=F, message=F
   )
@@ -96,66 +97,6 @@ class: MSU
 - Will we go over R?
 
   - Most definitely. I will post instructions on installing R and Rstudio, and you will take a tutorial as part of your first problem set. 
---
-
-
-- How difficult will problem sets be?
-
-  - Moderately difficult. If you're familiar with the concept of computer scripting, some parts will be easier. If you're not, that's **100 percent OK**, you do **not** need to have any R experience for this class. One of the points of the class is to get that experience.
---
-
-- Will R appear on the quiz/exam?
-
-  - In very limited form - at most, questions about which command to use to solve a stated problem.
-  
-  
-  
----
-class: MSU
-# Class Business
-
-- How often will we use t-tables?
-
-  - Once.
---
-
-
-- How detailed do the reading responses need to be?
-
-  - Just enough to show some thought on the topic. Part of the purpose of the RR is to give you a chance to think through the concepts, so you just have to show some original thought on the matter, even if that thought is confusion. The other part is to ensure you've done the reading, so at least show me some attempt to digest the reading.
---
-
-
-- I have class during Office Hours
-
-  - We have a TA who is quite good and will be very helpful (likely Thursdays 1-2:45pm), but you can also email me to set up hours outside of office hours.
-
-
-
----
-class: MSU
-# Class Business
-
-
-- Are there parts of the class helpful for experimental research?
-
-  - The concept (and purpose) of randomization is important in experimental research, so that is probably the largest overlap. Also, data management and manipulation is a big part of all quantitative research. We will also do a little bit of visualization.
---
-
-
-- Will it be mostly coding?
-
-  - No. The statistical concepts are the priority, R and coding is secondary but still useful and necessary.
---
-
-
-- What was the average grade last semester?
-
-  - Around a 2.5, I think.
---
-
-
-I couldn't get to all the questions, so if I didn't cover yours but want to talk about it further, come to Office Hours or setup a meeting via e-mail.
 
 
 
@@ -533,10 +474,12 @@ $$\frac{1}{N}\sum_{n=1}^{N} x_n - \bar{x}$$
 ```{r exDeviationsFromMean, include=T, echo=F, fig.height=3}
 df = data.frame(ClassID = c(letters[1:6], 'Avg'), Score = c(4,5,3,5,5,2,NA))
 df[7,'Score'] = mean(df$Score, na.rm=T)
+
+
 knitr::kable(df, format='latex', align = 'cc') %>% 
   column_spec(column = 2, border_left=T) %>%
   row_spec(row = 6, hline_after = T) %>%
-  as_image(height =3, file = 'exDeviationsFromMeanTable.png')
+  as_image(height =3, file = 'graphics/exDeviationsFromMeanTable.png')
 
 #            extra_css = 'border-bottom: 1px solid')
 # %>%
@@ -831,7 +774,7 @@ And we can also express the relationship between the PDF's of the RV's.
 class: MSU
 # Yes, it's real
 
-![](SpuriousChart.png)
+![](graphics/SpuriousChart.png)
 
 
 ---
@@ -1422,7 +1365,7 @@ class: clear
 #### Wooldridge Table C-2
 
 ```{r WooldridgeTable, include=T, echo=F, out.width='70%'}
-knitr::include_graphics('Table C-2.jpg')
+knitr::include_graphics('graphics/Table C-2.jpg')
 ```
 
 ---
@@ -1493,7 +1436,7 @@ class: MSU
 By standardizing, we are relating the distribution of our **estimate** to a known distribution.
 
 ```{r WooldridgeC4, echo=F, include=T, out.width ='70%', fig.cap='Wooldridge Figure C-4'}
-include_graphics('Figure C-4.jpg')
+include_graphics('graphics/Figure C-4.jpg')
 ```
 
 ---
@@ -1501,7 +1444,7 @@ class: MSU
 # Statistical inference
 
 ```{r WooldridgeG2, echo=F, include=T, out.width='50%', fig.cap='Wooldridge Figure G-2'}
-include_graphics('Table G-2.jpg')
+include_graphics('graphics/Table G-2.jpg')
 ```
 
 ---
@@ -1517,7 +1460,9 @@ name: YearsExample
 df = data.frame(Years = rpois(8, 10)/2)
 ybar = round(mean(df$Years), 2)
 se = round((sd(df$Years)/sqrt(NROW(df))), 3)
-knitr::kable(df)
+
+knitr::kable(df, format='latex', booktabs=T, align='c') %>%
+  as_image(height=3, file='graphics/setupInferenceExampleTable.png')
 ```
 ]
 
@@ -1695,7 +1640,7 @@ class: MSU
 # Statistical inference
 
 ```{r WooldridgeC6, echo=F, include=T, out.width='80%', fig.cap='Wooldridge Figure C-6'}
-include_graphics('Figure C-6.jpg')
+include_graphics('graphics/Figure C-6.jpg')
 ```
 
 
