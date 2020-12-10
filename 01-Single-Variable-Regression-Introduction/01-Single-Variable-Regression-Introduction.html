@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Single Variable Regression: Introduction</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Justin Kirkpatrick" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis-fonts.css" rel="stylesheet" />
+    <script src="libs/kePrint/kePrint.js"></script>
+    <link href="libs/lightable/lightable.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../EC420_S21.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Single Variable Regression: Introduction
+## EC420 MSU Spring 2021
+### Justin Kirkpatrick
+### Last updated December 10, 2020
+
+---
+
+
+
+layout: true
+
+&lt;div class="msu-header"&gt;&lt;/div&gt; 
+
+---
+
+class: inverseMSU
+name: Overview
+
+# This lecture  
+
+__Goal:__
+
+1. Introduce the problem we'll be working on for a while
+
+2. Define the **Population Regression Function**
+
+3. Intuition of "fitting a line"
+--
+
+4. Define the assumptions for OLS
+
+5. Ordinary Least Squares estimator
+
+6. Computing OLS estimates in the **Sample Regression Function**
+
+7. Descriptive analysis vs. causal
+
+8. Other methods of calculating OLS
+
+---
+class: MSU
+
+# The problem at hand...
+
+We have some data on two (or more, later) variables that we think move together in an interesting way.
+- (Insert one of many examples we've talked about before here)
+
+--
+
+We want to quantify and test this relationship
+- Predict a change
+- Test a theory
+- Win a bet?
+
+--
+
+We have a **sample**, but want to predict/test something about the population
+
+
+---
+class: MSU
+
+# The problem at hand...
+
+Wage data used in Wooldridge `wage2`
+
+&lt;img src="figs/Wooldridge-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+.footnote[Data from Blackburn and Neumark (1992), "Unobserved Ability, Efficiency Wages, and Interindustry Wage Differentials" *Quarterly Journal of Economics* 107, 1421-1436]
+
+
+---
+class: MSU
+
+# The problem at hand
+
+.pull-left[
+The data looks like this:
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; wage &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; educ &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 769 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 12 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 808 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 18 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 825 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 14 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 650 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 12 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 562 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 11 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1400 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 16 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+.pull-right[
+&lt;img src="figs/Wooldridge3-1.png" width="110%" style="display: block; margin: auto;" /&gt;
+]
+&lt;br&gt;
+- `\(N = 935\)`
+- `\(\overline{wage} = 957.95\)`
+- `\(\overline{educ} = 13.47\)`
+
+--
+
+What we'd like to have is a function that tells us how `\(wage\)` and `\(educ\)` move together in the **population** 
+
+---
+class: MSU
+# Population Regression Function
+
+### In a perfect world, we would have some function for `\(X = educ\)` and `\(Y = wage\)`:
+
+`$$g(x) = y$$`
+
+Where we give the function any realization of `\(x\)`, and it spits out exactly `\(y\)`.
+
+
+### But that isn't going to happen
+Think about the data we just looked at - `\(educ = 12\)` we observed `\(wage=769\)` and `\(wage=650\)`. The dream function doesn't exist! There are other things not accounted for besides `\(educ\)`.
+
+---
+class: MSU
+# Population Regression Function
+
+### So we settle for something that tells us about the **expectation** of `\(Y\)`. The Population Regression Function
+
+`$$E[Y|X] = \beta_0 + \beta_1 X$$`
+
+The *Population Regression Function* (PRF) describes the relationship between `\(X\)` and the **conditional expectation** of `\(Y\)`.
+- `\(X\)` and `\(Y\)` are random variables
+- `\(\beta_0\)` and `\(\beta_1\)` are **population parameters**
+- We have restricted the `\(E[Y|X]\)` to be a *linear* function of `\(X\)`.
+  - It can be drawn as a straight line with an intercept and constant slope
+  - We will be estimating `\(\beta_0\)` and `\(\beta_1\)`
+  
+---
+class: MSU
+# Population Regression Function
+
+### The PRF:
+`$$E[Y|X] = \beta_0 + \beta_1 X$$`
+
+Let `\(Y=wage\)` and `\(X=educ\)`
+- `\(E[Y|X=x]\)` gives us the expectation of `\(Y\)` (wage) conditional on some realized value of `\(X=x\)` (educ)
+
+- So, if `\(educ=16\)`, then `\(E[Y|X=16] = \beta_0 + \beta_1 \times 16\)`
+  - We can plug in any `\(x_i\)` and get the **expected value** of the paired `\(y_i\)`
+  
+---
+class: MSU
+# Population Regression Function
+
+### Question: Will the PRF return exactly `\(y_i\)` given a value `\(x_i\)`?
+
+---
+class: MSU
+name: WoolPRF
+
+# Population Regression Function
+
+&lt;img src="../graphics/Wooldridge/Fig21.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+.footnote[From Ch. 2.1 of Wooldridge. Shows an example of a conceptual PRF. The line defines the PRF, the expectation of `\(Y\)` conditional on `\(X\)`]
+
+---
+
+class: MSU
+
+# Population Regression Function
+
+&lt;img src="figs/PRF-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+This is the wage data. Each "blob" is an empirical histogram of the data for that value of `\(educ\)` (they are symmetrical). This is called a *violin plot*. It is the empirical counterpart of the [previous plot from Wooldridge](#WoolPRF)
+
+---
+
+class: MSU
+
+# Population Regression Function
+
+
+```
+## `summarise()` ungrouping output (override with `.groups` argument)
+```
+
+&lt;img src="figs/PRF2-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+Each point is the sample mean for each value of `\(educ\)`.
+
+--
+
+A (linear) PRF would be the straight line that best connects the points. **Regression fits that line**. A brief look at the line shows that it certainly won't be perfect!
+
+---
+class: MSU
+# Fitting the line
+
+### What happens, then, if we want to write `\(Y\)` exactly?
+The PRF gives us the *expectation* of `\(Y\)`
+- So we add a **stochastic error term**, the difference between `\(E[Y|X]\)` and `\(Y\)`:
+
+`$$Y = E[Y|X] + U = \beta_0 + \beta_1 X + U$$`
+This is the stochastic population regression function
+
+`\(U\)` is also the **population error term**, and is itself a **random variable**.
+- It must be that `\(E[U] = 0\)`
+
+---
+class: MSU
+name: regEqn
+# Fitting the line
+
+### Now we can write our **simple linear regression model**:
+
+`$$y = \beta_0 + \beta_1 x + u$$`
+
+This is a statement about the relationship between observed realizations `\((y_i, x_i)\)` based on the population parameters `\(\beta_0, \beta_1\)`
+
+We will call `\(u\)` the **error term** - it is the difference between the conditional expected mean and the observed `\(y_i\)` given a value of `\(x_i\)`.
+- It might be different for two identical realizations of `\(x_i\)`
+
+--
+
+Naturally, we would think that the "right" value of the population parameters, `\(\beta = \{\beta_0, \beta_1\}\)`&lt;sup&gt;*&lt;/sup&gt;, minimizes all of the `\(u_i\)` values in a sample.
+
+----
+.footnote[&lt;sup&gt;*&lt;/sup&gt; A parameter vector is just a list of numbers.]
+
+---
+class: MSU
+# Fitting the line
+
+### The Sample Regression Function
+
+`$$\hat{y}_i = \hat{\beta}_0 + \hat{\beta_1} x_i$$`
+
+### The "hats" are important
+They mean we have a *sample estimate* of the population parameters.
+- `\(\beta_0, \beta_1\)` are the population
+- `\(\hat{\beta}_0, \hat{\beta}_1\)` are the sample estimates and will change when the sample changes
+  - So they are random variables!
+
+--
+
+
+### Where did `\(u\)` go?
+Since we have a hat on `\(y_i\)`, there is no `\(u\)`, but `\(\hat{y}_i \neq y_i\)`.
+- Define `\(\hat{u}_i = \hat{y}_i - y_i\)`.
+- `\(\hat{u}_i\)` is the *residual*.
+  
+---
+class: MSU
+# Fitting the line
+
+### To summarize:
+
+The `\(PRF\)` is
+`$$E[Y|X] = \beta_0 + \beta_1 X$$`
+
+The simple linear regression model is:
+`$$y = \beta_0 + \beta_1 x + u$$`
+
+The SRF is:
+`$$\hat{y}_i = \hat{\beta}_0 + \hat{\beta}_1 x_i$$`
+
+And if we want to write the sample regression model:
+`$$y_i = \hat{\beta}_0 + \hat{\beta}_1 x_i + \hat{u}_i$$`
+
+
+---
+class: MSU
+# Fitting the line
+
+## How do we get those `\(\hat{\beta}\)`'s in the SRF?
+&lt;br&gt;
+#### We make two assumptions:
+
+**First**, if the expectation of `\(Y\)` equals `\(\beta_0 + \beta_1 X\)`, then *in expectation*, `\(E[U] = 0\)`. Because:
+`$$E[Y|X] = \beta_0 + \beta_1 X \quad \text{and} \quad Y = \beta_0 + \beta_1 X + U$$`
+&lt;br&gt;&lt;br&gt;
+
+**Second**, our first assumption should hold no matter what `\(x\)` is. So, it should be true that `\(E[U|X] = 0\)` for **all** possible values of `\(X\)`.
+
+There are very important assumptions as they will define our Sample Regression Function (SRF).
+
+---
+class: MSU
+# Fitting the line
+
+### Let's make these assumptions formal:
+
+1. `\(E[U]=0\)`. 
+  - As long as there is a `\(\beta_0\)` (regardless of `\(\beta_1\)`), this is true. We call this assumption **trivial**.
+
+2. `\(E[U|X] = E[U]\)` 
+  - **Mean independence**. The **mean** of `\(U\)` is the same, regardless of the value of `\(X\)`:
+
+These are **population moments**
+- A **moment** is a specific attribute of a distribution
+- The mean is the "first moment". Variance is the "second moment".
+
+--
+
+Economists spend a lot of time showing mean independence `\(E[U|X] = E[U]\)`.
+
+---
+class: MSU
+
+# Fitting the line
+
+Two quick reminders before we introduce the Ordinary Least Squares (OLS) estimator for `\(\beta\)`:
+`$$Cov(Y,X) = E[YX] - E[Y]E[X]$$`
+and
+`$$\text{If} \quad E[U]=0$$`
+then 
+`$$Cov(U,X) = E[UX] - E[U]E[X] = E[UX] - 0$$`
+
+--
+
+And note that the simple linear regression model `\(y = \beta_0 + \beta_1 x + u\)` implies that:
+`$$u = y - \beta_0 - \beta_1 x$$`
+
+
+---
+
+class: MSU
+# OLS in 1 variable
+
+### Since `\(u = y - \beta_0 - \beta_1 x\)`:
+Let's write Assumption 1 and Assumption 2 using expectations of the [regression model from before](#regEqn)
+- `\(E[U]=0 \Rightarrow E[(y - \beta_0 - \beta_1 x)] = 0\)`
+- `\(E[U|X] = 0 \Rightarrow E[x(y - \beta_0 - \beta_1 x)] = 0\)`
+  - To see this, picture any expected value of `\(x\)`. Now, multiply it by `\(0\)`.
+
+
+- How many equations?
+
+- How many unknowns?
+
+
+## Let's solve for `\(\beta\)`. To the board!
+
+--
+
+These are *moments*, and this way of deriving `\(\beta\)` is known as "method of moments".
+
+---
+
+class: MSU
+
+# OLS in 1 variable
+
+What we just derived on the board depends on **population** moments: `\(Cov(Y,X)\)` and `\(Var(Y,X)\)`.
+
+But, just as before when we didn't know `\(\mu\)` but we could calculate `\(\bar{y}\)` (and we even know something about the distribution of `\(\bar{y}\)`)...
+
+--
+
+...we can calculate sample values for `\(Cov(y,x)\)` and `\(Var(x)\)`
+
+---
+class: MSU
+# OLS in 1 variable
+
+First, let's tackle the *estimate* of `\(\beta_0\)`.
+- We know, from the board, that `\(\beta_0=E[y] - \beta_1 E[x]\)`
+- We have a good, unbiased sample estimator for `\(E[y]\)`: `\(\bar{y}\)`.
+- And we have a good, unbiased sample estimator for `\(E[X]\)`: `\(\bar{x}\)`
+  - `\(\bar{y} = \hat{\beta_0} + \hat{\beta_1}\bar{x}\)`
+  
+The hats stand for (sample) estimates! We don't observe `\(\beta_0\)`, but we can estimate it.
+This is very common notation.
+
+---
+
+class: MSU
+# OLS in 1 variable
+
+Of course, we still have to calculate `\(\hat{\beta_1}\)`.
+
+We know how to calculate the sample covariance:
+- `\(\widehat{Cov}(Y,X) = \frac{1}{N-1} \sum_{i=1}^{N} (x_i - \bar{x})(y_i - \bar{y})\)`
+
+We know how to calculate the sample variance:
+- `\(\widehat{Var}(X) = \frac{1}{N-1} \sum_{i=1}^{N} (x_i - \bar{x})^2\)`
+
+`$$\hat{\beta}_1 = \frac{\widehat{Cov}(Y,X)}{\widehat{Var}(X)} = \frac{\frac{1}{N-1} \sum_{i=1}^{N} (x_i - \bar{x})(y_i - \bar{y})}{\frac{1}{N-1} \sum_{i=1}^{N} (x_i - \bar{x})^2}$$`
+
+--
+
+What is important here is that **these are all observable in the data, and you know how to calculate them**. You know how to calculate `\(\bar{x}\)` and `\(\bar{y}\)`, you know how to sum things, and you know `\(x_i\)` and `\(y_i\)` in the data.
+
+**As long as your assumptions hold**, you have an estimate of the PRF.
+
+---
+
+class: MSU
+
+# OLS in 1 varible
+
+So let's "regress x on y" in groups with a very small N:
+
+.pull-left[
+&lt;table class="table table-striped" style="margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt;   Y   &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt;   X   &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;width: 10em; "&gt; 1.7 &lt;/td&gt;
+   &lt;td style="text-align:center;width: 10em; "&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;width: 10em; "&gt; 5.8 &lt;/td&gt;
+   &lt;td style="text-align:center;width: 10em; "&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;width: 10em; "&gt; 0.0 &lt;/td&gt;
+   &lt;td style="text-align:center;width: 10em; "&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;width: 10em; "&gt; -1.8 &lt;/td&gt;
+   &lt;td style="text-align:center;width: 10em; "&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;width: 10em; "&gt; 4.1 &lt;/td&gt;
+   &lt;td style="text-align:center;width: 10em; "&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+ 
+&lt;img src="figs/exampleOLSplot-1.png" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right[
+- Calculate `\(\bar{x}\)`
+- Calculate `\(\bar{y}\)`
+- Then, calculate each `\(x_i - \bar{x}\)`
+  - Then square each of them
+- Calculate each `\(y_i - \bar{y}\)`
+- Calculate each `\((y_i - \bar{y})(x_i - \bar{x})\)`
+]
+
+
+---
+class: clear
+count: false
+---
+class: MSU
+# OLS in 1 variable
+
+&lt;img src="figs/exampleOLSPlot2-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+The red line is the *sample regression function*, or *SRF*.
+
+--
+
+Why is it the "sample" regression function?
+
+
+
+
+---
+class: MSU
+# OLS in 1 variable
+
+A couple important terms:
+- The **fitted value**, `\(\hat{y}_i = \hat{\beta_0} + \hat{\beta_1}x_i\)`
+- The **residual**, `\(\hat{u}_i = y_i - \hat{y}_i = y_i - \hat{\beta}_0 - \hat{\beta}_1 x_i\)`
+
+And note that:
+- `\(y_i = \hat{\beta_0} + \hat{\beta_1}x_i + \hat{u}_i\)`
+  - The `\(\hat{u}_i\)` "trues up" the fitted value.
+--
+
+
+Note that the residual is not the same as the error term. 
+- The residual is an empirical estimate from the sample
+- The error term, `\(u_i\)`, is different
+
+---
+class: MSU
+# OLS in 1 variable
+
+What's inside the error term?
+
+In `\(u_i\)`
+- Omitted variables
+  - There might be another covariate, `\(x_2\)`, that is missing.
+- Measurement error
+  - That `\(x\)` might not be correctly measured.
+- Non-linearities
+  - Maybe there are some non-linear effects included in there.
+  
+These are all in `\(u_i\)`.
+
+`$$y_i = \beta_0 + \beta_1 x_1 + \underbrace{\beta_1 (x^*_1 - x_1) + \beta_2 x_{omitted} + f(nonlinears) + \tilde{u}_i }_{\text{other things, u}}$$`
+
+Our estimator, `\(\hat{\beta}\)` assumes alllllll these things are 0 in expectation, no matter the value of `\(x\)`
+
+---
+class: MSU
+# OLS in 1 variable
+
+&lt;div class="figure" style="text-align: center"&gt;
+&lt;img src="../graphics/Wooldridge/Figure 2-4.jpg" alt="Wooldridge Fig. 2.4" width="90%" /&gt;
+&lt;p class="caption"&gt;Wooldridge Fig. 2.4&lt;/p&gt;
+&lt;/div&gt;
+
+---
+
+class: MSU
+
+# OLS in 1 variable
+
+
+```
+## `geom_smooth()` using formula 'y ~ x'
+```
+
+&lt;div class="figure" style="text-align: center"&gt;
+&lt;img src="figs/exampleFit-1.png" alt="Regression line for wage2 data" width="90%" /&gt;
+&lt;p class="caption"&gt;Regression line for wage2 data&lt;/p&gt;
+&lt;/div&gt;
+
+
+---
+
+class: MSU
+# OLS in 1 variable
+
+It will always be the case that, for any estimates `\(\beta\)` from a sample:
+- `\(\sum_{i=1}^N (\hat{u}_i) = 0\)`
+- `\(\sum_{i=1}^N (x_i \hat{u}_i) = 0\)`
+- The point `\((\bar{y}, \bar{x})\)` is always on the regression line
+
+
+---
+
+class: MSU 
+# Descriptive Analysis vs. Causal
+
+In a mathematical sense, we can always calculate a `\(\beta\)` such that `\(\bar{u} = 0\)` for all values of `\(x\)`.
+
+But what might throw us off is if there is something else unobserved, `\(w\)`, that is "in the error term".
+- What is "in the error term?"
+  - Everything in the world that isn't `\(educ\)`
+
+  
+--
+
+For our example, let's think about `\(a=ability\)`.
+- Since `\(ability\)` is unobserved, it is "in the error term"
+- `\(ability\)` is also pretty correlated with `\(educ\)` (high ability people go to college)
+- In a way, we're attributing the causal effect of `\(ability\)` to `\(educ\)`
+- So, `\(E[u | educ = high]&gt;0\)`
+  - The unobserved error term, `\(u\)`, is higher due to the `\(ability\)` part
+
+For now, we will work as if our assumption `\(E[U|X]=0\)` is true.
+---
+
+class: MSU
+
+# Putting the "Least Squares" in OLS
+
+The "squares" part refers to the squaring of the error term.
+
+The "least" part refers to a minimzation of the (squared) error term.
+
+Let's define the **sum of squared residuals** as:
+
+`$$SSR = \sum_{i=1}^{N} \hat{u}_i^2 = \sum_{i=1}^{N} (y_i - \hat{\beta}_0 - \hat{\beta}_1 x_i)^2$$`
+
+And `\(\beta\)` is the "Least Squares" estimate if it minimizes `\(SSR\)`. How?
+
+--
+
+Take the derivative and set it equal to zero:
+
+`$$\frac{\partial SSR}{\partial \hat{\beta}_0} = 2 \sum (y_i - \hat{\beta}_0 - \hat{\beta}_1 x_i) = 0$$`
+and
+
+`$$\frac{\partial SSR}{\partial \hat{\beta}_1} = 2 \sum (y_i - \hat{\beta}_0 - \hat{\beta}_1 x_i)x_i = 0$$`
+
+---
+class: MSU
+
+# Goodness of fit
+
+## SSR, SSE, and SST
+
+We know that `\(\beta_{OLS}\)` minimizes the sum of squares. How do we measure how good of a fit we get?
+
+Define two more in addition to `\(SSR\)`:
+- Sum of Squares Total: `\(SST = \sum_{i=1}^N (y_i - \bar{y})^2\)`
+  - `\(SST\)` is a total sum of squares (notice no hats).
+- Sum of Squares Explained: `\(SSE = \sum_{i=1}^N (\hat{y}_i - \bar{y})^2\)`
+  - `\(SSE\)` can be thought of as how much is *explained* by `\(\hat{y}_i\)`, *...relative to just guessing the obvious:* `\(\bar{y}\)`
+
+---
+class: MSU
+# Goodness of fit
+
+### `\(SST = SSR + SSE\)`
+The total variance is the sum of the variance of the residuals (what isn't explained by your model) and the `\(SSE\)` (the variance that is explained).
+
+This is a *decomposition* of variance.
+
+---
+class: MSU
+
+# Goodness of fit
+
+### The `\(R^2\)` 
+
+`\(R^2\)` ('r-square') is the comparison of `\(SSE\)` to `\(SST\)`. Since `\(SSE&lt;SST\)` always, and both are always positive, `\(0&lt;R^2\leq 1\)`
+
+`$$R^2 = \frac{SSE}{SST} = 1 - \frac{SSR}{SST}$$`
+
+The `\(R^2\)` is often interpreted as the "fraction of variance explained by the model"
+- Your regression, the SRF, is a model
+- The variance being explained is the variance in the outcome, `\(y\)`.
+
+
+
+---
+
+class: MSU
+
+# Goodness of fit
+
+From earlier:
+
+&lt;div class="figure" style="text-align: center"&gt;
+&lt;img src="../graphics/Wooldridge/Figure 2-4.jpg" alt="Wooldridge Fig. 2.4" width="80%" /&gt;
+&lt;p class="caption"&gt;Wooldridge Fig. 2.4&lt;/p&gt;
+&lt;/div&gt;
+
+
+---
+
+class: MSU
+# Goodness of fit
+
+
+
+```r
+# Ynum is the column name for the outcome variable
+# X is the column name for the independent variable and ex is the name of the data frame
+summary(lm(Ynum ~ X, data=ex))
+```
+
+```
+## 
+## Call:
+## lm(formula = Ynum ~ X, data = ex)
+## 
+## Residuals:
+##       1       2       3       4       5 
+##  1.0662  0.7989 -0.6305 -0.2905 -0.9441 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)  -1.5194     0.7636  -1.990   0.1407  
+## X             2.1788     0.3818   5.707   0.0107 *
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 1.024 on 3 degrees of freedom
+## Multiple R-squared:  0.9157,	Adjusted R-squared:  0.8875 
+## F-statistic: 32.57 on 1 and 3 DF,  p-value: 0.01067
+```
+
+---
+class: MSU
+# Final notes
+
+### Terminology
+`$$y = \beta_0 + \beta_1 x + u$$`
+.pull-left[
+`\(y\)` is called
+- The dependent variable (DV)
+- The "left hand side" (LHS)
+- The outcome variable
+- The response variable
+]
+
+.pull-right[
+`\(x\)` is called
+- The independent variable
+- The "right hand side" (RHS)
+- The explanatory variable
+- The control variable
+- A covariate or a regressor
+]
+  
+  
+`\(u\)` is called
+- The residual (when `\(\hat{u}\)`)
+- The error term (when `\(u\)`)
+  
+
+---
+class: heading-slide
+
+On to transformations and functional forms!
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
