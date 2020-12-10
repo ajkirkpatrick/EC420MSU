@@ -1,0 +1,591 @@
+---
+title: "Single Variable Regression: Transformations and Functional Form"
+subtitle: "EC420 MSU Spring 2021"
+author: "Justin Kirkpatrick"
+date: "Last updated `r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    yolo: false
+    css: [default, metropolis, metropolis-fonts, "../EC420_S21.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+
+    
+---
+
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(knitr)
+library(kableExtra)
+opts_chunk$set(
+  fig.align="center",fig.height=4, #fig.width=7,# out.width="748px", #out.length="520.75px",
+  dpi=300, 
+  fig.path='figs/',  
+  warning=F,
+  message=F,
+  error=F,
+  cache=T,
+  echo=F,
+  engine.path=list(stata="C:/Program Files/Stata16/StataIC-64.exe")#, warning=F, message=F
+  )
+library(tidyverse)
+require(cowplot)
+require(ggpubr)
+require(haven)
+require(here)
+```
+
+
+layout: true
+
+<div class="msu-header"></div> 
+---
+
+class: inverseMSU
+name: Overview
+
+# This lecture  
+
+__Goal:__
+
+1. Interpretation of regression coefficients
+
+1. Re-scaling $X$
+
+1. Re-scaling $Y$
+
+1. Non-linear functional forms
+
+1. Intuition and uses of non-linear forms in economics
+
+1. Regression in R
+
+
+---
+
+class: MSU
+# Interpretation
+
+Last time, we discussed a single variable regression from Wooldridge `wage2` where $Y$ is $wage$ and $X$ is $educ$:
+
+$$wage = \beta_0 + \beta_1 educ + u$$
+
+```{r Wooldridge0k, echo=F, include=T, out.width='90%'}
+wage2 = wooldridge::wage2
+meanwage = mean(wage2$wage)
+meaneduc = mean(wage2$educ)
+covwageeduc = cov(wage2$educ, wage2$wage)
+dlm = lm(wage ~ educ, data=wage2)
+d = ggplot(wage2, aes(x = educ, y = wage)) + geom_point() + theme_bw()
+dfit = ggplot(wage2, aes(x = educ, y = wage)) + geom_point() + geom_smooth(method='lm', se=F, col='red') +  theme_bw()
+dfit
+```
+
+This resulted in a $\hat{\beta}_1 = `r round(dlm$coefficients[2], 2)`$. How do we interpret this coefficient?
+
+---
+class: MSU
+# Interpretation
+
+### Let's start with our simple linear regression model:
+where $wage$ and $educ$ are random variables
+
+$$wage = \beta_0 + \beta_1 educ + u$$
+Our PRF is:
+$$E[wage|educ] = \beta_0 + \beta_1 educ$$
+
+--
+
+- "One additional year of education is associated with a `r round(dlm$coefficients[2], 2)` increase in expected monthly earnings, all else held equal"
+
+- Why "all else held equal"? Because we have assumed that $E[U|X]=0$, so our estimate tells us how $E[Y]$ changes as $X$ *and not* $U$ changes.
+  - $U$ is held at zero
+  
+---
+class: MSU
+# Interpretation
+
+## Ceteris Paribus
+Latin for "all else held equal"
+
+----
+
+So $\hat{\beta}_1$ is 
+
+### "the increase in the expectation of $wage$ associated with a 1-unit increase in $educ$, ceteris paribus"
+
+The "all else held equal" part is very important. 
+
+---
+class: MSU
+# Interpretation
+
+```{r Wooldridgerepeat, echo=F, include=T, out.width='90%'}
+dfit
+```
+
+- $\hat{\beta}_1$ is $\frac{\Delta wage}{\Delta educ}$
+- $\hat{\beta}_1$ is the slope of the line
+  - The line is $\hat{y}_i = \hat{\beta}_0 + \hat{\beta}_1 x_i$, the $SRF$
+  
+---
+class: MSU
+
+
+.font90[
+```{r WageRout, echo=T, include=T}
+myRegression = lm(wage ~ educ, data=wage2)
+summary(myRegression)
+```
+]
+
+
+---
+class: MSU
+# Rescaling Y and X
+
+### What happens if we re-scale the dependent variable, wage?
+Maybe we have $wage$ in dollars, but want it in thousands of dollars
+<br><br>
+### We hope that it still gives us the same relationship
+Define $wage1000 = .001 \times wage$
+- Any ideas what will happen to our coefficient?
+
+
+
+---
+class: MSU
+# Rescaling Y and X
+
+```{r Wooldridge1k, echo=F, include=T, out.width='90%'}
+
+wage2$wage1000 = wage2$wage/1000
+
+dklm = lm(wage1000 ~ educ, data=wage2)
+dkfit = ggplot(wage2, aes(x = educ, y = wage1000)) + geom_point() + geom_smooth(method='lm', se=F, col='red') +  theme_bw()
+dkfit
+```
+Looks pretty similar, right? But the y-axis scale is very different.
+
+---
+class: MSU
+# Rescaling Y and X
+
+### A regression of:
+$$wage1000 = \beta_0 + \beta_1 educ + u$$
+```{r Wooldridge1kout,echo=F}
+summary(dklm)
+``` 
+
+
+---
+class: MSU
+# Rescaling Y and X
+
+$\hat{\beta}_1 = `r round(dklm$coefficients[2], 3)`$ when we use $wage1000$
+
+$\hat{\beta}_1 = `r round(dlm$coefficients[2],  2)`$ when we use $wage$.
+
+--
+
+### Re-scaling the dependent variable, *wage*, results in an equal rescaling of the coefficient. 
+
+### The relationship predicted by the *SRF* stays the same.
+
+
+---
+class: MSU
+# Rescaling Y and X
+
+### Now, let's re-scale the *independent* variable 
+- That's the "right hand side" variable, $educ$.
+
+- Let's do education in months: $educMonths = educ \times 12$
+
+--
+
+- Any predictions on what will result?
+
+---
+class: MSU
+# Rescaling Y and X
+
+```{r WooldridgeRescale2, echo=F}
+wage2$educMonths = wage2$educ*12
+dklm12 = lm(wage ~ educMonths, data=wage2)
+summary(dklm12)
+``` 
+
+### What was the result?
+
+---
+class: MSU
+# Rescaling Y and X
+
+### Re-scaling the independent variable simply rescales the coefficient by the *inverse* amount:
+- $12\times educ \Rightarrow \hat{\beta}_1^{new} = \frac{\hat{\beta}_1}{12}$
+
+--
+
+### Re-scaling the dependent variable simply rescales the coefficient on it by an equal amount:
+- $\hat{\beta}_1^{new} = \hat{\beta}_1 \times .001$
+
+--
+
+### The relationship always remains the same
+
+---
+class: MSU
+# Rescaling Y and X
+
+Let's take a look at the $R^2$ of the original regression:
+
+```{r WooldridgeRescale3, echo=F}
+summary(myRegression)
+``` 
+
+---
+class: MSU
+# Rescaling Y and X
+
+Now, the re-scaled dependent variable:
+
+```{r WooldridgeRescale4, echo=F}
+summary(dklm)
+``` 
+
+---
+class: MSU
+# Rescaling Y and X
+
+And the re-scaled independent variable:
+
+```{r WooldridgeRescale5, echo=F}
+summary(dklm12)
+``` 
+
+
+---
+class: MSU
+# Rescaling Y and X
+
+Heck, let's rescale both and look at the $R^2$
+
+```{r WooldridgeRescale6, out.width='90%', echo=F}
+summary(lm(wage1000 ~ educMonths, data=wage2))
+``` 
+
+---
+class: MSU
+# Rescaling Y and X
+
+The $R^2$ is the same in every single one!
+
+The "fraction of variance explained by the model" does not change.
+
+Intuitively, you shouldn't be able to explain more variance simply by re-scaling a variable. The relationship that holds for wages and years of education must hold for 12 x years of education as well.
+
+--
+
+Since rescaling linearly doesn't matter, we can use a scale that is easiest to interpret and to read. 
+- $wage1000$ in thousands of dollars is a lot easier to look at than the larger number we get using $wage$.
+- You often don't want to have very extreme numbers of decimal places (e.g. a coefficient of .00000051 will be a lot easier to talk about if it's in millions: 5.1)
+
+
+---
+class: MSU
+# Rescaling Y and X
+
+Now that we've seen an example, can we derive this result from the definition of $\beta_1$?
+
+$$\beta_1 = \frac{Cov(X,Y)}{Var(X)}$$
+
+$$\beta_1^{rescaled} = \frac{Cov(aX,Y)}{Var(aX)}$$
+
+Let's do this in class....
+
+
+---
+
+class: heading-slide
+
+Non-linear Functional Forms
+
+---
+class: MSU
+# Non-linear functional forms
+
+### What do we mean by "non-linear" function?
+**A function** here is any mathematical operation or transformation that takes an input (usually called $x$ ) and returns an output (usually called $y$ ).
+
+A non-linear function is any function where the graph is not a straight line.
+- "Affine transformation" is the technical term for $y = ax + b$.
+- "Non-affine transformation" is non-linear
+
+
+---
+class: MSU
+# Non-linear
+
+
+Another way of thinking about non-linear functions is that $\frac{\Delta y}{\Delta x}$ depends on the value of $x$
+<br><br>
+
+.pull-left[
+- The slope of the graph changes as $x$ changes.
+- The slope at $x_1$ (blue) is different than the slope at $x_2$ (green)
+]
+
+
+.pull-right[
+```{r nonlinearExample1, echo=F, include=T, out.width='90%'}
+par(mar = c(2,2,0,0))
+curve(exp, from=1, to=5, col='black', lwd=2)
+x1 = 3
+x2 = 4
+abline(coef=c(exp(x1) - x1*exp(x1), exp(x1)), col='blue', lwd=2)
+abline(coef=c(exp(x2) - x2*exp(x2), exp(x2)), col='green', lwd=2)
+text(x = 1, y = 25, cex=1.3, pos=4, paste0('y = e^x'))
+```
+]
+
+
+---
+class: MSU
+# Non-linear functional forms
+
+In the previous slide, we saw a non-linear function, the exponential function, $e^x$. If we wanted a model to use in a regression that includes an exponential function, we could use:
+
+$$y_i = \beta_0 + \beta_1 e^{x_i} + u_i$$
+
+Note that the value of $x_{i}$ is exponentiated.
+- So this model has a non-linear term.
+- It lets $y$ respond to changes in $x$ more flexibly
+---
+class: MSU
+# Non-linear functional forms
+
+
+- but imposes that relationship whether it is appropriate (top) or not (bottom).
+
+```{r goodNonlinearExample, echo=F, include=T, out.width='50%'}
+set.seed(092585)
+b0 = 1
+b1 = 1
+N = 1000
+df.good = data.frame(u = rnorm(N, 0, 100),
+                     x = rnorm(N, .7, 2)) %>%
+  dplyr::mutate(y = b0+ b1*exp(x) + u,
+                ylin = b0 + b1*x + u) %>%
+  dplyr::filter(x<7 & x>2)
+
+par(mar=c(2,2,0,0)) 
+plot(y~x, df.good)
+abline(lm(y~x, df.good), col='red', lwd=1)
+expfit = lm(y~exp(x), df.good)
+curve(expfit$coefficients[1]+expfit$coefficients[2]*exp(x), from=2, to=7, add=T, col='blue', lwd=2)
+```
+
+
+```{r badNonlinearExample, echo=F, include=T, out.width='50%'}
+par(mar=c(2,2,0,0))
+plot(ylin~x, df.good)
+abline(lm(ylin~x, df.good), col='red', lwd=1)
+expfit = lm(ylin~exp(x), df.good)
+curve(expfit$coefficients[1]+expfit$coefficients[2]*exp(x), from=2, to=7, add=T, col='blue', lwd=2)
+```
+
+
+
+
+
+---
+class: MSU
+# Non-linear functional forms
+
+The most common non-linear transformation is the **polynomial**
+
+$$y = \beta_0 + \beta_1 x + \beta_2 x^2 + \cdots + u$$
+
+For instance, plant growth rates over temperatures may be quadratic 
+- The *marginal effect* of an increase in temperature will be big and positive at lower temperatures.
+- The *marginal effect* of an increase in temperature will be negative at very high temperatures.
+- And somewhere in the middle, the *marginal effect* will be around zero.
+
+The *marginal effect* is another way of saying "the change in $y$ per change in $x$", or $\frac{dy}{dx}$.
+
+```{r quadraticExample, echo=F, include=T, fig.width=6, fig.height=1.4}
+df.quad = data.frame(Temperature = rnorm(N, 70, 20),
+                     u = rnorm(N, 0, 10)) %>%
+  dplyr::mutate(Growth = 0 + 3*Temperature + -.02*Temperature^2 + u)
+
+par(mar=c(2,2,0,0))
+plot(Growth ~ Temperature, df.quad)
+curve(0 + 3*x - .02*x^2, from=0, to=130, col='blue', lwd=2, add=T)
+```
+
+---
+
+class: MSU
+
+# Non-linear functional forms
+
+If we have a polynomial relationship:
+
+$$y = \beta_0 + \beta_1 x + \beta_2 x^2 + u$$
+
+Then we can obtain the slope, $\frac{dy}{dx}$ as the derivative of the relationship:
+
+$$\frac{\partial y}{\partial x} = \beta_1 + 2 \beta_2 x$$
+--
+
+
+If we propose a "higher order polynomial" relationship like:
+
+$$y = \beta_0 + \beta1 x + \beta_2 x^2 + \beta_3 x^3$$
+
+Then we get a more complicated function for the slope at any $x$:
+
+$$\frac{\partial y}{\partial x} = \beta_1 + 2 \beta_2 x + 3 \beta_3 x^2$$
+
+---
+class: MSU
+
+# Non-linear functional forms
+
+There are other possible non-linear forms: $\sqrt{x}$, the natural log, $log_{10}$, the inverse hyperbolic sine...
+
+--
+
+## Even though these specifications are non-linear transformations, the regression is still **linear-in-parameters**
+That is, all of the transformations we have discussed are still in the category of "linear models" because they are linear in the parameters.
+
+So, our $PRF$ (population regression function) is still linear, even with one of these transformations.
+---
+
+class: MSU
+# Intuition and uses in economics
+
+The quadratic specification, $y = \beta_0 + \beta_1 x + \beta_2 x^2$ is particularly useful anytime you have an effect of $x$ on $y$ that dissipates or declines with increasing values of $x$.
+
+Quick question: if the *effect* of $x$ on $y$ __declines__ as $x$ increases, then is the slope *increasing* or *decreasing* as $x$ gets larger?
+
+---
+
+class: MSU
+# Intuition and uses in economics
+
+### An example:
+
+In many cases, the effect of household income on some behavior may change as income increases. 
+- A low-income person may spend more on food when income increases
+- But a high-income person may not spend much more on food when their income increases
+  - But of course, the high-income will spend more on food than the low-income person.
+  
+We see these declining effects in many economic situations, but we also see increasing effects.
+- Installing solar panels
+- Others?
+
+--
+
+The quadratic "specification" can capture these phenomon.
+
+---
+class: MSU
+
+# Intuition and uses in economics
+
+### The natural log, $ln(x)$
+
+The natural log is the most common transformation. It is particularly useful because of the following:
+
+$$ln(1+x) \approx x \quad \text{when} \quad x \approx 0$$
+
+Let's say $x^1 = x^0 + \Delta x$.
+
+$$ln(x^1) - ln(x^0) = ln \left(\frac{x^1}{x^0} \right) = ln\left(\frac{x^0 + \Delta x}{x^0}\right) = ln\left(1 + \frac{\Delta x}{x^0}\right) \approx \frac{\Delta x}{x^0}$$
+  - This is the percent change in $x$: $\frac{\Delta x}{x}$
+  - $100 \times [ln(x^1) - ln(x^0)] \approx \%\Delta x$
+
+
+---
+class: MSU
+
+# Intuition and uses in economics
+
+### The natural log, $ln(x)$
+
+Recall the formula for *elasticity*: $\frac{\%\Delta y}{\%\Delta x} = \frac{\Delta y}{\Delta{x}} \times \frac{x}{y}$
+--
+
+
+And recall that, in a linear model ( $y = \beta_0 + \beta_1 x$ ), this elasticity is **not** constant:
+
+$$\frac{\Delta y}{\Delta{x}} \times \frac{x}{y} = \beta_1 \times \frac{x}{y} = \beta_1 \times \frac{x}{\beta_0 + \beta_1 x + u}$$
+
+---
+class: MSU
+# Intuition and uses in economics
+
+But, when a model takes the form: $ln(y) = \beta_0 + \beta_1 ln(x)$
+
+$$\frac{\%\Delta y}{\%\Delta x} \approx \frac{ln(y^1)-ln(y^0)}{ln(x^1) - ln(x^0)} = \frac{\beta_1[ln(x^1)-ln(x^0)]}{ln(x^1) - ln(x^0)} = \beta_1$$
+
+### The coefficient on a log-log model is the elasticity
+$ln(y) = \beta_0 + \beta_1 ln(x)$ results in $\beta_1$ being the elasticity of y, or "percent change in y from a 1 percent change in x".
+
+Econometrics is frequently about estimating that elasticity.
+
+---
+class: MSU
+# Regression in R
+
+### First, data
+There is a very helpful packages called "wooldridge" that you can install with `install.packages('wooldridge')`. Then, we can use R's built-in "data" function to load `wage2`
+
+```{r WoolPack1, echo=T, include=T}
+require(wooldridge)
+data(wage2) # creates a wage2 object
+print(wage2[1:5,])
+```
+
+
+
+
+
+---
+class: MSU
+# Regression in R
+
+### Second, run the regression
+We will use the `lm()` function. You will provide the regression formula and the name of the data to use. 
+
+The formula will be of the form *y ~ x*. You'll specify the data with `data = wage2`
+
+```{r WoolPack2, echo=T, include=T}
+MyRegression = lm(wage ~ educ, data=wage2)
+print(MyRegression)
+```
+
+
+---
+class: MSU
+# Regression in R
+
+### Finally, we want a little more detail. 
+`MyRegression` is an R object. We can ask R to summarize it, and R will know to give us information about the regression:
+
+---
+class: MSU
+# Regression in R
+
+
+```{r WoolPack3, echo=T, include=T}
+summary(MyRegression)
+```
+
+

@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Single Variable Regression: Transformations and Functional Form</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Justin Kirkpatrick" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../EC420_S21.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Single Variable Regression: Transformations and Functional Form
+## EC420 MSU Spring 2021
+### Justin Kirkpatrick
+### Last updated December 10, 2020
+
+---
+
+
+
+
+
+
+layout: true
+
+&lt;div class="msu-header"&gt;&lt;/div&gt; 
+---
+
+class: inverseMSU
+name: Overview
+
+# This lecture  
+
+__Goal:__
+
+1. Interpretation of regression coefficients
+
+1. Re-scaling `\(X\)`
+
+1. Re-scaling `\(Y\)`
+
+1. Non-linear functional forms
+
+1. Intuition and uses of non-linear forms in economics
+
+1. Regression in R
+
+
+---
+
+class: MSU
+# Interpretation
+
+Last time, we discussed a single variable regression from Wooldridge `wage2` where `\(Y\)` is `\(wage\)` and `\(X\)` is `\(educ\)`:
+
+`$$wage = \beta_0 + \beta_1 educ + u$$`
+
+&lt;img src="figs/Wooldridge0k-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+This resulted in a `\(\hat{\beta}_1 = 60.21\)`. How do we interpret this coefficient?
+
+---
+class: MSU
+# Interpretation
+
+### Let's start with our simple linear regression model:
+where `\(wage\)` and `\(educ\)` are random variables
+
+`$$wage = \beta_0 + \beta_1 educ + u$$`
+Our PRF is:
+`$$E[wage|educ] = \beta_0 + \beta_1 educ$$`
+
+--
+
+- "One additional year of education is associated with a 60.21 increase in expected monthly earnings, all else held equal"
+
+- Why "all else held equal"? Because we have assumed that `\(E[U|X]=0\)`, so our estimate tells us how `\(E[Y]\)` changes as `\(X\)` *and not* `\(U\)` changes.
+  - `\(U\)` is held at zero
+  
+---
+class: MSU
+# Interpretation
+
+## Ceteris Paribus
+Latin for "all else held equal"
+
+----
+
+So `\(\hat{\beta}_1\)` is 
+
+### "the increase in the expectation of `\(wage\)` associated with a 1-unit increase in `\(educ\)`, ceteris paribus"
+
+The "all else held equal" part is very important. 
+
+---
+class: MSU
+# Interpretation
+
+&lt;img src="figs/Wooldridgerepeat-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+- `\(\hat{\beta}_1\)` is `\(\frac{\Delta wage}{\Delta educ}\)`
+- `\(\hat{\beta}_1\)` is the slope of the line
+  - The line is `\(\hat{y}_i = \hat{\beta}_0 + \hat{\beta}_1 x_i\)`, the `\(SRF\)`
+  
+---
+class: MSU
+
+
+.font90[
+
+```r
+myRegression = lm(wage ~ educ, data=wage2)
+summary(myRegression)
+```
+
+```
+## 
+## Call:
+## lm(formula = wage ~ educ, data = wage2)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -877.38 -268.63  -38.38  207.05 2148.26 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  146.952     77.715   1.891   0.0589 .  
+## educ          60.214      5.695  10.573   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 382.3 on 933 degrees of freedom
+## Multiple R-squared:  0.107,	Adjusted R-squared:  0.106 
+## F-statistic: 111.8 on 1 and 933 DF,  p-value: &lt; 2.2e-16
+```
+]
+
+
+---
+class: MSU
+# Rescaling Y and X
+
+### What happens if we re-scale the dependent variable, wage?
+Maybe we have `\(wage\)` in dollars, but want it in thousands of dollars
+&lt;br&gt;&lt;br&gt;
+### We hope that it still gives us the same relationship
+Define `\(wage1000 = .001 \times wage\)`
+- Any ideas what will happen to our coefficient?
+
+
+
+---
+class: MSU
+# Rescaling Y and X
+
+&lt;img src="figs/Wooldridge1k-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+Looks pretty similar, right? But the y-axis scale is very different.
+
+---
+class: MSU
+# Rescaling Y and X
+
+### A regression of:
+`$$wage1000 = \beta_0 + \beta_1 educ + u$$`
+
+```
+## 
+## Call:
+## lm(formula = wage1000 ~ educ, data = wage2)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.87738 -0.26863 -0.03838  0.20705  2.14826 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 0.146952   0.077715   1.891   0.0589 .  
+## educ        0.060214   0.005695  10.573   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.3823 on 933 degrees of freedom
+## Multiple R-squared:  0.107,	Adjusted R-squared:  0.106 
+## F-statistic: 111.8 on 1 and 933 DF,  p-value: &lt; 2.2e-16
+```
+
+
+---
+class: MSU
+# Rescaling Y and X
+
+`\(\hat{\beta}_1 = 0.06\)` when we use `\(wage1000\)`
+
+`\(\hat{\beta}_1 = 60.21\)` when we use `\(wage\)`.
+
+--
+
+### Re-scaling the dependent variable, *wage*, results in an equal rescaling of the coefficient. 
+
+### The relationship predicted by the *SRF* stays the same.
+
+
+---
+class: MSU
+# Rescaling Y and X
+
+### Now, let's re-scale the *independent* variable 
+- That's the "right hand side" variable, `\(educ\)`.
+
+- Let's do education in months: `\(educMonths = educ \times 12\)`
+
+--
+
+- Any predictions on what will result?
+
+---
+class: MSU
+# Rescaling Y and X
+
+
+```
+## 
+## Call:
+## lm(formula = wage ~ educMonths, data = wage2)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -877.38 -268.63  -38.38  207.05 2148.26 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 146.9524    77.7150   1.891   0.0589 .  
+## educMonths    5.0179     0.4746  10.573   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 382.3 on 933 degrees of freedom
+## Multiple R-squared:  0.107,	Adjusted R-squared:  0.106 
+## F-statistic: 111.8 on 1 and 933 DF,  p-value: &lt; 2.2e-16
+```
+
+### What was the result?
+
+---
+class: MSU
+# Rescaling Y and X
+
+### Re-scaling the independent variable simply rescales the coefficient by the *inverse* amount:
+- `\(12\times educ \Rightarrow \hat{\beta}_1^{new} = \frac{\hat{\beta}_1}{12}\)`
+
+--
+
+### Re-scaling the dependent variable simply rescales the coefficient on it by an equal amount:
+- `\(\hat{\beta}_1^{new} = \hat{\beta}_1 \times .001\)`
+
+--
+
+### The relationship always remains the same
+
+---
+class: MSU
+# Rescaling Y and X
+
+Let's take a look at the `\(R^2\)` of the original regression:
+
+
+```
+## 
+## Call:
+## lm(formula = wage ~ educ, data = wage2)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -877.38 -268.63  -38.38  207.05 2148.26 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  146.952     77.715   1.891   0.0589 .  
+## educ          60.214      5.695  10.573   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 382.3 on 933 degrees of freedom
+## Multiple R-squared:  0.107,	Adjusted R-squared:  0.106 
+## F-statistic: 111.8 on 1 and 933 DF,  p-value: &lt; 2.2e-16
+```
+
+---
+class: MSU
+# Rescaling Y and X
+
+Now, the re-scaled dependent variable:
+
+
+```
+## 
+## Call:
+## lm(formula = wage1000 ~ educ, data = wage2)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.87738 -0.26863 -0.03838  0.20705  2.14826 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 0.146952   0.077715   1.891   0.0589 .  
+## educ        0.060214   0.005695  10.573   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.3823 on 933 degrees of freedom
+## Multiple R-squared:  0.107,	Adjusted R-squared:  0.106 
+## F-statistic: 111.8 on 1 and 933 DF,  p-value: &lt; 2.2e-16
+```
+
+---
+class: MSU
+# Rescaling Y and X
+
+And the re-scaled independent variable:
+
+
+```
+## 
+## Call:
+## lm(formula = wage ~ educMonths, data = wage2)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -877.38 -268.63  -38.38  207.05 2148.26 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 146.9524    77.7150   1.891   0.0589 .  
+## educMonths    5.0179     0.4746  10.573   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 382.3 on 933 degrees of freedom
+## Multiple R-squared:  0.107,	Adjusted R-squared:  0.106 
+## F-statistic: 111.8 on 1 and 933 DF,  p-value: &lt; 2.2e-16
+```
+
+
+---
+class: MSU
+# Rescaling Y and X
+
+Heck, let's rescale both and look at the `\(R^2\)`
+
+
+```
+## 
+## Call:
+## lm(formula = wage1000 ~ educMonths, data = wage2)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.87738 -0.26863 -0.03838  0.20705  2.14826 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 0.1469524  0.0777150   1.891   0.0589 .  
+## educMonths  0.0050179  0.0004746  10.573   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.3823 on 933 degrees of freedom
+## Multiple R-squared:  0.107,	Adjusted R-squared:  0.106 
+## F-statistic: 111.8 on 1 and 933 DF,  p-value: &lt; 2.2e-16
+```
+
+---
+class: MSU
+# Rescaling Y and X
+
+The `\(R^2\)` is the same in every single one!
+
+The "fraction of variance explained by the model" does not change.
+
+Intuitively, you shouldn't be able to explain more variance simply by re-scaling a variable. The relationship that holds for wages and years of education must hold for 12 x years of education as well.
+
+--
+
+Since rescaling linearly doesn't matter, we can use a scale that is easiest to interpret and to read. 
+- `\(wage1000\)` in thousands of dollars is a lot easier to look at than the larger number we get using `\(wage\)`.
+- You often don't want to have very extreme numbers of decimal places (e.g. a coefficient of .00000051 will be a lot easier to talk about if it's in millions: 5.1)
+
+
+---
+class: MSU
+# Rescaling Y and X
+
+Now that we've seen an example, can we derive this result from the definition of `\(\beta_1\)`?
+
+`$$\beta_1 = \frac{Cov(X,Y)}{Var(X)}$$`
+
+`$$\beta_1^{rescaled} = \frac{Cov(aX,Y)}{Var(aX)}$$`
+
+Let's do this in class....
+
+
+---
+
+class: heading-slide
+
+Non-linear Functional Forms
+
+---
+class: MSU
+# Non-linear functional forms
+
+### What do we mean by "non-linear" function?
+**A function** here is any mathematical operation or transformation that takes an input (usually called `\(x\)` ) and returns an output (usually called `\(y\)` ).
+
+A non-linear function is any function where the graph is not a straight line.
+- "Affine transformation" is the technical term for `\(y = ax + b\)`.
+- "Non-affine transformation" is non-linear
+
+
+---
+class: MSU
+# Non-linear
+
+
+Another way of thinking about non-linear functions is that `\(\frac{\Delta y}{\Delta x}\)` depends on the value of `\(x\)`
+&lt;br&gt;&lt;br&gt;
+
+.pull-left[
+- The slope of the graph changes as `\(x\)` changes.
+- The slope at `\(x_1\)` (blue) is different than the slope at `\(x_2\)` (green)
+]
+
+
+.pull-right[
+&lt;img src="figs/nonlinearExample1-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+]
+
+
+---
+class: MSU
+# Non-linear functional forms
+
+In the previous slide, we saw a non-linear function, the exponential function, `\(e^x\)`. If we wanted a model to use in a regression that includes an exponential function, we could use:
+
+`$$y_i = \beta_0 + \beta_1 e^{x_i} + u_i$$`
+
+Note that the value of `\(x_{i}\)` is exponentiated.
+- So this model has a non-linear term.
+- It lets `\(y\)` respond to changes in `\(x\)` more flexibly
+---
+class: MSU
+# Non-linear functional forms
+
+
+- but imposes that relationship whether it is appropriate (top) or not (bottom).
+
+&lt;img src="figs/goodNonlinearExample-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+
+&lt;img src="figs/badNonlinearExample-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+
+
+
+
+---
+class: MSU
+# Non-linear functional forms
+
+The most common non-linear transformation is the **polynomial**
+
+`$$y = \beta_0 + \beta_1 x + \beta_2 x^2 + \cdots + u$$`
+
+For instance, plant growth rates over temperatures may be quadratic 
+- The *marginal effect* of an increase in temperature will be big and positive at lower temperatures.
+- The *marginal effect* of an increase in temperature will be negative at very high temperatures.
+- And somewhere in the middle, the *marginal effect* will be around zero.
+
+The *marginal effect* is another way of saying "the change in `\(y\)` per change in `\(x\)`", or `\(\frac{dy}{dx}\)`.
+
+&lt;img src="figs/quadraticExample-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+class: MSU
+
+# Non-linear functional forms
+
+If we have a polynomial relationship:
+
+`$$y = \beta_0 + \beta_1 x + \beta_2 x^2 + u$$`
+
+Then we can obtain the slope, `\(\frac{dy}{dx}\)` as the derivative of the relationship:
+
+`$$\frac{\partial y}{\partial x} = \beta_1 + 2 \beta_2 x$$`
+--
+
+
+If we propose a "higher order polynomial" relationship like:
+
+`$$y = \beta_0 + \beta1 x + \beta_2 x^2 + \beta_3 x^3$$`
+
+Then we get a more complicated function for the slope at any `\(x\)`:
+
+`$$\frac{\partial y}{\partial x} = \beta_1 + 2 \beta_2 x + 3 \beta_3 x^2$$`
+
+---
+class: MSU
+
+# Non-linear functional forms
+
+There are other possible non-linear forms: `\(\sqrt{x}\)`, the natural log, `\(log_{10}\)`, the inverse hyperbolic sine...
+
+--
+
+## Even though these specifications are non-linear transformations, the regression is still **linear-in-parameters**
+That is, all of the transformations we have discussed are still in the category of "linear models" because they are linear in the parameters.
+
+So, our `\(PRF\)` (population regression function) is still linear, even with one of these transformations.
+---
+
+class: MSU
+# Intuition and uses in economics
+
+The quadratic specification, `\(y = \beta_0 + \beta_1 x + \beta_2 x^2\)` is particularly useful anytime you have an effect of `\(x\)` on `\(y\)` that dissipates or declines with increasing values of `\(x\)`.
+
+Quick question: if the *effect* of `\(x\)` on `\(y\)` __declines__ as `\(x\)` increases, then is the slope *increasing* or *decreasing* as `\(x\)` gets larger?
+
+---
+
+class: MSU
+# Intuition and uses in economics
+
+### An example:
+
+In many cases, the effect of household income on some behavior may change as income increases. 
+- A low-income person may spend more on food when income increases
+- But a high-income person may not spend much more on food when their income increases
+  - But of course, the high-income will spend more on food than the low-income person.
+  
+We see these declining effects in many economic situations, but we also see increasing effects.
+- Installing solar panels
+- Others?
+
+--
+
+The quadratic "specification" can capture these phenomon.
+
+---
+class: MSU
+
+# Intuition and uses in economics
+
+### The natural log, `\(ln(x)\)`
+
+The natural log is the most common transformation. It is particularly useful because of the following:
+
+`$$ln(1+x) \approx x \quad \text{when} \quad x \approx 0$$`
+
+Let's say `\(x^1 = x^0 + \Delta x\)`.
+
+`$$ln(x^1) - ln(x^0) = ln \left(\frac{x^1}{x^0} \right) = ln\left(\frac{x^0 + \Delta x}{x^0}\right) = ln\left(1 + \frac{\Delta x}{x^0}\right) \approx \frac{\Delta x}{x^0}$$`
+  - This is the percent change in `\(x\)`: `\(\frac{\Delta x}{x}\)`
+  - `\(100 \times [ln(x^1) - ln(x^0)] \approx \%\Delta x\)`
+
+
+---
+class: MSU
+
+# Intuition and uses in economics
+
+### The natural log, `\(ln(x)\)`
+
+Recall the formula for *elasticity*: `\(\frac{\%\Delta y}{\%\Delta x} = \frac{\Delta y}{\Delta{x}} \times \frac{x}{y}\)`
+--
+
+
+And recall that, in a linear model ( `\(y = \beta_0 + \beta_1 x\)` ), this elasticity is **not** constant:
+
+`$$\frac{\Delta y}{\Delta{x}} \times \frac{x}{y} = \beta_1 \times \frac{x}{y} = \beta_1 \times \frac{x}{\beta_0 + \beta_1 x + u}$$`
+
+---
+class: MSU
+# Intuition and uses in economics
+
+But, when a model takes the form: `\(ln(y) = \beta_0 + \beta_1 ln(x)\)`
+
+`$$\frac{\%\Delta y}{\%\Delta x} \approx \frac{ln(y^1)-ln(y^0)}{ln(x^1) - ln(x^0)} = \frac{\beta_1[ln(x^1)-ln(x^0)]}{ln(x^1) - ln(x^0)} = \beta_1$$`
+
+### The coefficient on a log-log model is the elasticity
+`\(ln(y) = \beta_0 + \beta_1 ln(x)\)` results in `\(\beta_1\)` being the elasticity of y, or "percent change in y from a 1 percent change in x".
+
+Econometrics is frequently about estimating that elasticity.
+
+---
+class: MSU
+# Regression in R
+
+### First, data
+There is a very helpful packages called "wooldridge" that you can install with `install.packages('wooldridge')`. Then, we can use R's built-in "data" function to load `wage2`
+
+
+```r
+require(wooldridge)
+data(wage2) # creates a wage2 object
+print(wage2[1:5,])
+```
+
+```
+##   wage hours  IQ KWW educ exper tenure age married black south urban sibs
+## 1  769    40  93  35   12    11      2  31       1     0     0     1    1
+## 2  808    50 119  41   18    11     16  37       1     0     0     1    1
+## 3  825    40 108  46   14    11      9  33       1     0     0     1    1
+## 4  650    40  96  32   12    13      7  32       1     0     0     1    4
+## 5  562    40  74  27   11    14      5  34       1     0     0     1   10
+##   brthord meduc feduc    lwage
+## 1       2     8     8 6.645091
+## 2      NA    14    14 6.694562
+## 3       2    14    14 6.715384
+## 4       3    12    12 6.476973
+## 5       6     6    11 6.331502
+```
+
+
+
+
+
+---
+class: MSU
+# Regression in R
+
+### Second, run the regression
+We will use the `lm()` function. You will provide the regression formula and the name of the data to use. 
+
+The formula will be of the form *y ~ x*. You'll specify the data with `data = wage2`
+
+
+```r
+MyRegression = lm(wage ~ educ, data=wage2)
+print(MyRegression)
+```
+
+```
+## 
+## Call:
+## lm(formula = wage ~ educ, data = wage2)
+## 
+## Coefficients:
+## (Intercept)         educ  
+##      146.95        60.21
+```
+
+
+---
+class: MSU
+# Regression in R
+
+### Finally, we want a little more detail. 
+`MyRegression` is an R object. We can ask R to summarize it, and R will know to give us information about the regression:
+
+---
+class: MSU
+# Regression in R
+
+
+
+```r
+summary(MyRegression)
+```
+
+```
+## 
+## Call:
+## lm(formula = wage ~ educ, data = wage2)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -877.38 -268.63  -38.38  207.05 2148.26 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  146.952     77.715   1.891   0.0589 .  
+## educ          60.214      5.695  10.573   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 382.3 on 933 degrees of freedom
+## Multiple R-squared:  0.107,	Adjusted R-squared:  0.106 
+## F-statistic: 111.8 on 1 and 933 DF,  p-value: &lt; 2.2e-16
+```
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

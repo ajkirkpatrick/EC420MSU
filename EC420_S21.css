@@ -26,6 +26,7 @@
 }
 
 
+
 .inverseMSU h2, .inverseMSU h3{
   color: white;}
   
@@ -81,6 +82,10 @@
 
 .font300 {
   font-size: 300%;
+}
+
+.font80 {
+  font-size: 80%%;
 }
 
 
@@ -163,10 +168,12 @@ content: "";
   float: left;
   width: 63%;
 }
+
 .less-right {
   float: right;
   width: 31%;
 }
+
 .more-right ~ * {
   clear: both;
 }
@@ -178,6 +185,9 @@ color: red;
 .blue {
   color: blue;
 }
+
+
+
 
 table {
  padding: 10px
