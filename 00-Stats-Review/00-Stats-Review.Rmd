@@ -115,6 +115,26 @@ Random Variables
 class: MSU
 # Random variables
 
+#### We are starting with the concept of a *random variable* because most of what we're interested in is not perfectly constant in the real world
+  - Wage, life expectancy, elasticity
+
+Think about an MSU graduate's wages:
+- Solid guess could be $45k per yr after graduation
+- But surely not every graduate makes $45k per yr
+- Maybe econ is $50k vs. $<$ insert oft-derided degree here $>$ at $40k
+- Even knowing degree, still don't know wage perfectly!
+
+$\rightarrow$ **Wage is a random variable when we look across graduates!**
+--
+
+
+So we can say "Alright, I don't know exactly what a graduate's wage will be, but what can we learn about it?"
+
+---
+class: MSU
+# Random Variables
+
+
 ## Wooldridge defines a random variable as
 
 "_...one that takes on numerical values and has an outcome that is determined by an experiment._"
