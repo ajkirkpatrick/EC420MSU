@@ -201,10 +201,11 @@ A random variable is discrete if it can take on only a finite or countably infin
  
  
 ---
-class: title-slide
+class: heading-slide
 name: sample-v-population
 
 Sample vs. Population
+
 ---
 class: MSU
 # Sample vs. Population
