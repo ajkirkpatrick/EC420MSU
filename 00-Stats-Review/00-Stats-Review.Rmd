@@ -65,23 +65,23 @@ __Goal:__ Refresh or catch up on statistical concepts relevant to econometrics.
 
 0. Selected questions from D2L
 
-1. Random variables
+1. [Random variables](#random-variables)
 
-3. Sample vs. Population
+3. [Sample vs. Population](#sample-v-population)
 
-2. Probability density functions (PDF/PMF, CDF)
+2. [Probability density functions](#probability-density-functions) (PDF/PMF, CDF)
 
-4. Mean, variance (in population, in sample)
+4. [Mean, variance](#mean-variance) (in population, in sample)
 
-5. Correlation, independence, mean independence, iid
+5. [Correlation, independence, mean independence, iid](#correlation)
 
 --
 
-6. Types of distributions (normal, uniform, student-t, $\chi^2$, bernoulli, poisson)
+6. [Types of distributions](#types-of-distributions) (normal, uniform, student-t, $\chi^2$, bernoulli, poisson)
 
-7. Statistical inference
+7. [Statistical inference](#statistical-inference)
 
-8. Useful functions and properties
+8. [Useful functions and properties](#useful-functions)
 
 
 ---
@@ -107,6 +107,7 @@ Stats Review!
 
 ---
 class: heading-slide
+name: random-variables
 
 Random Variables
 
@@ -179,7 +180,11 @@ A random variable is discrete if it can take on only a finite or countably infin
 <sup>*</sup> $\in$ = "in"]
  
  
- 
+---
+class: title-slide
+name: sample-v-population
+
+Sample vs. Population
 ---
 class: MSU
 # Sample vs. Population
@@ -299,13 +304,13 @@ Please make sure you are comfortable with the difference.
 
 ---
 class: heading-slide
+name: probability-density-functions
 
 Probability density functions
 
 
 ---
 class: MSU
-
 # PDF and CDF
 
 ## _Probability density function_
@@ -408,6 +413,7 @@ Let's look at those. But first, we'll define their sample equivalents.
 
 ---
 class: heading-slide
+name: mean-variance
 
 Mean, variance
 
@@ -647,7 +653,6 @@ __Note the $N-1$ in the denominator! This corrects for the fact that $\bar{x}$ i
 
 ---
 class: MSU
-
 # Mean, variance
 
 ### We can write the variance using expectations as well:
@@ -717,45 +722,13 @@ lv
 
 ---
 class: heading-slide
+name: correlation
 
-Leave-off point.
-
----
-class: MSU
-# Last week
-
-### Random variables
-- "The map is not the territory"
-- Described by their distribution
-  - PDF/PMF (Probability Density/Mass Function)
-  - CDF (Cumulative Density Function)
-  - Expected Value (Mean)
-  - Variance
-  - E and Var are derived from PDF/CDF
+Correlation, independence, mean independence, iid
 
 ---
 class: MSU
-# Last week
-
-
-### Population vs. Sample
-- Population statistic is what we're interested in
-  - $\mu$ is the population mean
-  - $E[X] = \mu_X$
-  - $\sigma^2$ is the population variance
-  - $Var[X] = \sigma^2$
-- We **do not get to observe the population or any of its statistics**
-- But we have realizations of the random variable (RV)
-  - RV $X$ has realizations $\{x_1, x_2, x_3, \cdots\}$
-  - And with those realizations, we can calculate *sample mean* and *sample variance*
-  - *Sample variance* has $\frac{1}{N-1}$ correction
-
-We use greek letters like $\mu$ for (unobservable) population statistics
-- And they have non-greek sample analogs like $\bar{x}$
-   
----
-class: MSU
-# Covariance, correlation
+# Covariance, correlation...
 
 We may be interested in how **two random variables** behave together.
 - Income and age
@@ -779,7 +752,7 @@ class: MSU
 
 ---
 class: MSU
-# Covariance, correlation
+# Covariance, correlation...
 
 ## Let's define **Covariance** between $X$ and $Y$
 
@@ -803,8 +776,7 @@ Covariance is a measure of how closely two RV's track each other.
 
 ---
 class: MSU
-
-# Covariance, correlation
+# Covariance, correlation...
 
 ### With some algebra, we can also write covariance as:
 
@@ -872,7 +844,6 @@ When two RVs are added to each other, their covariance must be included when cal
 ---
 
 class: MSU
-
 # Covariance, correlation
 
 Now that we've looked at covariance using the $Cov(X,Y)$ notation, what about in probability distribution function?
@@ -889,7 +860,6 @@ So in the joint pdf, you'll see both $x$ and $y$.
 ---
 
 class: MSU
-
 # Independence of RVs
 
 This bring us to **independence** of random variables, which will be extra-important in this class.
@@ -1017,6 +987,7 @@ Since they all have the same mean (same distribution), then we can say something
 
 ---
 class: heading-slide
+name: types-of-distributions
 
 Types of distributions
 
@@ -1155,11 +1126,11 @@ F is distributed F with $k_1$, $k_2$ degrees of freedom.
 The F-distribution is useful when you are testing the ratio of two Chi-squared distributions.
 
 ---
-class:inverseMSU
+class: heading-slide
+name: statistical-inference
 
-.font400[Statistical inference]
+Statistical inference
 
-.footnote[Many thanks to Prof. Herriges for the basis for this section]
  
 ---
 class: MSU
@@ -1720,8 +1691,14 @@ Some useful examples from Wooldridge
 
 
 ---
-class: MSU
+class: heading-slide
+name: useful-functions
 
+Useful functions and properties
+
+
+---
+class: MSU
 # Useful functions and properties
 
 We will cover:
