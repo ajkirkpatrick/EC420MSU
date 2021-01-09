@@ -93,13 +93,16 @@ Questions from last week
 class: MSU
 # Class Business
 
-### Some of the most common questions re: the class from your cards on Monday
-- Will we go over R?
+### Before we get started, it's reading week. What should we read?
 
-  - Most definitely. I will post instructions on installing R and Rstudio, and you will take a tutorial as part of your first problem set. 
+- These slides, which will form our first lecture
 
+- As the syllabus states, Appendix A-C of your Wooldridge book
 
-
+- **The three videos on R and Rstudio posted to D2L**
+  
+  - We lost some time to reading week, and we will make some of it up by getting started with *R* earlier.
+    
 ---
 class: heading-slide
 
@@ -1944,3 +1947,12 @@ Now is the time to ask questions. Now is the time to say where you got lost.
 --
 
 Come and talk to me during office hours and we can work through them until you're comfortable.
+
+
+```{r outputDecktape, include=F, eval=F}
+
+xaringan::decktape(file = '00-Stats-Review.html',
+                   output = '00-Stats-Review.pdf',
+                   docker = F)
+
+```
