@@ -1959,8 +1959,13 @@ Come and talk to me during office hours and we can work through them until you'r
 
 ```{r outputDecktape, include=F, eval=F}
 
-xaringan::decktape(file = '00-Stats-Review.html',
+
+require(pagedown)
+pagedown::chrome_print(input = 'https://ajkirkpatrick.github.io/EC420MSU/00-Stats-Review/00-Stats-Review.html',
                    output = '00-Stats-Review.pdf',
-                   docker = F)
+                   #wait = 3,
+                   timeout = 300,
+                   format = 'pdf')
+
 
 ```
