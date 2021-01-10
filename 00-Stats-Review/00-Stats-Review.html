@@ -16,7 +16,7 @@ class: center, middle, inverse, title-slide
 # Stats Review
 ## EC420 MSU
 ### Justin Kirkpatrick
-### Last updated January 09, 2021
+### Last updated January 10, 2021
 
 ---
 
@@ -134,7 +134,7 @@ We label these using lower-case: `\(x\)`
 
 --
 
-And when we have multiple realizations of a RV, we can label them: `\(\{x_1, x_2, x_3\} = \{2, 3, 6\}\)`
+And when we have multiple realizations of a RV, we can label them: `\(\{x_1, x_2, x_3\} = \{3, 6, 4\}\)`
 
 
 ---
@@ -335,7 +335,7 @@ class: MSU
 # PDF and CDF
 
 ## A PDF
-&lt;img src="figs/normalex-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="00-Stats-Review_files/figure-html/normalex-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 ---
 class: MSU
 # PDF and CDF
@@ -365,13 +365,13 @@ class: MSU
 
 # An example
 
-&lt;img src="figs/distributionexample-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="00-Stats-Review_files/figure-html/distributionexample-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 class: MSU
 # Another example
 
-&lt;img src="figs/distributionexample2-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="00-Stats-Review_files/figure-html/distributionexample2-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 class: MSU
@@ -676,7 +676,7 @@ class: MSU
 Low variance is `\(\sigma^2 = 1\)`; high variance is `\(\sigma^2 = 16\)`.
 Both means are zero.
 
-&lt;img src="figs/exVariance1-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="00-Stats-Review_files/figure-html/exVariance1-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 class: heading-slide
@@ -1016,7 +1016,7 @@ class: MSU
 # Types of distributions
 
 ### Standard normal pdf:
-&lt;img src="figs/standardNormalExamplePdf-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="00-Stats-Review_files/figure-html/standardNormalExamplePdf-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -1025,7 +1025,7 @@ class: MSU
 # Types of distributions
 
 ### Standard normal cdf:
-&lt;img src="figs/standardNormalExampleCdf-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="00-Stats-Review_files/figure-html/standardNormalExampleCdf-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 class: MSU
@@ -1231,7 +1231,7 @@ Now, that we have a distribution for our estimate, we can standardize it:
  
 Which implies that the now-standardized distribution of `\(\bar{Y}\)`, `\(Z\)`, looks like:
 
-&lt;img src="figs/NormalExAfter-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+&lt;img src="00-Stats-Review_files/figure-html/NormalExAfter-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 
 &lt;small&gt;The vertical lines are where `\(F_(z)=\{.025, .975\}\)`. The area under the curve between the lines is .95&lt;small&gt;
 
@@ -1306,7 +1306,7 @@ Let's call our hypothesized population mean `\(\mu_0\)`. It is the *null hypothe
 class: MSU
 # Statistical inference
 
-&lt;img src="figs/NormalExAfter2-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+&lt;img src="00-Stats-Review_files/figure-html/NormalExAfter2-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 - If the null hypothesis is correct, the black curve is the pdf ("what we'd expect to see")
 
 - If our statistic `\(\frac{\bar{y} - \mu_0}{\sigma/N}\)` is the red line, do we think we have the distribution right? 
@@ -1569,9 +1569,8 @@ Let's go back to our [example "Years to completion of a Ph.D."](#YearsExample)..
 | `\(\bar{x}\)` | 5.5 | Sample mean  |
 | `\(s^2\)` | 5.214 | Sample variance |
 | `\(\frac{s}{\sqrt{N}}\)` | 0.807 | Std. error of the mean |
-
-&lt;img src="figs/plott-1.png" width="100%" style="display: block; margin: auto;" /&gt;
 ]
+
 
 .pull-right[
 Calculate `\(t\)` from the sample:
@@ -1580,10 +1579,17 @@ Calculate `\(t\)` from the sample:
 Now, does this fall into the rejection region?
 Is it such an extreme value that it provides evidence against `\(H_0: \mu_0 = 5\)`?
 
-First, we have to define the rejection region:
+First, we have to define the rejection region: 
 - For `\(\alpha=.95\)`, `\(\pm c_{\frac{\alpha}{2}} = \pm 2.36\)`
 
 ]
+
+---
+class: MSU
+# Statistical inference
+
+&lt;img src="00-Stats-Review_files/figure-html/plott-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
 
 ---
 class: MSU
@@ -1592,14 +1598,16 @@ class: MSU
 
 ### P-values
 - An alternative approach computes the corresponding *p-value* for a test statistic
-  - The p-value is the probability of obtaining a result equal to or 'more extreme" than what was actually observed **when the null hypothesis is true**
+  - The p-value is the probability of obtaining a result equal to or "more extreme" than what was actually observed **when the null hypothesis is true**
   - "Under the null"
   
 `$$\text{p-value} = P(|T|&gt;|t| | H_0)$$`
 
 If that probability is small, would it provide evidence *against* the null, or *for* the null?
 
---
+---
+class: MSU
+# Statistical inference
 
 In our [example](#YearsExample):
 `$$\begin{eqnarray*}
@@ -1709,7 +1717,7 @@ class: clear
 `$$\text{home price} = \beta_0 + \beta_1 \times  \text{distance to landfill} + \epsilon$$`
 
 `$$\text{home price} = 82 + 30 \times \text{distance to landfill} + \epsilon$$`
-&lt;img src="figs/lineExample2-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+&lt;img src="00-Stats-Review_files/figure-html/lineExample2-1.png" width="100%" style="display: block; margin: auto;" /&gt;
 
 
 ---
@@ -1721,7 +1729,7 @@ class: MSU
 
 Polynomials take the form `\(ax^3 + bx^2 + cx + d\)`
 
-&lt;img src="figs/polynomial-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="00-Stats-Review_files/figure-html/polynomial-1.png" style="display: block; margin: auto;" /&gt;
 
 
 ---
@@ -1767,7 +1775,7 @@ class: MSU
 - In economics, "log" almost always means "natural log"
 ]
 
-&lt;img src="figs/naturalLog-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="00-Stats-Review_files/figure-html/naturalLog-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 
 ---
 class: MSU
@@ -1823,7 +1831,7 @@ class: MSU
 - Explodes quickly with large `\(x\)`
 ]
 
-&lt;img src="figs/exponentExample-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+&lt;img src="00-Stats-Review_files/figure-html/exponentExample-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 ---
 class: inverseMSU
 

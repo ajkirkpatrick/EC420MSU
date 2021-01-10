@@ -1654,13 +1654,8 @@ Let's go back to our [example "Years to completion of a Ph.D."](#YearsExample)..
 | $\bar{x}$ | 5.5 | Sample mean  |
 | $s^2$ | 5.214 | Sample variance |
 | $\frac{s}{\sqrt{N}}$ | 0.807 | Std. error of the mean |
-
-```{r plott, include=T, echo=F, out.width='100%', message=F}
-visualize.t(stat = round(qt(c(.025, .975), df=7), 2), section='tails', df=7)
-abline(v = round((ybar - 5)/se, 4))
-text(x = round((ybar - 5)/se, 4), y = .35, , pos=4, labels=paste0('t=',round((ybar - 5)/se, 4)))
-```
 ]
+
 
 .pull-right[
 Calculate $t$ from the sample:
@@ -1669,10 +1664,21 @@ $$t = \frac{\bar{y}-\mu_0}{se(\bar{y})} = \frac{`r ybar` - 5}{`r se`} = `r round
 Now, does this fall into the rejection region?
 Is it such an extreme value that it provides evidence against $H_0: \mu_0 = 5$?
 
-First, we have to define the rejection region:
+First, we have to define the rejection region: 
 - For $\alpha=.95$, $\pm c_{\frac{\alpha}{2}} = \pm 2.36$
 
 ]
+
+---
+class: MSU
+# Statistical inference
+
+```{r plott, include=T, echo=F, out.width='100%', message=F}
+visualize.t(stat = round(qt(c(.025, .975), df=7), 2), section='tails', df=7)
+abline(v = round((ybar - 5)/se, 4))
+text(x = round((ybar - 5)/se, 4), y = .35, pos=4, labels=paste0('t=',round((ybar - 5)/se, 4)))
+```
+
 
 ---
 class: MSU
@@ -1681,14 +1687,16 @@ class: MSU
 
 ### P-values
 - An alternative approach computes the corresponding *p-value* for a test statistic
-  - The p-value is the probability of obtaining a result equal to or 'more extreme" than what was actually observed **when the null hypothesis is true**
+  - The p-value is the probability of obtaining a result equal to or "more extreme" than what was actually observed **when the null hypothesis is true**
   - "Under the null"
   
 $$\text{p-value} = P(|T|>|t| | H_0)$$
 
 If that probability is small, would it provide evidence *against* the null, or *for* the null?
 
---
+---
+class: MSU
+# Statistical inference
 
 In our [example](#YearsExample):
 $$\begin{eqnarray*}
