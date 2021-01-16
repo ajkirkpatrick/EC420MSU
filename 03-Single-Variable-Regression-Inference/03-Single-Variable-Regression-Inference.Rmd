@@ -329,7 +329,7 @@ Hooray, our estimator, $\hat{\beta}_1$ is unbiased, and we know it is distribute
 
 ---
 class: MSU
-# Expectation of the estiamte
+# Expectation of the estimate
 
 $E[\hat{\beta}_0]=\beta_0$ is shown in Wooldridge 2.5a.
   - " $\hat{\beta}_0$ is an unbiased estimator of $\beta_0$ "
@@ -492,14 +492,16 @@ class: MSU
 # Variance of the estimate
 
 
-```{r WooldridgeHomoskedasticity, echo=F, include=T, fig.cap='Homoskedasticity (from Wooldridge)', out.width='85%'}
+```{r WooldridgeHomoskedasticity, echo=F, include=T, fig.cap='Homoskedasticity (from Wooldridge)', fig.align = 'c', out.width='85%'}
 include_graphics('../graphics/Wooldridge/Figure 2-8.jpg')
 ```
 
 ---
 class: MSU
 # Variance of the estimate
-```{r WooldridgeHeteroskedasticity, echo=F, include=T, fig.cap='Heteroskedasticity (from Wooldridge)', out.width='85%'}
+
+
+```{r WooldridgeHeteroskedasticity, echo=F, include=T, fig.cap='Heteroskedasticity (from Wooldridge)', fig.align = 'c', out.width='85%'}
 include_graphics('../graphics/Wooldridge/Figure 2-9.jpg')
 ```
 
@@ -508,7 +510,7 @@ include_graphics('../graphics/Wooldridge/Figure 2-9.jpg')
 class: MSU
 
 .pull-left[
-```{r exampleRegression1, echo=F, include=T}
+```{r exampleRegression1, echo=F, include=T, out.width='95%'}
 beta0 = 4
 beta1 = 2
 df = data.frame(ID = 1:5,
@@ -525,7 +527,7 @@ covXY = cov(df$Outcome, df$Dose)
 
 lm1 = lm(Outcome ~ Dose, df)
 
-knitr::kable(df %>% dplyr::select(ID, Outcome, Dose), align='c') %>%
+knitr::kable(df %>% dplyr::select(ID, Outcome, Dose), align='c', format = 'latex') %>%
   as_image(file='../graphics/exRegression.png')
 ```
 ]
@@ -538,7 +540,6 @@ knitr::kable(df %>% dplyr::select(ID, Outcome, Dose), align='c') %>%
 | $SST_y = \sum (y_i - \bar{y})^2$   | `r SSTY` |
 | $SST_x = \sum (x_i - \bar{x})^2$   | `r SSTX` |
 | $\sum (y_i - \bar{y})(x_i - \bar{x})$ | `r SXY` |
-| 
 ]
 
 ----
@@ -609,19 +610,19 @@ summary(lm(Outcome ~ Dose, data = df))
 
 
 ```{r outputChromePrint, eval=F}
-
-require(pagedown)
-pagedown::chrome_print(input = gsub(pattern = '\\.Rmd', replacement = '.html', rstudioapi::getSourceEditorContext()$path),
-                   output = gsub(pattern = '\\.Rmd', replacement = '.pdf', basename(rstudioapi::getSourceEditorContext()$path)),
-                   #wait = 3,
-                   timeout = 300,
-                   format = 'pdf')
-
-# pagedown::chrome_print(input = 'https://ajkirkpatrick.github.io/EC420MSU/00-Stats-Review/00-Stats-Review.html',
-#                    output = '00-Stats-Review.pdf',
+# 
+# require(pagedown)
+# pagedown::chrome_print(input = gsub(pattern = '\\.Rmd', replacement = '.html', rstudioapi::getSourceEditorContext()$path),
+#                    output = gsub(pattern = '\\.Rmd', replacement = '.pdf', basename(rstudioapi::getSourceEditorContext()$path)),
 #                    #wait = 3,
 #                    timeout = 300,
 #                    format = 'pdf')
+currentfile = gsub(pattern='\\.Rmd', '', basename(rstudioapi::getSourceEditorContext()$path))
+pagedown::chrome_print(input = paste0('https://ajkirkpatrick.github.io/EC420MSU/',currentfile, '/', paste0(currentfile, '.html')),
+                   output = paste0(currentfile, '.pdf'),
+                   #wait = 3,
+                   timeout = 300,
+                   format = 'pdf')
 
 ```
 
