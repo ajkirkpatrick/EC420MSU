@@ -624,5 +624,13 @@ pagedown::chrome_print(input = paste0('https://ajkirkpatrick.github.io/EC420MSU/
                    timeout = 300,
                    format = 'pdf')
 
+
+currentfile = gsub(pattern='\\.Rmd', '', (rstudioapi::getSourceEditorContext()$path))
+pagedown::chrome_print(input = paste0(currentfile, '.html'),
+                   output = paste0(basename(currentfile), '.pdf'),
+                   #wait = 3,
+                   timeout = 300,
+                   format = 'pdf')
+
 ```
 
