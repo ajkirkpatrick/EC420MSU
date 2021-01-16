@@ -23,7 +23,7 @@ d
 
 class(a)
 
-Class(c)
+class(c)
 
 
 
@@ -109,10 +109,10 @@ df[,'grade']
 df[,c(F,T,T)]
 
   # will not work:
-  df[,grade]
+  df[,asdf]
   
   # but will work:
-  theColumnName = 'grade'
+  theColumnName = c('grade','num')
   df[,theColumnName]
   
 # Column by '$'
@@ -131,7 +131,9 @@ print(df)
 
 df[,7] = 2
 print(df)
- 
+
+
+ df[,6] = 2
 df[,10] = 10 # nope!
 
 
@@ -183,6 +185,8 @@ c(df$num, df$numDiv3)
 length(df$num)
 
 NROW(df)
+NCOL(df)
+dim(df)
 
 sum(df$num)/length(df$num)
 mean(df$num)
@@ -205,3 +209,5 @@ plot(wage$educ, wage$wage)
 # File > Import Data > From Text (base)
 wage = read.csv('C:/Users/jkirk/OneDrive - Michigan State University/Teaching/EC420MSU/Example Course Folder/Getting Started II/wage_local_file.csv', stringsAsFactors = F)
 
+
+# hashtag comments
