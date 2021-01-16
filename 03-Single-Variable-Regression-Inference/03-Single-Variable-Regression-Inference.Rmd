@@ -608,14 +608,20 @@ summary(lm(Outcome ~ Dose, data = df))
 
 
 
-```{r outputChromePrint, include=F, eval=F}
+```{r outputChromePrint, eval=F}
 
 require(pagedown)
-pagedown::chrome_print(input = 'https://ajkirkpatrick.github.io/EC420MSU/00-Stats-Review/00-Stats-Review.html',
-                   output = '00-Stats-Review.pdf',
+pagedown::chrome_print(input = gsub(pattern = '\\.Rmd', replacement = '.html', rstudioapi::getSourceEditorContext()$path),
+                   output = gsub(pattern = '\\.Rmd', replacement = '.pdf', basename(rstudioapi::getSourceEditorContext()$path)),
                    #wait = 3,
                    timeout = 300,
                    format = 'pdf')
+
+# pagedown::chrome_print(input = 'https://ajkirkpatrick.github.io/EC420MSU/00-Stats-Review/00-Stats-Review.html',
+#                    output = '00-Stats-Review.pdf',
+#                    #wait = 3,
+#                    timeout = 300,
+#                    format = 'pdf')
 
 ```
 

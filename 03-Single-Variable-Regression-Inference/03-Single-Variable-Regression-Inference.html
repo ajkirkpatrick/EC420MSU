@@ -503,11 +503,11 @@ class: MSU
 .pull-right[
 | Statistic | Value |
 |:---:|:---:|
-| `\(\bar{y}\)` | 12.86 |
+| `\(\bar{y}\)` | 10.02 |
 | `\(\bar{x}\)` | 3.8 |
-| `\(SST_y = \sum (y_i - \bar{y})^2\)`   | 19.372 |
-| `\(SST_x = \sum (x_i - \bar{x})^2\)`   | 8.8 |
-| `\(\sum (y_i - \bar{y})(x_i - \bar{x})\)` | 3.96 |
+| `\(SST_y = \sum (y_i - \bar{y})^2\)`   | 95.668 |
+| `\(SST_x = \sum (x_i - \bar{x})^2\)`   | 10.8 |
+| `\(\sum (y_i - \bar{y})(x_i - \bar{x})\)` | 20.32 |
 | 
 ]
 
@@ -564,19 +564,17 @@ Check your work here:
 ## lm(formula = Outcome ~ Dose, data = df)
 ## 
 ## Residuals:
-##     1     2     3     4     5 
-## -1.40  2.05  1.35  0.95 -2.95 
+##       1       2       3       4       5 
+## -2.6148  1.5407  5.2667  0.3222 -4.5148 
 ## 
 ## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)  
-## (Intercept)  11.1500     3.2854   3.394   0.0427 *
-## Dose          0.4500     0.8163   0.551   0.6198  
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+##             Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept)    2.870      5.425   0.529    0.633
+## Dose           1.881      1.331   1.413    0.253
 ## 
-## Residual standard error: 2.421 on 3 degrees of freedom
-## Multiple R-squared:  0.09199,	Adjusted R-squared:  -0.2107 
-## F-statistic: 0.3039 on 1 and 3 DF,  p-value: 0.6198
+## Residual standard error: 4.376 on 3 degrees of freedom
+## Multiple R-squared:  0.3996,	Adjusted R-squared:  0.1995 
+## F-statistic: 1.997 on 1 and 3 DF,  p-value: 0.2525
 ```
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
