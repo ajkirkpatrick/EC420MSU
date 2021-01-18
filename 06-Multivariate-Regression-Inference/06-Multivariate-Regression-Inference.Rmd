@@ -1,0 +1,730 @@
+---
+title: "Multivariate Regression: Part 3"
+subtitle: "EC420 MSU"
+author: "Justin Kirkpatrick"
+date: "Last updated `r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    yolo: false
+    css: [default, metropolis, metropolis-fonts, ajk_css]
+    nature: 
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false 
+
+      
+
+---
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(knitr)
+library(kableExtra)
+opts_chunk$set(
+  fig.align="center",fig.height=4, #fig.width=7,# out.width="748px", #out.length="520.75px",
+  dpi=300, #fig.path='Figs/',
+  cache=T,
+  echo=F )
+library(tidyverse)
+require(cowplot)
+require(ggpubr)
+require(haven)
+require(sandwich)
+require(lmtest)
+require(plot3D)
+require(stargazer)
+require(car)
+# require(see)
+
+```
+
+layout: true
+
+<div class="msu-header"></div> 
+
+
+---
+class: inverseMSU
+name: Overview
+
+# This lecture  
+
+__Goal:__
+
+1. Review MLR.1 - MLR.6
+
+2. Testing Hypotheses about $\hat{\beta}_j$.
+
+3. Testing Hypotheses about $\hat{\beta}_j$ and $\hat{\beta}_k$
+
+4. F-test
+
+5. Testing for Heteroskedasticity
+
+---
+class: MSU
+# Review MLR.1 - MLR.6
+
+### Gauss-Markov Regression Assumptions: 
+
+| | |
+|:---:|:---|
+|MLR.1| The population, $y$ is a linear function of the parameters $x$ and $u$: $y = \beta_0 + \beta_1 x_1 + \cdots + \beta_k x_k + u$ |
+|MLR.2| The sample $(y_i, x_i): i = 1,2,\cdots,n$ follows the population model and are independent |
+|MLR.3| No multicolinearity / "full rank": $x_j$ is not a linear transformation of $x_k$ for all $j,k$. |
+|MLR.4| Zero conditional mean: $E[u \vert x_1,x_2,\cdots,x_k] = 0$ for all $x$. |
+|MLR.5| $Var[u \vert x_1, \cdots, x_k]= \sigma^2_u$ for all $x$. |  
+|MLR.6| $u$ is normally distributed ($u \sim N$)
+
+
+
+---
+class: MSU
+# Distribution of $\beta$
+
+
+### We now know that:
+  1. $E[\hat{\beta}_j] = \beta_j$ (MLR.1-MLR.4)
+  2. $Var(\hat{\beta}_j) = \frac{\sigma^2_u}{SST_{x_j}(1-R^2_j)}$ (MLR.5 or HC robust)
+  3. $\hat{\beta}_j \sim N$ (MLR.6)
+
+$\Rightarrow \hat{\beta}_j \sim N(\beta, \frac{\sigma^2_u}{SST_{x_j}(1-R^2_j)})$
+
+### Therefore
+$$\frac{\hat{\beta}_j-\beta_j}{\sqrt{\widehat{Var}(\hat{\beta}_j)}} \sim t_{N-K-1}$$
+
+---
+class: MSU
+# Distribution of $\beta$
+  
+### Most of the time, we are only interested in one hypothesis test:
+.pull-left[$$H_0: \beta_j = 0$$]
+.pull-right[$$H_a: \beta_j \neq 0$$]
+Which is a two-tailed test.
+  
+
+### This makes the test statistic:
+$$\frac{\hat{\beta}_j - 0}{\sqrt{\widehat{Var}(\hat{\beta}_j)}} = \frac{\hat{\beta}_j}{\sqrt{\widehat{Var}(\hat{\beta}_j)}} \sim t_{N-K-1}$$
+
+And Wooldridge uses $se(\hat{\beta}_j)$ as the notation for the denominator.
+
+This indicates a difference with $sd(\hat{\beta}_j)$ which is the term when we *know* $\hat{\sigma}^2_u$.
+
+
+---
+class: MSU
+# Distribution of $\beta$
+
+### The t-distribution is similar to the Normal
+
+In fact, when there are around 30 degrees of freedom, it is identical (and we don't have to worry about that estimated $\hat{\sigma}^2_u$
+
+
+### Wooldridge calls this $t_{\hat{\beta}_j}$ "the" t-statistic
+
+It is what we will use to test the null hypothesis that $\beta_j = 0$
+
+
+---
+class: heading-slide
+
+Hypothesis testing with $t$
+
+---
+class: MSU
+# Hypothesis testing - single parameter
+
+### Let's think about that "standardization" when $H_0: \beta_j=0$:
+$$t_{\beta_j} = \frac{\hat{\beta}_j - 0}{\widehat{se}(\hat{\beta}_j)}$$
+What we're doing in the numerator, $\beta_j - 0$ is looking at the difference between *what we observed*, $\hat{\beta}_j$, and what we hypothesize is the true $\beta_j$.
+
+Of course, our hypothesis is just *what we want to test* for $\beta_j$
+
+If we could ignore the randomness of $\hat{\beta}_j$, we'd just compare $\hat{\beta}_j$ with $H_0: \beta_j = 0$.
+- That is, we'd say "is $\hat{\beta}_j$ zero?"
+--
+
+### But $\hat{\beta}_j$ is random (thus, the $\hat{ }$)
+
+---
+class: MSU
+# Hypothesis testing - single parameter
+
+Let's say we have a coefficient $\hat{\beta}_j = 5$ and $se(\hat{\beta}) = 2$
+- We *know* how to calculate these from data
+
+Let's say we have a $H_0: \beta_j = 0$
+
+### Let's look at the distribution of $\hat{\beta}_j$
+```{r meanvar1, echo=F, include=T, out.width='80%'}
+xx = seq(-2, 12, length.out = 3000)
+yy = dnorm(xx, mean=5, sd=2)
+curve(dnorm(x, mean=5, sd=2), from=-2, to=12, xlab = expression(beta[j]), ylab = expression('Prob beta[j]'), lwd=2)
+abline(v = c(0, 5), col='red', lty=c(1,2))
+```
+
+The solid red line is our hypothesis. It is out in a tail, and it looks like an unlikely value to observe given our $\hat{\beta}_j$ and $se(\hat{\beta}_j)$, right?
+
+How unlikely? It's the area under that curve
+
+---
+class: MSU
+# Hypothesis testing - single parameter
+
+### We could look at how likely it is to observe such an extreme value
+- How? Well, the area under the curve tells us how likely we are to randomly draw that value from that distribution.
+- This is a **two-tailed** test (remember the null hypothesis), so we need to look at the probability of getting something that extreme on the right side as well.
+- Let's calculate just using the left side first.
+
+---
+class: MSU
+# Hypothesis testing
+
+```{r meanvar2, echo=F, include=T, out.width='80%'}
+xxl = xx[xx<0]
+yyl = yy[xx<0]
+xxr = xx[xx>10]
+yyr = yy[xx>10]
+
+curve(dnorm(x, mean=5, sd=2), from=-2, to=12, xlab = expression(beta[j]), ylab = expression('Prob beta[j]'), lwd=2)
+abline(v = c(0, 5), col='red', lty=c(1,2))
+polygon(c(xxl,0),c(yyl,min(yyl)), col='red')
+
+```
+
+The red section has total area: `r round(pnorm(0,5,2), 3)`
+
+This is the CDF of a $t_{N-K-1}$ distribution at 0.
+
+.footnote[Here I'm using N-K-1 = 300, which is very big]
+
+---
+class: MSU
+# Hypothesis testing
+
+Since this is two-tailed, we want to see the probability of getting something *as extreme* (in either direction):
+
+```{r meanvar3, echo=F, include=T, out.width='80%'}
+par(mai = c(1,1,0,1))
+curve(dnorm(x, mean=5, sd=2), from=-2, to=12, xlab = expression(beta[j]), ylab = expression('Prob beta_j'), lwd=2)
+abline(v = c(0, 5), col='red', lty=c(1,2))
+polygon(c(xxl,0),c(yyl,min(yyl)), col='red')
+polygon(c(10,xxr), c(min(yyl),yyr), col='red')
+```
+
+The red sections have total area: `r round(2*pnorm(0,5,2), 3)`
+
+The red area is the p-value for a two-tailed test.
+
+---
+class: MSU
+# Hypothesis testing-single parameter
+
+
+### The red area is the p-value. It is small because it is very unusual to observe something as extreme as 0 when $\hat{\beta}_j = 5$ and $\widehat{se}(\hat{\beta}_j)=2$
+
+We use the commonly-accepted threshold of 95%. That is, our hypothesis has to have a 5% chance *or less* of being observed in order for us to reject it.
+- This means we reject any $H_0$ if the p-value is <.05
+
+
+### Rejection region and 95% Confidence Interval
+We can also back-calculate the 95% range and look at what values would be rejected.
+
+---
+class: MSU
+# Hypothesis testing
+
+```{r meanvar4, echo=F, include=T, out.width='80%'}
+par(mai = c(1,1,0,1))
+curve(dnorm(x, mean=5, sd=2), from=-2, to=12, xlab = expression(beta[j]), ylab = expression('Prob beta_j'), lwd=2)
+ql = qnorm(.025, mean=5, sd=2)
+qr = qnorm(.975, mean=5, sd=2)
+xxl = xx[xx<ql]
+yyl = yy[xx<ql]
+xxr = xx[xx>qr]
+yyr = yy[xx>qr]
+abline(v = c(ql, qr), col='blue', lty=2)
+polygon(c(xxl,ql),c(yyl,min(yyl)), col='blue')
+polygon(c(qr,xxr), c(min(yyl),yyr), col='blue')
+```
+
+The values that form the left and right side are $5 \pm 3.92$.
+
+Each side has an area of $\frac{.05}{2}$, so they sum to $.05$
+
+### Zero lies in the blue "rejection region"
+---
+class: MSU
+# Hypothesis testing
+
+```{r meanvar4dup, echo=F, include=T, out.width='80%'}
+par(mai = c(1,1,0,1))
+curve(dnorm(x, mean=5, sd=2), from=-2, to=12, xlab = expression(beta[j]), ylab = expression('Prob beta_j'), lwd=2)
+ql = qnorm(.025, mean=5, sd=2)
+qr = qnorm(.975, mean=5, sd=2)
+xxl = xx[xx<ql]
+yyl = yy[xx<ql]
+xxr = xx[xx>qr]
+yyr = yy[xx>qr]
+abline(v = c(ql, qr), col='blue', lty=2)
+polygon(c(xxl,ql),c(yyl,min(yyl)), col='blue')
+polygon(c(qr,xxr), c(min(yyl),yyr), col='blue')
+```
+
+Where did we get $5 \pm 3.92$?
+- $\hat{\beta}_j$ was given as $5$
+- $3.92$ is the $se(\hat{\beta}_j) \times t_{crit,N-K-1}$
+  - The $se(\hat{\beta}_j)$ is from our estimate. $t_{crit,N-K-1}$ is from a table.
+
+
+---
+class: MSU
+# Hypothesis testing
+
+### These are all equivalent:
+- p-value < .05
+- The hypothesized value of $0$ lies in the rejection region
+- absolute value of the t-statistic is greater than $\sim$ 1.96
+
+They all happen when the hypothesized value is highly unlikely to occur under the $\hat{\beta}_j$ and $se(\hat{\beta}_j)$
+<br><br>
+--
+
+When "highly unlikely" things occur, we reject the $H_0$ (null hypothesis)
+
+Let's look at an example: home price and bedrooms.
+
+
+---
+class: MSU
+# Hypothesis testing
+
+```{r Regress1, echo=F, include=T}
+df = read.csv('https://people.duke.edu/~ajk41/HW2.csv', stringsAsFactors = F) # this lets you load from the web directly.
+df = df[df$homeprice<3000000,]
+df$khomeprice = df$homeprice/1000
+myOLS = lm(khomeprice ~ bedrooms, df)
+myLM = coeftest(myOLS, vcov=vcovHC(myOLS, 'HC1'))
+myLM
+stata_b1 = round(myLM[2,1],2)
+stata_se = round(myLM[2,2],2)
+```
+
+
+---
+class: MSU
+# Hypothesis testing
+
+```{r rplot1, echo=F, include=T}
+par(mai = c(1,1,0,1))
+curve(dnorm(x, mean=stata_b1, sd=stata_se), from=stata_b1-(4*stata_se), to=stata_b1 + (4*stata_se), xlab = expression(beta[bedrooms]), ylab = expression('Prob beta'), lwd=2)
+
+abline(v = c(stata_b1,0), col='red', lty=c(1,2))
+```
+
+Just eyeballing this, 0 seems to be a pretty reasonable number to observe when we have a coefficient of `r stata_b1` with a $se(\hat{\beta}_{bedrooms})$ of `r stata_se`.
+
+---
+class: MSU
+# Hypothesis testing
+
+```{r stataplot2, echo=F, include=T, out.width = '80%'}
+par(mai = c(1,1,0,1))
+curve(dnorm(x, mean=stata_b1, sd=stata_se), from=stata_b1-(4*stata_se), to=stata_b1 + (4*stata_se), xlab = expression(beta[bedrooms]), ylab = expression('Prob beta'), lwd=2)
+
+abline(v = c(stata_b1, stata_b1-(2.05*stata_se), stata_b1+(2.05*stata_se)), col=c('blue','red','red'), lty=c(1,2,2))
+abline(v= 0, col='red', lty=3)
+```
+
+Here, $t_{crit,28}=2.05$ taken from a table in Wooldridge for (.025, .975)
+- The 95% CI is $`r stata_b1` \pm t_{crit,28} \times `r stata_se`$
+- 0 is within the 95% CI, so we fail to reject $H_0: \beta_{bedrooms}=0$
+- The "rejection region" is outside of the red dotted lines
+
+$t_{crit,28}=2.05$ will be useful. Remember it.
+
+---
+class: MSU
+# Hypothesis testing
+
+```{r stataplot3, echo=F, include=T, out.width = '80%'}
+xx = seq(stata_b1-(4*stata_se), stata_b1 + (4*stata_se), length.out = 2000)
+yy = dnorm(xx, mean=stata_b1, sd=stata_se)
+
+ql = stata_b1 + qt(.025, df=28)*stata_se
+qr = stata_b1 + qt(.975, df=28)*stata_se
+
+xxl = xx[xx<ql]
+yyl = yy[xx<ql]
+
+xxr = xx[xx>qr]
+yyr = yy[xx>qr]
+
+par(mai = c(1,1,0,1))
+curve(dnorm(x, mean=stata_b1, sd=stata_se), from=stata_b1-(4*stata_se), to=stata_b1 + (4*stata_se), xlab = expression(beta[bedrooms]), ylab = expression('Prob beta'), lwd=2)
+
+polygon(c(xxl,ql),c(yyl,min(yyl)), col='red')
+polygon(c(qr,xxr), c(min(yyl),yyr), col='red')
+
+abline(v = c(stata_b1, stata_b1-(2.05*stata_se), stata_b1+(2.05*stata_se)), col=c('blue','red','red'), lty=c(1,2,2))
+abline(v= 0, col='red', lty=3)
+```
+
+Red is the *rejection region* associated with our estimates $\hat{\beta}_{bedrooms} = `r stata_b1`$ and $se(\hat{\beta}_{bedrooms}) = `r stata_se`$
+
+---
+class: MSU
+# Hypothesis testing
+
+```{r stataplot4, echo=F, include=T, out.width = '80%'}
+
+qr = stata_b1 + (stata_b1-0)
+ql = 0
+
+xxl = xx[xx<ql]
+yyl = yy[xx<ql]
+
+xxr = xx[xx>qr]
+yyr = yy[xx>qr]
+
+par(mai = c(1,1,0,1))
+curve(dnorm(x, mean=stata_b1, sd=stata_se), from=stata_b1-(4*stata_se), to=stata_b1 + (4*stata_se), xlab = expression(beta[bedrooms]), ylab = expression('Prob beta'), lwd=2)
+
+polygon(c(xxl,ql),c(yyl,min(yyl)), col='blue')
+polygon(c(qr,xxr), c(min(yyl),yyr), col='blue')
+
+abline(v = c(stata_b1,ql,qr), col=c('blue','darkblue','darkblue'), lty=c(1,2,2))
+
+tstat = (stata_b1 - 0)/(stata_se)
+pval = pt(-tstat, 28) + 1-(pt(tstat,28))
+```
+
+The area in blue is our p-value
+- It is the area to the left of 0, and to the right of the just-as-extreme equivalent to zero.
+- It is equal to $2 \times .115 = .231$.
+- This is the (HC "robust") p-value Stata gave us.
+- We *fail to reject* $H_0$ because the p-value is >.05
+
+---
+class: MSU
+# Hypothesis testing
+
+And finally, let's calculate
+$$t = \frac{\hat{\beta}_{bedrooms} - 0}{se(\hat{\beta}_{bedrooms})} = \frac{`r stata_b1` - 0}{`r stata_se`} \sim t_{N-K-1}$$
+The $t$ statistic is $1.22$
+- Our $t_{critical,N-K-1} = 2.05$ from before.
+- Our $t$-statistic is **not** larger in magnitude. We fail to reject
+
+### So we have failed to reject $H_0$:
+- Because 0 does not fall outside of the *rejection region*
+- Because 0 is within the 95% Confidence Interval
+- Because the p-value is >.05
+- Because $|t| < t_{critical, N-K-1}$
+
+
+
+### These are all equivalent, all lead to the same result.
+
+---
+class: heading-slide
+Testing restrictions and multiple parameters
+---
+class: MSU
+# Hypothesis testing
+
+### In economics, we sometimes want to test
+- $H_0: \beta_1 = \beta_2$
+- $H_A: \beta_1 > \beta_2$
+  - A one-tailed test
+  
+Let's look at how we can set this up using the hypothesis testing tools we have:
+- $H_0: \beta_1 = \beta_2$ is the same as $H_0: \beta_1 - \beta_2 = 0$
+- $H_A: \beta_1 - \beta_2>0$ follows. 
+
+Super - if we have $\hat{\beta}_1$ and $\hat{\beta}_2$, all we need is the $se(\hat{\beta}_1 - \hat{\beta}_2)$.
+- This is **not, I repeat NOT** $se(\hat{\beta}_1) - se(\hat{\beta}_2)$.
+
+---
+class: MSU
+# Hypothesis testing
+
+### The formula for the variance of the sum of two random variables
+$$Var(\hat{\beta}_1 - \hat{\beta}_2) = Var(\hat{\beta}_1) + Var(\hat{\beta}_2) - 2 Cov(\hat{\beta}_1,\hat{\beta}_2)$$
+And the $se$ is the square root of the variance.
+
+### We have not been given the $Cov(\hat{\beta}_1, \hat{\beta}_2)$
+- It is calculated by R in the variance-covariance matrix
+- We won't worry about how. Just know that it is possible
+
+### R can be asked to generate that $t$-statistic and test it
+.pseudocode[vcov(myOLS)]
+---
+class: MSU
+# Hypothesis testing
+
+The example in Wooldridge, Section 4-4:
+$$log(wage) = \beta_0 + \beta_{jc} jc + \beta_{univ} univ + \beta_{exper} exper$$
+
+We'd like to test to see if *years in junior college, jc* have the same effect on log-wages as *years in university*, controlling for experience (ceteris paribus!)
+
+We'd like to test $\beta_{jc} = \beta_{univ}$, which is:
+- $H_0: \beta_{jc} - \beta_{univ} = 0$
+- $H_A: \beta_{jc} - \beta_{univ} \neq 0$
+
+---
+class: MSU
+# Hypothesis testing
+
+We could rewrite the equation so that we get a coefficient that is equivalent to $\beta_{jc} - \beta_{univ}$:
+$$log(wage) = \beta_0 + \beta_{jc} jc + \beta_{totcollege} (univ+jc) + \beta_{exper} exper$$
+
+Since $\beta_{totcollege}$ captures both JC and University, $\beta_{jc}$ captures the difference between the two - exactly what we want to test! The $t$-stat for that coefficient is our test.
+
+But we could do it with a **linear hypothesis test**
+
+---
+class: MSU
+# Hypothesis testing
+
+Of course, R does it for us as well without re-writing the equation:
+
+    require(car)
+    myOLS = lm(wage ~ jc + univ + exper, df)
+    linearHypothesis(model = myOLS, hypothesis.matrix = "jc - univ = 0" )
+    
+This tests if the coefficient $\beta_{jc}$ is the same as $\beta_{univ}$.
+- That is, it tests if the effect of $jc$ is the same as the effect of $univ$
+- It does so by calculating the $\hat{se}(\hat{\beta}_{jc} - \hat{\beta}_{univ})$
+
+---
+class: MSU
+# Hypothesis testing
+
+Here I should add the result of a hypothesis test where beta_j = beta_k (if not the test discussed in Wooldridge's example)
+
+---
+class: heading-slide
+
+Hypothesis testing multiple linear restrictions
+
+---
+class: MSU
+# Hypothesis testing
+
+### But what if we want to know if more than one coefficient is zero?
+- Let's say we have run .pseudocode[lm(khomeprice ~ bedrooms + bathrooms + sqft, df)]
+
+- And we want to know if $\beta_{bedrooms}=\beta_{bathrooms}=0$.
+  - Are all of these coefficients *jointly* zero?
+    - Once we account for $sqft$, which is not being tested
+  - Is the effect of $bedrooms$ **and** $bathrooms$ zero **all together**.
+
+---
+clas: MSU
+# Hypothesis testing
+
+### This differs from asking about each of the separately
+- It might be that each one has no statistically significant effect, but taken together, they might jointly have some effect.
+- It is also asking if these coefficients, together, explain much of $y$.
+
+### This is a *multiple linear restriction* test (W. 4.5)
+
+We can do this in R with .pseudocode[linearHypothesis] as well.
+
+---
+class: MSU
+# Hypothesis testing
+
+```{r, echo=T, include=T}
+myOLS3 = lm(khomeprice ~ bedrooms + bathrooms + sqft, df)
+coeftest(myOLS3, vcov=vcovHC(myOLS3, 'HC1'))
+```
+
+---
+class: MSU
+# Hypothesis testing
+```{r, echo=T, include=T}
+linearHypothesis(myOLS3, c('bedrooms=0','bathrooms=0'))
+```
+
+We *fail to reject* the null hypothesis that both $\beta_{bedrooms}$ and $\beta_{bathrooms}=0$ jointly.
+
+---
+class: MSU
+# Hypothesis testing
+
+$H_0: \beta_{bedrooms}=\beta_{bathrooms}=0$
+
+$H_A: H_0$ is not true
+
+Rejecting the null hypothesis doesn't tell us which "part" of the hypothesis rejects.
+- It doesn't say that bedrooms isn't zero,
+- Or that bathrooms isn't zero.
+
+### We can think of these joint tests as *restrictions* - we are asking "do these coefficients, jointly, explain any of $y$?"
+
+---
+class: MSU
+# Hypothesis testing
+
+### Testing if a group of coefficients all *jointly* equal zero is a special situation
+Saying that $\beta_1, \beta_2$ are jointly zero is the same as saying that $\beta_1, \beta_2$ do not explain any variation in $y$.
+- If they don't explain any variation in $y$ (jointly), then *they can be left out of the model*.
+- Testing if they are jointly zero is the same as testing if you can leave them out of the regression entirely.
+
+### So how would we test this?
+---
+class: MSU
+# Hypothesis testing
+
+### Testing these "restrictions"
+
+### First, we run the *unrestricted* model:
+.pseudocode[lm(khomeprice ~ bedrooms + bathrooms + sqft, df)]
+
+Then, we take the $SSR$, the Sum of Squared Residuals
+- $\sum \hat{u}^2$. Call it $SSR_{UR}$
+- The unrestricted (UR) model also has degrees of freedom $N-K-1 = N-4-1$
+
+
+### Then, we run the *restricted* model:
+.pseudocode[lm(khomeprice ~ sqft, df)]
+
+- This is "restricted" because we are making a restrictive statement about $\beta_{bedrooms}, \beta_{bathrooms}$
+- Specifically, we are saying **that they are equal to zero** in this model!
+  - Doesn't get much more restrictive than that, does it?
+- The restricted (R) model also has degrees of freedom $N-K-1 = N-1-1$.
+
+
+---
+class: MSU
+# Hypothesis testing
+
+### We can compare the $SSR$ of each model.
+"Do the increased number of parameters (2) explain enough variance (reduce the variance of $u$) sufficiently to include them?"
+
+### What should our test do?
+- If $SSR_{R} - SSR_{UR}$ is very big, then the unrestricted model (more $\beta$'s) is more "explanatory", and that **set** of $\beta$'s are not, jointly, zero. 
+  - Our test should reject the null that $\beta_{bedrooms}=\beta_{bathrooms}=0$
+- It should account for the difference in degrees of freedom
+
+---
+class: MSU
+# Hypothesis testing
+
+### Here's our test statistic, $F$:
+$$F = \frac{\frac{(SSR_{R} - SSR_{UR})}{q}}{\frac{SSR_{UR}}{N-K-1}}$$
+Where $q$ is the **number of restrictions we are testing**. Here, it is $2$. 
+- Because we are testing $\beta_{bedrooms}=\beta_{bathrooms}=0$
+- q = $df_{R} - df_{UR}$
+
+---
+class: MSU
+# Hypothesis testing
+
+### Here's our test statistic, $F$:
+$$F = \frac{\frac{(SSR_{R} - SSR_{UR})}{q}}{\frac{SSR_{UR}}{N-K-1}}$$
+
+### F has a known distribution:
+
+If you recall (you probably don't), we introduced an $F$-distribution back in stats review.
+
+$F$ is like $t$ - it is defined only by its degrees of freedom.
+
+$F$, unlike $t$, takes *two* degrees of freedom: the numerator $(q)$and the denominator $(N-K-1)$.
+- $F\sim F_{q,N-K-1}$
+
+---
+class: MSU
+# Hypothesis testing
+
+```{r Fgraph, include=T, echo=F, out.width='50%'}
+knitr::include_graphics('../graphics/Wooldridge/Figure 4-7.jpg')
+```
+
+This is the $F_{3,60}$ distribution from Wooldridge Fig 4-7. 
+- The rejection region is always only on the right ( $SSR_{R} - SSR_{UR} > 0$ always)
+- When $SSR_R$ is big relative to $SSR_{UR}$ (the $\beta$'s being tested explain a lot, making $\hat{u}^2$ smaller), the F-stat is larger
+  - Which means it is further out to the right, closer or in the rejection region.
+  
+---
+class: MSU
+# Hypothesis testing
+
+If $F$ is big, it is more likely to be in the rejection region
+
+When $F$ is in the rejection region, we reject the $H_0: \beta_{x_1}=\beta_{x_2}=\beta_{x_3}=0$
+
+When we reject $H_0$, all of these are true:
+- Jointly, the coefficients are not all zero
+- **The unrestricted model (the one with all coefficients in it) is a better model**
+- It has sufficiently better explanatory power to justify the extra coefficients.
+
+---
+class: MSU
+# Hypothesis testing
+
+### R automatically gives us an F-stat
+It is the $F$ test where the restriction is that all $\beta$'s except the constant are 0
+- Which is saying "does this model, with all it's coefficients and RHS variable $x$'s, explain $y$ any better than just using $\beta_0$.
+--
+
+- A model with only $\beta_0$ is equivalent to just guessing $\bar{y}$, and not using *any* of the $x$'s.
+- So the $F$ test that R outputs is a test for whether or not all the coefficients (except the intercept, $\beta_0$) are zero.
+
+
+
+---
+class: MSU
+# Hypothesis testing
+
+```{r, echo=F, include=T}
+myOLS = lm(khomeprice ~ bedrooms + bathrooms + sqft, df)
+summary(myOLS)
+```
+
+
+---
+class: MSU
+# Hypothesis testing
+
+So we know
+- How to test a hypothesis about a single coefficient
+- How to test a joint hypothesis about multiple coefficients
+- How to test if many coefficients are jointly zero
+- What the $F$ test R gives us is testing:
+  - Whether or not all the coefficients, jointly, are zero
+  - Which is the same as saying whether or not all the coefficients, jointly, explain $y$ any better than just using $\beta_0$
+  
+
+---
+class: MSU
+# Testing for Heteroskedasticity
+
+### How do we know for sure
+that we should be concerned about heteroskedasticity?
+
+### Like the $F$ test for whether or not some coefficients are jointly zero, we have a test for heteroskedasticity.
+We can use it to see if we need to apply our Heteroskedasticity-consistent errors (HC)
+
+The test follows from the notion that $\sigma^2_u$ might increase **with one of our** $X$'s.
+
+---
+class: MSU
+# Testing for Heteroskedasticity
+
+### Breusch-Pagan Test for Heteroskedasticity
+
+1. Estimate our model $y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + u$
+
+2. Calculate $\hat{u}$ and $\hat{u}^2$. 
+
+3. Regress $\hat{u}^2 = \gamma_0 + \gamma_1 x_1 + \gamma_2 x_2 + v$
+
+4. Check the p-value of the $F$ statistic from this test. 
+  - If it is small, we reject the $H_0$
+  - The $H_0$ is homoskedasticity
+  - So rejecting $\rightarrow$ we have heteroskedasticity and should use HC (robust) errors
+  
+  
+### This works because we are doing a joint test for whether or not $x_1, \cdots, x_2$ explain (jointly) the magnitude (variance) of $\hat{u}$.

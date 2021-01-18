@@ -1,0 +1,681 @@
+---
+title: "Multivariate Regression: Interpretation and inference"
+subtitle: "EC420 MSU"
+author: "Justin Kirkpatrick"
+date: "Last updated `r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    yolo: false
+    css: [default, metropolis, metropolis-fonts, ajk_css]
+    nature: 
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false 
+
+      
+
+---
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(knitr)
+library(kableExtra)
+opts_chunk$set(
+  fig.align="center",fig.height=4, #fig.width=7,# out.width="748px", #out.length="520.75px",
+  dpi=300, #fig.path='Figs/',
+  cache=T,
+  echo=F
+  )
+library(tidyverse)
+require(cowplot)
+require(ggpubr)
+require(haven)
+require(plot3D)
+require(stargazer)
+require(sandwich)
+require(lmtest)
+# require(see)
+
+```
+
+layout: true
+
+<div class="msu-header"></div> 
+---
+class: inverseMSU
+# Class Business
+
+
+
+**HW2**
+- .red[Due] this Sunday Feb 16th at 11:59pm
+- I made a small update to Task 1.1(e) (changed the variables in a plot I ask you to make).
+
+**Quiz 2**
+- Average of **6.42**, Median of **7**
+- Even if you think you have a wrong number, keep going!
+
+```{r QuizStats, out.width='60%'}
+knitr::include_graphics('Quiz2Stats.png')
+```
+
+
+---
+class: inverseMSU
+name: Overview
+
+# This lecture  
+
+__Goal:__
+
+1. Review multiple regression and "partialling out"
+
+2. Review single variable inference
+  - $Var(\hat{\beta}_1)$
+  - SLR.1-SLR.4
+  - SLR.5
+
+--
+
+3. Extend to $Var(\hat{\beta}_j)$
+  - MLR.1-MLR.4
+  - MLR.5
+  - **MLR.6**
+
+4. Multicolinearity
+
+5. OLS is **B.L.U.E.**
+
+6. Heteroskedasticity
+
+---
+class: MSU
+# Last time...
+
+### Multiple regression was estimating a PRF:
+
+$$E[Y|X_1, X_2, \cdots, X_k] = \beta_0 + \beta_1 x_1 + \cdots + \beta_k x_k$$
+<br><br><br>
+
+### And a SRF:
+
+$$\hat{y}_i = \hat{\beta}_0 + \hat{\beta}_1 x_{i,1} + \cdots + \hat{\beta}_k x_{i,k}$$
+
+---
+class: MSU
+# Last time...
+
+### Extending the single variable regression, we discussed "partialling out":
+
+$$y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + u$$
+$$y = \tilde{\beta}_0 + \tilde{\beta}_1 x_1  + u \text{ (the tilde here means "bad")}$$
+Where the correct $\beta_1$ could be obtained if we "partialled out":
+
+$$x_1 = \delta_0 + \delta_1 x_2 + v$$
+$$\hat{v} = x_1 - \hat{\delta}_0 - \hat{\delta}_1 x_2$$
+and regressing on the residual: 
+
+$$y = \beta_0 + \beta_1 \hat{v} + u$$
+
+Yields a correct $\hat{\beta}_1$. 
+
+
+---
+class: MSU
+
+
+### This tells us that OLS on two variables:
+$$y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + u$$
+### is equivalent to "partialing out" each one:
+$$y = \beta_0 + \beta_1 \hat{v} + \beta_2 \hat{w} + u$$
+
+### Where:
+
+.pull-left[
+$$x_1 = \delta_0 + \delta_1 x_2 + v$$
+.center[and]
+
+$$\hat{v} = x_1 - \hat{\delta}_0 - \hat{\delta}_1 x_2$$
+
+$\hat{v}$ is correlated with $x_1$, but is not correlated with $x_2$
+
+]
+
+.pull-right[
+$$x_2 = \gamma_0 + \gamma_1 x_1 + w$$
+.center[and]
+
+$$\hat{w} = x_2 - \hat{\gamma}_0 - \hat{\gamma}_1 x_1$$
+$\hat{w}$ is correlated with $x_2$, but is not correlated with $x_1$
+
+]
+
+---
+class: MSU
+
+### Using our def. of $\hat{\beta} = \frac{\widehat{Cov}(X,Y)}{\widehat{Var}(X)}$
+
+The previous slide means:
+
+$$\hat{\beta}_1 =  \frac{\widehat{Cov}(X,Y)}{\widehat{Var}(X)} =  \frac{\widehat{Cov}(\hat{v},Y)}{\widehat{Var}(\hat{v})}$$
+
+And the same with $\hat{\beta}_2$, but with $\hat{w}$. 
+- The residuals of a first-stage regression of $x_1$ on $x_2$ and vice versa.
+
+
+
+---
+class: MSU
+# Last time...
+
+### Our $R^2$ measure still worked:
+
+$$R^2 = \frac{SSE}{SST} \in [0,1]$$
+
+Where:
+- SSE = Sum of Squared Explained = $\sum_{i=1}^n (\hat{y}_i - \bar{y})^2$<br><br>
+- SST = Sum of Squared Total = $\sum_{i=1}^n ({y}_i - \bar{y})^2$ <br><br>
+- SSR = Sum of Squared Residual = $\sum_{i=1}^n (\hat{u}_i - \bar{u})^2 =\sum_{i=1}^n \hat{u}_i^2$<br><br>
+
+
+And since $SSE + SSR = SST$, then $R^2 = \left(1 - \frac{SSR}{SST}\right)$
+
+$R^2$ gives us the fraction of total variance *explained by the model*
+
+---
+class: MSU
+# Last time (or earlier)
+
+### Gauss-Markov Assumptions for **single** variable $x$
+
+SLR.1: In the population, $y$ is a linear function of the parameters, $x$, and $u$: $y = \beta_0 + \beta_1x+u$
+
+SLR.2: the sample $(y_i, x_i): i= 1, 2, \cdots, n$ follows the population model and are independent.
+
+SLR.3: "Sample Variation in the Explanatory ( $X$ ) Variable". That is, $x_i$ is not the same for all $i$'s.
+
+SLR.4: "Zero conditional mean". $E[u|x] = 0$
+
+$\Rightarrow \hat{\beta}$ is unbiased estimate of $\beta$.
+
+--
+
+SLR.5: $Var[u|x] = \sigma^2_u$ for all $x$. (*homoskedasticity*)
+
+$\Rightarrow Var(\hat{\beta}) = \frac{\sigma^2_u}{SST_x}$
+
+
+---
+class: MSU
+# Last time (or earlier)
+
+### $Var(\hat{\beta})$ for single-variable regression:
+We took a look at $\beta$ up to this point:
+$$\hat{\beta}_1 = \beta_1 + \frac{\sum((x_i - \bar{x})u_i)}{SST_x}$$
+And then took the variance of this, noting that $Var(\beta_1)=0$ because it is a (constant) population parameter.
+
+$$\begin{equation}
+Var(\hat{\beta_1}) = \frac{1}{SST_x^2} \times Var\left[\sum(x_i - \bar{x}) u_i\right] = \frac{SST_x}{SST_x^2} \sigma^2_u = \frac{1}{SST_x}\sigma^2_u
+\end{equation}$$
+
+---
+class: MSU
+# Last time (or earlier)
+
+### And we could estimate $\sigma^2_u$:
+$$\hat{\sigma}_u^2 = \frac{1}{(N-2)} \sum_{i=1}^{N} \hat{u}_i^2 = \frac{SSR}{N-2}$$
+
+The $N-2$ is because we lost two *degrees of freedom* due to the two restrictions:
+- $\sum \hat{u} = 0$
+- $\sum \hat{u}_i x_i = 0$
+
+
+---
+class: heading-slide
+
+Variance of estimators in multiple regression
+---
+class: MSU
+# Variance of the estimator
+
+###Let's start by looking at $\sigma^2_u$
+
+### In multiple regression, we have more restrictions:
+- $\sum \hat{u} = 0$
+- $\sum \hat{u}_i x_{i,1} = 0$
+- $\sum \hat{u}_i x_{i,2} = 0$
+- $\sum \hat{u}_i x_{i,\cdots} = 0$
+
+One for each $\beta$. So, when we have $\{\beta_0,\beta_1,\beta_2 \}$, we lose 3 degrees of freedom:
+$$\hat{\sigma}_u^2 = \frac{1}{(N-3)} \sum_{i=1}^{N} \hat{u}_i^2 = \frac{SSR}{N-3}$$
+---
+class: MSU
+# Variance of the estimator
+
+#### Generalizing to $K$ variables
+- We always count 1 for $\beta_0$<br>
+- We call the number of $X$'s $K$<br>
+- We would use $\frac{1}{N-K-1}$ if there are $K$ $x$'s.<br>
+- $N$ is the number of observations in our regression. <br>
+
+If $\hat{\beta} = \{\hat{\beta}_0, \hat{\beta}_1, \hat{\beta}_2\}$
+- Then we have $N-2-1 = N-3$ degrees of freedom
+
+If $\hat{\beta} = \{\hat{\beta}_0, \hat{\beta}_1, \hat{\beta}_2, \hat{\beta}_3\}$
+- Then we have $N-3-1 = N-4$ degrees of freedom
+
+---
+class: MSU
+# Variance of the estimator
+
+Since
+
+$$\widehat{Var}(\hat{\beta}) = \frac{\hat{\sigma}^2_u}{SST_x}$$
+and
+
+$$\hat{\sigma}^2_u = \frac{SSR}{N-K-1}$$
+
+### More $X$'s (more regressors) means the denominator on $\hat{\sigma}^2_u$ gets smaller
+$\Rightarrow \hat{\sigma}^2_u$ gets **larger**
+
+$\Rightarrow \widehat{Var}(\hat{\beta})$ gets **larger**
+
+And thus our confidence intervals get larger, rejection region gets smaller, and we lose *precision*
+
+
+---
+class: MSU
+# Variance of the estimator
+
+### So we know our multivariate $\hat{\sigma}^2_u$. 
+
+### What about the rest of $\frac{\hat{\sigma}^2_u}{SST_x}$? What is $SST_x$?
+- Before, we had one $x$, so $SST_x$ was straightforward.
+- Now, we have 2 or more $x$'s.
+
+### Each $x$ has its own $SST_x$:
+$$SST_{x_k} = \sum_{i=1}^{n}(x_{i,k} - \bar{x}_k)^2$$
+Note that we are summing the $x_k$ over all $i$. 
+
+---
+class: MSU
+
+
+### $SST_x$ example
+
+.pull-left[
+
+The data:
+
+```{r SSTx}
+sstdf = data.frame(x1 = c(1,5,6),
+                   x2 = c(-2,0,2))
+
+knitr::kable(sstdf, 'html', align=c('cc'))%>% kable_styling(bootstrap_options = 'basic')
+
+```
+<br><br>
+<center>
+$\bar{x}_1 = 4$
+<br>
+$\bar{x}_2 = 0$
+
+]
+
+.pull-right[
+
+Which results in $SST_x$'s of:
+
+$SST_{x_1}$ = `r sum((sstdf$x1 - mean(sstdf$x1))^2)`
+<br>
+$SST_{x_2}$ = `r sum((sstdf$x2 - mean(sstdf$x2))^2)`
+
+]
+
+---
+class: MSU
+# Variance of the estimator
+
+### We need to make one more adjustment
+We need to account for how unique the variance in each of the $x_k$'s is.
+- Imagine if we had two $x$'s: $x_j, x_k$, but they were *almost* always the same number. 
+- Think: temperature and rainfall.
+- The estimates of the corresponding $\beta$'s: $\beta_j$ and $\beta_k$, should have a lot of variance to them because we aren't sure which is actually explaining the variation in $y$.
+
+### So, we are going to weight each $SST_{x_j}$ by $(1-R^2_j)$
+Where $R^2_j$ is the $R^2$ of the regression $x_j = \delta_0 + \delta_1 x_1 + \cdots + \delta_k x_k + v$. 
+--
+
+
+That is, we will weight it by "how well is this variable, $x_j$, explained by all the other variables"
+
+---
+class: MSU
+# Variance of the estimator
+
+### So with that weighted $SST_{x_j}$, $Var(\beta_j)$ is:
+$$Var(\hat{\beta}_j) = \frac{\sigma^2_u}{SST_{x_j} (1-R^2_j)}$$
+And we can estimate this easily:
+$$\widehat{Var}(\hat{\beta}_j) = \frac{\hat{\sigma}^2_u}{SST_{x_j} (1-\hat{R}^2_j)}$$
+
+---
+class: MSU
+# Variance of the estimator
+
+### When $R^2_j$ is high:
+- Then $x_j$ is explained almost completely by $x_1, \cdots, x_k$ (the other $x$'s)
+--
+
+- $R^2_j$ is very high
+--
+
+- $(1-R^2_j)$ is very small, close to 0
+--
+
+- $SST_{x_j}(1-R^2_j)$ is very small, close to 0
+--
+
+- And thus, $Var(\hat{\beta}_j) = \frac{\hat{\sigma}^2_u}{SST_{x_j}(1-R^2_j)}$ is **very high** when $R^2_j$ is very high. 
+  - It is division by a small number near 0
+  
+---
+class: MSU
+# Variance of the estimator
+
+### What if $x_j = x_k$?
+- What is the $R^2_j$?
+  - What is the $R^2$ of the regression: $x_j = \beta_0 + \beta_1 x_k$?
+  
+--
+
+### If $R^2_j = 1$, what is $Var(\hat{\beta}_j)$?
+--
+
+A problem, that's what it is.
+
+### When two $x$'s are perfectly correlated, you have *multicolinearity*
+- **Perfect** correlation occurs when $x_j = c + b x_k$, an *affine* transformation
+
+- Degrees farenheit and degrees celsius are a perfect example
+
+
+---
+class: MSU
+# Variance of the estimator
+
+### X degrees Farenheit to Y degrees Celsisus conversion: 
+$$(X^{\circ}F - 32) \times \frac{5}{9} = Y^{\circ}C$$
+
+```{r DegFC, echo=F, include=T, out.width='90%'}
+df = tibble(F = 0:120,
+                C = (F-32)*(5/9))
+
+plot(C ~ F, df, xlab = 'Farenheit', ylab = 'Celsius', ylim=c(-40,60), pch=18)
+```
+---
+class: clear
+
+```{r DegFCreg, echo=F, include=T, out.width='90%'}
+summary(lm(C ~ F, df))
+```
+Regression of C on F (perfect fit, **note the $R^2$**)
+
+---
+class: MSU
+# Variance of the estimator 
+
+```{r DegFCreg2, out.width='90%'}
+degdf = data.frame(y = rpois(5, 2),
+                   degC = rpois(5, 30))
+degdf$degF = degdf$degC*(9/5)+32
+
+knitr::kable(degdf, align='ccc') %>% kable_styling(bootstrap_options='bordered')
+
+```
+
+### This matrix is not *full rank*
+---
+class: MSU
+# Variance of the estimator
+
+### So the regression doesn't go so well
+```{r DegFCreg3, out.width='90%', echo=T}
+summary(lm(y ~ degC + degF, degdf))
+```
+
+
+---
+class: MSU
+# Variance of the estimator
+
+### We have a bit of a problem when two of our $x$'s are perfectly correlated.
+
+What do we do about this?
+
+### In practice, we omit one of the $x$'s
+
+--
+
+Won't this bias the result?
+- Yes and no. If they are perfectly correlated, then *one* of the $x$'s explains exactly what *both* $x$'s could explain.<br><br>
+- But we will never, ever be able to tell *which* one is causal.
+  - Think of the temperature example. 
+  - Can we tell if degrees F has an effect while degrees C doesn't?
+  - Of course not!
+  
+  
+---
+class: MSU 
+# Multiple regression assumptions
+
+### Gauss-Markov Regression Assumptions: 
+
+| | |
+|:---:|:---|
+|MLR.1| The population, $y$ is a linear function of the parameters $x$ and $u$: $y = \beta_0 + \beta_1 x_1 + \cdots + \beta_k x_k + u$ |
+|MLR.2| The sample $(y_i, x_i): i = 1,2,\cdots,n$ follows the population model and are independent |
+|MLR.3| No multicolinearity / "full rank": $x_j$ is not a linear transformation of $x_k$ for all $j,k$. |
+|MLR.4| Zero conditional mean: $E[u \vert x_1,x_2,\cdots,x_k] = 0$ for all $x$. |
+|MLR.5| $Var[u \vert x_1, \cdots, x_k]= \sigma^2_u$ for all $x$. |  
+
+
+---
+class: MSU
+# Multiple regression assumptions  
+
+### A neat thing happens when assumptions 1-5 hold
+## OLS is B.L.U.E.
+
+- **B**est
+  - Has the lowest variance
+
+- **L**inear
+  - $\beta$ is a linear function of the data (e.g. it uses $Cov(Y,X)$)
+
+- **U**nbiased
+  - Is unbiased (showed for single; holds for multiple)
+
+- **E**stimator
+
+### Of all linear, unbiased estimators, OLS is the most efficient
+
+
+---
+class: MSU
+# Distribution of the estimator
+
+### Remember what we needed for inference
+
+- $E[\hat{\beta}]=\beta$
+
+- $Var(\hat{\beta})$
+
+- That $\hat{\beta} \sim N(\beta, Var(\hat{\beta}))$
+
+--
+
+How do we know it's Normal?
+- We will need more assumptions
+
+  - Chapter 5 has weaker assumptions with a similar result
+
+---
+class: MSU
+# Distribution of the estimator
+
+### Assumption MLR.6: Normality of $u$
+We can assume a normal distribution for the OLS estimator, $\hat{\beta}$, by assuming that the errors, $u$, are normally distributed in the population.
+
+### Assume:
+$$ u|x_1, x_2, \cdots, x_k \sim N(0, \sigma^2_u)$$
+
+### Then:
+$$y|x_1, \cdots, x_k \sim N(\beta_0 + \beta_1 x_1 + \cdots + \beta_k x_k, \sigma^2_u)$$
+
+Note that this is the distribution of $y$ conditional on the $x$'s. All of the random variation comes from $u$. $x$'s conditionally shift the mean.
+
+--
+
+I'm adding the subscript $u$ to $\sigma^2_u$ for emphasis, but since $u$ is the only source of random variation once we condition on $x$'s, it is implied to be the only $\sigma^2$.
+
+---
+class: MSU
+# Distribution of the estimator
+
+### How do we get from normal $u$'s to normal $\beta$?
+
+Define $\hat{v}_j$ to be the residual of a regression of $x_j$ on all other $x$'s. In a two variable $(x_j, x_k)$ example for observation $i$:
+$$x_{i,j} = \hat{\delta}_{0} + \hat{\delta}_1 x_{i,k} + \hat{v}_{i,j}$$
+
+### Then $\hat{\beta}_j$ is:
+$$\hat{\beta}_j = \frac{\widehat{Cov}(\hat{v},y)}{\widehat{Var}(\hat{v})} =  \frac{\sum_{i=1}^n \hat{v}_{ij} y_i}{\sum_{s=1}^n \hat{v}^2_{sj}} = \sum_{i=1}^{n} w_{ij}u_i$$
+### Where:
+$$w_{ij} = \frac{\hat{v}_{ij}}{\sum_{s=1}^n \hat{v}^2_{sj}}$$
+
+### Thus, $\hat{\beta}_j$ is a linear combination of normals!
+
+---
+class: MSU
+# Distribution of the estimator
+
+### And a linear combination of normals is....normal!
+(See Stats Review notes. Told you that property would come in handy).
+
+### So now we know :
+- $E[\hat{\beta}]$
+- $Var(\hat{\beta})$
+- That $\hat{\beta}$ is normally distributed
+
+### That's what we need to start testing things!
+
+$$\frac{\hat{\beta} - \beta}{se(\hat{\beta})} \sim N(0,1) \quad\text{and}\quad  \frac{\hat{\beta} - \beta}{\hat{se}(\hat{\beta})} \sim t_{N-K-1}$$
+
+---
+class: MSU
+
+
+Now is a good time to revisit MLR.5, homoskedasticity: 
+
+```{r WooldridgeHomoskedasticity, echo=F, include=T, fig.cap='Homoskedasticity (from Wooldridge)', out.width='75%'}
+include_graphics('../graphics/Wooldridge/Figure 2-8.jpg')
+```
+
+---
+class: MSU
+
+
+And what to do about heteroskedasticity:
+
+```{r WooldridgeHeteroskedasticity, echo=F, include=T, fig.cap='Heteroskedasticity (from Wooldridge)', out.width='75%'}
+include_graphics('../graphics/Wooldridge/Figure 2-9.jpg')
+```
+
+
+---
+class: MSU
+# Homoskedasticity
+
+### In practice, we have a very useful method of "correcting" for heteroskedasticity called "robust standard errors"
+- Eicker-Huber-White Heterskedasticity-Consistent (HC) errors (1980)
+
+### In R, we can compute these errors fairly easily
+We'll see in a few slides.
+    
+
+It comes at a cost, though: it inflates errors (make larger)
+- Less likely to be "significant" (reject $H_0$) even if there is evidence to reject $H_0$.
+- That's what it's supposed to do **if** there is heteroskedasticity
+- But if there **isn't** heteroskedasticity, you are wasting some power.
+
+
+---
+class: MSU
+# Homoskedasticity
+## Heteroskedasticity-robust standard errors: how do they work
+
+The problem is that $x_j$ may be correlated with $u$ and thus $\sigma^2_m \neq \sigma^2_n$ - there is no common, single $\sigma^2$. 
+
+In the **single variable regression case**, we would account for this:
+$$\widehat{Var}(\hat{\beta}_1) = \frac{\sum_{i=1}^N(x_i - \bar{x})^2 \hat{u}_i^2}{(SST_x)^2}$$
+
+Note that we have squared the sum-of-squares total in the denominator. The numerator looks a little like covariance, but it's the covariance of squared terms.
+
+---
+class: MSU
+# Homoskedasticity
+
+### In multiple regression, things get complicated:
+$$\hat{Var}(\hat{\beta}_j) = \frac{\sum_{i=1}^N \hat{v}^2_{ij} \hat{u}_i^2}{(SSR_j)^2}$$
+
+Which looks like the multivariate variance error, but with the extra $SSR_j$ in the denominator, and $\hat{v}$, the residual from $x_j$ on $x_i$
+
+
+---
+class: MSU
+# Homoskedasticity
+
+### If we adjust with heteroskedasticity-consistent errors (HC)
+then we can relax MLR.5 and still have a *valid* estimate of the variance of $\hat{\beta}$.
+
+### Note that **heteroskedasticity-consistent errors** do not **ever** affect the point estimate of $\hat{\beta}$. 
+- The point estimates remain the same, but the error (and thus the significance) changes.
+  - "Point estimate" refers to the value of $\hat{\beta}$, regardless of the variance.
+  
+---
+class: MSU
+# Homoskedasticity
+
+### Heteroskedasticity-consistent errors in R
+- .pseudocode[install.packages(c('sandwich','lmtest'))]
+- .pseudocode[require(sandwich)]
+- .pseudocode[require(lmtest)]
+- .pseudocode[myOLS = lm(Y ~ X1 + X2, df)]
+
+--
+
+- .pseudocode[coeftest(myOLS, vcov = vcovHC(myOLS, 'HC1'))]
+  - .pseudocode[myOLS] is your linear regression object
+  - .pseudocode[vcov] stands for "variance-covariance"
+  - The .pseudocode[HC1] gives a specific type of HC errors
+  - It is identical to the `, robust` errors in Stata.
+  
+---
+class: MSU
+# Homoskedasticity
+
+```{r Example1, out.width='90%', echo=T}
+wage2 = wooldridge::wage2
+myOLS = lm(wage ~ educ + exper, wage2)
+summary(myOLS)
+```
+
+---
+class: MSU
+# Homoskedasticity
+
+### Using HC errors
+
+```{r Example2, out.width='90%', echo=T}
+coeftest(myOLS, vcov = vcovHC(myOLS, 'HC1'))
+```
+
