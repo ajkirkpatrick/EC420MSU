@@ -7,7 +7,7 @@ output:
   xaringan::moon_reader:
     lib_dir: libs
     yolo: false
-    css: [default, metropolis, metropolis-fonts, ajk_css]
+    css: [default, metropolis, metropolis-fonts, "../../EC420_S21.css"]
     nature: 
       highlightStyle: github
       highlightLines: true
@@ -21,7 +21,11 @@ options(htmltools.dir.version = FALSE)
 library(knitr)
 library(kableExtra)
 opts_chunk$set(
-  fig.align="center",fig.height=4, #fig.width=7,# out.width="748px", #out.length="520.75px",
+  fig.path='figs/',
+  out.width= '90%',
+  warning = F,
+  message = F,
+  error=F,
   dpi=300, #fig.path='Figs/',
   cache=T,
   echo=F,
@@ -41,6 +45,8 @@ require(stargazer)
 layout: true
 
 <div class="msu-header"></div> 
+
+
 ---
 class: inverseMSU
 name: Overview
@@ -70,7 +76,7 @@ __Goal:__
 ---
 class: heading-slide
 
-What is multivariate regression
+What is multivariate regression?
 
 ---
 class: MSU
@@ -119,6 +125,8 @@ $$Wage_i = \beta_0 + \beta_1 educ_i + \beta_2 ability_i + u_i$$
 ---
 class:MSU
 # Multivariate regression
+
+
 ## Ceteris Paribus - *all else held equal*
 $$Wage_i = \beta_0 + \beta_1 educ_i + \beta_2 ability_i + u_i$$
 
@@ -144,6 +152,8 @@ We interpret $\beta_2$ as "the effect of $experience$ on the expectation of $wag
 
 ## This means:
 $\beta_2 = \frac{\Delta Wage}{\Delta ability}$ when $\underbrace{\frac{\Delta Wage}{\Delta educ} = \frac{\Delta Wage}{\Delta u} = 0}_{\text{all else held equal}}$
+
+----
 
 --
 
@@ -175,12 +185,15 @@ class: MSU
 We could run the regression $wage_i = \beta_0 + \beta_1 educ_i + u_i$, but we probably think $ability_i$ also affects wages.
 
 What if we don't observe $ability_i$?
-- It *goes into the error term*. 
-- Let's make a new variable called $\tilde{u} = \delta_1 ability_i$
+- Just because we don't observe it doesn't mean it isn't affecting $wage_i$
+- It *is present in the error term*. 
+- Let's make a new variable called $\tilde{u} = \delta_1 ability_i + u_i$
 
 $$wage_i = \beta_0 + \beta_1 educ_i + \underbrace{\delta_1 ability_i + u_i}_{\tilde{u}_i}$$
 
-- Just a note: usually the $\sim$ over a coefficient or variable (like $\tilde{u}$) will indicate it is related to, but different from, the non- $\sim$ version.
+  - Note: usually the $\sim$ over a coefficient or variable (like $\tilde{u}$) will indicate it is related to, but different from, the non- $\sim$ version.
+
+  - $\delta_1$ is just the effect of $ability$ on $wage$
 
 
 
@@ -192,13 +205,34 @@ class: MSU
 
 $$wage_i = \beta_0 + \beta_1 educ_i + \tilde{u}_i$$
 
-If we think $E[ability|educ]>0$, then this violates the assumption that $E[\tilde{u}|X] = 0$
+--
 
-Then, $\frac{\Delta u}{\Delta ability} = \delta_1 \neq 0$. 
+## But wait!
 
-Looking at $\tilde{u}_i = \delta_1 ability_i + u_i$, we can see why $E[\tilde{u}|X]\neq 0$ and $\beta_1$ was biased.
+- We think $E[ability|educ]>0$
 
-(Recall that we could show $E[\hat{\beta}_1]=\beta_1$ if and only if $E[u|X]=0$)
+  - Then this violates the assumption that $E[\tilde{u}|X] = 0$
+
+Because 
+
+1. $\frac{\Delta \tilde{u}}{\Delta ability} = \delta_1 \neq 0$
+
+2. $\frac{\Delta ability}{\Delta educ} \neq 0$
+
+$\Rightarrow \frac{\Delta \tilde{u}}{\Delta educ} \neq 0$
+
+---
+class: MSU
+# Multivariate regression
+
+### Bias
+
+Recall that we could show $E[\hat{\beta}_1]=\beta_1$ if and only if $E[u|X]=0$.
+
+Looking at $\tilde{u}_i = \delta_1 ability_i + u_i$, we can see why $E[\tilde{u}|educ]\neq 0$
+
+- Thus, $\beta_1$ in the single-variable regression was **biased**.
+
 
 
 ---
@@ -217,9 +251,11 @@ class: MSU
 # Multivariate regression
 
 ## Multivariate regression allows us to account for the effect of both $ability$ and $educ$
+
 $$wage = \beta_0 + \beta_1 educ + \beta_2 ability + u$$
 
 And we can calculate the change in $wage$ from any change in $ability$ and $educ$ using the SRF:
+
 $$\Delta\widehat{wage} = \widehat{\beta_1} \Delta educ + \widehat{\beta_2} \Delta ability$$
 
 ---
@@ -227,6 +263,7 @@ class: MSU
 # Multivariate regression
 
 ## This also means our assumption is now:
+
 $$E[u|educ, wage] = 0$$
 
 ## Which we write in general as:
@@ -241,33 +278,43 @@ Which is to say that we think we've got everything that could potentially be cor
 
 Since we want to work with some sample data (wage2.dta from Wooldridge), let's replace $ability$ with $experience$, which is in the dataset....
 
+
 ---
 class: MSU
 # Multivariate regression
 
 When we estimate $wage_i = \beta_0 + \beta_1 educ_i + \beta_2 experience_i + u_i$, we are fitting a *plane*:
 
-```{r LoadWage, echo=F, include=T, out.width='200%'}
-wage2 = read_dta(file=file.path('../Data/wage2.dta'))
+```{r LoadWage, echo=F, include=T, out.width='70%'}
+wage2 = wooldridge::wage2
 wage.lm1 = lm(wage ~ educ + exper, wage2)
-
 scatter3D(x = wage2$educ, y = wage2$exper, z = wage2$wage, bty='b2', pch =18, theta=25, phi=20, xlab = 'educ', ylab='experience',zlab = 'wage', colkey=F)
-
 ```
 
 ---
 class: MSU
 # Multivariate regression
 
-The best fit is no longer a line, but a *plane* with a slope in the $x$ and the $y$ axis of $\beta_1$ and $\beta_2$
+When we estimate $wage_i = \beta_0 + \beta_1 educ_i + \beta_2 experience_i + u_i$, we are fitting a *plane*:
+
+```{r LoadWageXX, echo=F, include=T, out.width='70%'}
+
+scatter3D(x = wage2$educ, y = wage2$exper, z = wage2$wage, bty='b2', pch =18, theta=25+45, phi=20, xlab = 'educ', ylab='experience',zlab = 'wage', colkey=F)
+```
+---
+class: MSU
+# Multivariate regression
+
+The best fit is no longer a line, but a *plane* with a slope in the $educ$ and the $exper$ axis of $\beta_1$ and $\beta_2$
 
 Fitted values from a regression on the data in the previous slide where $\beta_{educ} = `r round(wage.lm1$coefficient[2], 2)`$ and $\beta_{exper} = `r round(wage.lm1$coefficient[3], 2)`$.
 
-```{r Wage2, echo=F, include=T, out.width='150%'}
-
+```{r Wage2, echo=F, include=T, fig.align = 'center', out.width='60%'}
 scatter3D(x = wage2$educ, y = wage2$exper, z = fitted(wage.lm1), bty='b2', pch =18, theta=25, phi=20, xlab = 'educ', ylab='experience',zlab = 'wage', colkey=F)
-
 ```
+
+
+
 
 ---
 class: MSU
@@ -301,7 +348,7 @@ $$E[x_2(y_i - \beta_0 - \beta_1 x_1 - \beta_1 x_2)] = E[x_2 u] = 0$$
 class: MSU
 # Multivariate regression
 
-## But don't worry, we won't derive them directly from this, but that's how we would do it.
+### But don't worry, we won't derive them directly from this, but that's how we would do it.
 
 ---
 class: MSU
@@ -369,7 +416,7 @@ Couple of things:
 
 That error term, $v$ has an interpretation
 - $v$ is the $temp$ that is **not explained by** $rain$
-- $\delta_{rain}$ is the $temp$ that **is** explained by $rain$
+- $\delta_{rain}x_{rain}$ is the $temp$ that **is** explained by $rain$
 
 #### $v$ is $temp$ that has had $rain$ "partialed out"
 
@@ -382,12 +429,20 @@ $$\hat{v} = x_{temp} - (\hat{\delta}_0 + \hat{\delta}_{rain} x_{rain})$$
 
 Remember, $v$ still varies along with $x_{temp}$, but it is not correlated at *all* with $x_{rain}$.
 
---
+---
+class: MSU
+# Multivariate regression
 
-## Now, if we want to get the correct value for $\beta_{temp}$ in the full regression:
-$$y = \gamma_0 + \gamma_1 \hat{v} + \varepsilon$$
+### Now, if we want to get the correct value for $\beta_{temp}$ in the full regression:
+$$y = \gamma_0 + \gamma_1 \hat{v} + u$$
 
-We used the $\hat{v}$ and left $x_{rain}$ out. $\hat{v}$ contains only the part of $x_{temp}$ that is not correlated with $x_{rain}$.
+- We do not use $x_{rain}$ directly.
+
+- We use $\hat{v}$ and leave $x_{rain}$ out. 
+
+- $\hat{v}$ is correlated with $x_{temp}$, but not with $x_{rain}$
+
+- Put another way, $\hat{v}$ contains only the part of $x_{temp}$ that is not correlated with $x_{rain}$.
 
 ## One can show that $\gamma_1 = \tilde{\beta}_{temp}$
 
@@ -397,7 +452,11 @@ class: MSU
 
 ## One can show that $\gamma_1 = \tilde{\beta}_{temp}$, the unbiased estimate.
 
-That is, we get the (unbiased) coefficient one would get from regressing $y = \tilde{\beta}_0 + \tilde{\beta}_{temp} x_{temp} + \tilde{\beta}_{rain} x_{rain} + \tilde{u}$ by first "partialing" $x_{rain}$ out of $x_{temp}$ then regressing what is left on $y$.
+That is, we get the (unbiased) coefficient one would get from regressing 
+
+$$y = \tilde{\beta}_0 + \tilde{\beta}_{temp} x_{temp} + \tilde{\beta}_{rain} x_{rain} + \tilde{u}$$ 
+
+by first "partialing" $x_{rain}$ out of $x_{temp}$ then regressing what is left on $y$.
 
 
 
@@ -455,9 +514,9 @@ $$y = \tilde{\tilde{\beta}}_0 + (\tilde{\beta}_1 + \tilde{\beta}_2 \delta_1 ) x_
 class: MSU
 # Multivariate regression
 
-Therefore it is true that:
-- $\hat{\beta}_1 = \hat{\tilde{\beta}}_1 + \hat{\beta}_2 \hat{\delta}_1$
-- In words: to whatever extent $x_1$ and $x_2$ are correlated ( $\delta_1$ ), our naive $\hat{\beta}_1$ will include that correlation. 
+### Therefore it is true that:
+- $\hat{\beta}_1 = \hat{\tilde{\beta}}_1 + \hat{\tilde{\beta}}_2 \hat{\delta}_1$
+  - In words: to whatever extent $x_1$ and $x_2$ are correlated ( $\delta_1$ ), our naive $\hat{\beta}_1$ will include that correlation. 
 
 ### Knowing this, when would the simple regression estimate $\hat{\beta}_1$ **equal** the multiple regression (multivariate) estimate $\hat{\tilde{\beta}}_1$?
 
@@ -468,16 +527,25 @@ class: MSU
 ## Will this hold empirically?
 Will $\hat{\beta}_1$ change when you add in $\hat{\beta}_2$?
 
-```{r reg1, echo=F, include=T}
 
-kable(summary(lm(wage ~ educ, wage2))$coef, digits=2)
-```
-$$wage = \beta_0 + beta_1 educ + u$$
-```{r reg2, echo=F, include=T}
+.pull-left[
+```{r reg1, echo=F}
+require(modelsummary)
+m1 = lm(wage ~ educ, wage2)
+m2 = lm(wage ~ educ + exper, wage2)
 
-kable(summary(lm(wage ~ educ + exper, wage2))$coef, digits=2)
+modelsummary(list(m1, m2), digits=2)
+ 
 ```
-$$wage = \tilde{\beta}_0 + \tilde{\beta}_1 educ + \tilde{\beta}_2 exper + \tilde{u}$$
+]
+
+.pull-right[
+$$\begin{eqnarray}
+wage &=& \beta_0 + \beta_1 educ + u \\
+wage &=& \tilde{\beta}_0 + \tilde{\beta}_1 educ + \tilde{\beta}_2 exper + \tilde{u}  
+\end{eqnarray}$$
+]
+
 ---
 class: MSU
 # Multivariate regression
@@ -488,7 +556,8 @@ class: MSU
 kable(summary(lm(exper ~ educ, wage2))$coef, digits=2)
 ```
 $$exper = \delta_0 + \delta_1 educ + u$$
-And $60.21 = 76.22 + (17.64 \times -.91)$
+and 
+$$60.21 = 76.22 + (\underbrace{17.64}_{\hat{\tilde{\beta}}_2} \times \underbrace{-.91}_{\hat{\delta}_1})$$
 ---
 class: MSU
 # Goodness of fit
@@ -522,7 +591,7 @@ class: MSU
 # Specification errors
 
 ## We might be worried about two *specification errors*
-1. Including an irrelevant variable.
+- Including an irrelevant variable.
   - Suppose the "true model" is:
 $$y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + u$$
   - And we estimate:
@@ -535,7 +604,7 @@ class: MSU
 # Specification errors
 ## We might be worried about two *specification errors*
 
-2. Omitting a relevant variable.
+- Omitting a relevant variable.
 $$y = \tilde{\beta}_0 + \tilde{\beta}_1 x_1 + u$$
 
   - We showed that $\tilde{\beta}_1 = \beta_1$ only when $\beta_2 = 0$ or $\delta_1 = 0$.
@@ -549,7 +618,17 @@ $$y = \tilde{\beta}_0 + \tilde{\beta}_1 x_1 + u$$
     
     
 
-  
 
 
+```{r outputChromePrint, include=F, eval=F}
+
+require(pagedown)
+currentfile = gsub(pattern='\\.Rmd', '', basename(rstudioapi::getSourceEditorContext()$path))
+pagedown::chrome_print(input = paste0('https://ajkirkpatrick.github.io/EC420MSU/',currentfile, '/', paste0(currentfile, '.html')),
+                   output = paste0(currentfile, '.pdf'),
+                   #wait = 3,
+                   timeout = 300,
+                   format = 'pdf')
+
+```
 
