@@ -625,7 +625,7 @@ $$y = \tilde{\beta}_0 + \tilde{\beta}_1 x_1 + u$$
 require(pagedown)
 currentfile = gsub(pattern='\\.Rmd', '', basename(rstudioapi::getSourceEditorContext()$path))
 pagedown::chrome_print(input = paste0('https://ajkirkpatrick.github.io/EC420MSU/',currentfile, '/', paste0(currentfile, '.html')),
-                   output = paste0(currentfile, '.pdf'),
+                   output = file.path(currentfile, paste0(currentfile, '.pdf')),
                    #wait = 3,
                    timeout = 300,
                    format = 'pdf')
