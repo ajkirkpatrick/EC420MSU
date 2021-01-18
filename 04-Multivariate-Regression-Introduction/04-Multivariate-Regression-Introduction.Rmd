@@ -7,7 +7,7 @@ output:
   xaringan::moon_reader:
     lib_dir: libs
     yolo: false
-    css: [default, metropolis, metropolis-fonts, "../../EC420_S21.css"]
+    css: [default, metropolis, metropolis-fonts, "../EC420_S21.css"]
     nature: 
       highlightStyle: github
       highlightLines: true
