@@ -190,15 +190,6 @@ color: red;
                                     font-size: 70%;
                                   }
 
-.pull-left {
-  float: left;
-  width: 47%;
-}
-.pull-right {
-  float: right;
-  width: 47%;
-}
-
 
 table {
  padding: 10px
