@@ -7,9 +7,7 @@
     <link href="libs/remark-css/default.css" rel="stylesheet" />
     <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
     <link href="libs/remark-css/metropolis-fonts.css" rel="stylesheet" />
-    <script src="libs/kePrint/kePrint.js"></script>
-    <link href="libs/lightable/lightable.css" rel="stylesheet" />
-    <link rel="stylesheet" href="../EC420_S21.css" type="text/css" />
+    <link rel="stylesheet" href="EC420_S21.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
@@ -81,7 +79,7 @@ class: MSU
 
 Wage data used in Wooldridge `wage2`
 
-&lt;img src="figs/Wooldridge-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="01-Single-Variable-Regression-Introduction_files/figure-html/Wooldridge-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 
 .footnote[Data from Blackburn and Neumark (1992), "Unobserved Ability, Efficiency Wages, and Interindustry Wage Differentials" *Quarterly Journal of Economics* 107, 1421-1436]
 
@@ -92,50 +90,19 @@ class: MSU
 # The problem at hand
 
 .pull-left[
-The data looks like this:
-&lt;table&gt;
- &lt;thead&gt;
-  &lt;tr&gt;
-   &lt;th style="text-align:right;"&gt; wage &lt;/th&gt;
-   &lt;th style="text-align:right;"&gt; educ &lt;/th&gt;
-  &lt;/tr&gt;
- &lt;/thead&gt;
-&lt;tbody&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 769 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 12 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 808 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 18 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 825 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 14 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 650 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 12 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 562 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 11 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 1400 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 16 &lt;/td&gt;
-  &lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
+The data looks like this:  
+
+&lt;img src="../graphics/wol2.png" width="60%" style="display: block; margin: auto;" /&gt;
 ]
 
 .pull-right[
-&lt;img src="figs/Wooldridge3-1.png" width="110%" style="display: block; margin: auto;" /&gt;
-]
+&lt;img src="01-Single-Variable-Regression-Introduction_files/figure-html/Wooldridge3-1.png" width="120%" style="display: block; margin: auto;" /&gt;
+
 &lt;br&gt;
 - `\(N = 935\)`
 - `\(\overline{wage} = 957.95\)`
 - `\(\overline{educ} = 13.47\)`
+]
 
 --
 
@@ -205,7 +172,7 @@ class: MSU
 
 # Population Regression Function
 
-&lt;img src="figs/PRF-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="01-Single-Variable-Regression-Introduction_files/figure-html/PRF-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 
 This is the wage data. Each "blob" is an empirical histogram of the data for that value of `\(educ\)` (they are symmetrical). This is called a *violin plot*. It is the empirical counterpart of the [previous plot from Wooldridge](#WoolPRF)
 
@@ -220,7 +187,7 @@ class: MSU
 ## `summarise()` ungrouping output (override with `.groups` argument)
 ```
 
-&lt;img src="figs/PRF2-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="01-Single-Variable-Regression-Introduction_files/figure-html/PRF2-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 
 Each point is the sample mean for each value of `\(educ\)`.
 
@@ -435,41 +402,12 @@ class: MSU
 
 # OLS in 1 varible
 
-So let's "regress x on y" in groups with a very small N:
-
+So let's "regress x on y" in groups with a very small N: 
+  
 .pull-left[
-&lt;table class="table table-striped" style="margin-left: auto; margin-right: auto;"&gt;
- &lt;thead&gt;
-  &lt;tr&gt;
-   &lt;th style="text-align:center;"&gt;   Y   &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt;   X   &lt;/th&gt;
-  &lt;/tr&gt;
- &lt;/thead&gt;
-&lt;tbody&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;width: 10em; "&gt; 3.7 &lt;/td&gt;
-   &lt;td style="text-align:center;width: 10em; "&gt; 3 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;width: 10em; "&gt; 1.6 &lt;/td&gt;
-   &lt;td style="text-align:center;width: 10em; "&gt; 1 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;width: 10em; "&gt; 8.5 &lt;/td&gt;
-   &lt;td style="text-align:center;width: 10em; "&gt; 5 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;width: 10em; "&gt; 14.3 &lt;/td&gt;
-   &lt;td style="text-align:center;width: 10em; "&gt; 8 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;width: 10em; "&gt; 12.5 &lt;/td&gt;
-   &lt;td style="text-align:center;width: 10em; "&gt; 6 &lt;/td&gt;
-  &lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
+&lt;img src="../graphics/datatableasdfg.png" width="40%" style="display: block; margin: auto;" /&gt;
  
-&lt;img src="figs/exampleOLSplot-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="01-Single-Variable-Regression-Introduction_files/figure-html/exampleOLSplot-1.png" width="100%" style="display: block; margin: auto;" /&gt;
 ]
 
 .pull-right[
@@ -489,7 +427,7 @@ count: false
 class: MSU
 # OLS in 1 variable
 
-&lt;img src="figs/exampleOLSPlot2-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="01-Single-Variable-Regression-Introduction_files/figure-html/exampleOLSPlot2-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 
 The red line is the *sample regression function*, or *SRF*.
 
@@ -559,7 +497,7 @@ class: MSU
 ```
 
 &lt;div class="figure" style="text-align: center"&gt;
-&lt;img src="figs/exampleFit-1.png" alt="Regression line for wage2 data" width="90%" /&gt;
+&lt;img src="01-Single-Variable-Regression-Introduction_files/figure-html/exampleFit-1.png" alt="Regression line for wage2 data" width="90%" /&gt;
 &lt;p class="caption"&gt;Regression line for wage2 data&lt;/p&gt;
 &lt;/div&gt;
 
@@ -697,19 +635,20 @@ summary(lm(Ynum ~ X, data=ex))
 ## 
 ## Residuals:
 ##       1       2       3       4       5 
-## -1.2194  0.5907 -0.4295 -0.5671  1.6253 
+## -0.2494 -1.5562  1.4049  0.5997 -0.1989 
 ## 
 ## Coefficients:
 ##             Estimate Std. Error t value Pr(&gt;|t|)   
-## (Intercept)  -0.9869     1.2394  -0.796  0.48406   
-## X             1.9811     0.2385   8.306  0.00366 **
+## (Intercept)  -0.4257     1.1902  -0.358  0.74429   
+## X             1.7108     0.2904   5.892  0.00976 **
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 1.289 on 3 degrees of freedom
-## Multiple R-squared:  0.9583,	Adjusted R-squared:  0.9444 
-## F-statistic: 68.99 on 1 and 3 DF,  p-value: 0.003657
+## Residual standard error: 1.272 on 3 degrees of freedom
+## Multiple R-squared:  0.9205,	Adjusted R-squared:  0.8939 
+## F-statistic: 34.71 on 1 and 3 DF,  p-value: 0.009759
 ```
+
 
 ---
 class: MSU
