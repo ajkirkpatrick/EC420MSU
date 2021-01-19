@@ -219,7 +219,7 @@ class: MSU
 
 # Population Regression Function
 
-```{r PRF2, echo=F, include=T, out.width='90%'}
+```{r PRF2, echo=F, include=T, out.width='90%', warning=F, message=F}
 v + geom_point(data=df %>% dplyr::group_by(educf) %>% summarize(mwage = mean(wage, na.rm=T)), aes(x = educf, y=mwage)) 
 ```
 
