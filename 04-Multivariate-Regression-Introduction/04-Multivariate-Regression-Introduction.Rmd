@@ -630,5 +630,7 @@ pagedown::chrome_print(input = paste0('https://ajkirkpatrick.github.io/EC420MSU/
                    timeout = 300,
                    format = 'pdf')
 
+paste0('https://ajkirkpatrick.github.io/EC420MSU/',currentfile, '/', paste0(currentfile, '.pdf'))
+
 ```
 

@@ -676,6 +676,7 @@ class: MSU
 # Final notes
 
 ### Terminology
+
 $$y = \beta_0 + \beta_1 x + u$$
 .pull-left[
 $y$ is called

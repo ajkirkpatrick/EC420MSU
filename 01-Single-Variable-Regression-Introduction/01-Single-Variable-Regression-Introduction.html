@@ -18,7 +18,7 @@ class: center, middle, inverse, title-slide
 # Single Variable Regression: Introduction
 ## EC420 MSU Spring 2021
 ### Justin Kirkpatrick
-### Last updated January 16, 2021
+### Last updated January 19, 2021
 
 ---
 
@@ -81,7 +81,7 @@ class: MSU
 
 Wage data used in Wooldridge `wage2`
 
-&lt;img src="01-Single-Variable-Regression-Introduction_files/figure-html/Wooldridge-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/Wooldridge-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 
 .footnote[Data from Blackburn and Neumark (1992), "Unobserved Ability, Efficiency Wages, and Interindustry Wage Differentials" *Quarterly Journal of Economics* 107, 1421-1436]
 
@@ -130,7 +130,7 @@ The data looks like this:
 ]
 
 .pull-right[
-&lt;img src="01-Single-Variable-Regression-Introduction_files/figure-html/Wooldridge3-1.png" width="110%" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/Wooldridge3-1.png" width="110%" style="display: block; margin: auto;" /&gt;
 ]
 &lt;br&gt;
 - `\(N = 935\)`
@@ -205,7 +205,7 @@ class: MSU
 
 # Population Regression Function
 
-&lt;img src="01-Single-Variable-Regression-Introduction_files/figure-html/PRF-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/PRF-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 
 This is the wage data. Each "blob" is an empirical histogram of the data for that value of `\(educ\)` (they are symmetrical). This is called a *violin plot*. It is the empirical counterpart of the [previous plot from Wooldridge](#WoolPRF)
 
@@ -215,7 +215,12 @@ class: MSU
 
 # Population Regression Function
 
-&lt;img src="01-Single-Variable-Regression-Introduction_files/figure-html/PRF2-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+```
+## `summarise()` ungrouping output (override with `.groups` argument)
+```
+
+&lt;img src="figs/PRF2-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 
 Each point is the sample mean for each value of `\(educ\)`.
 
@@ -442,29 +447,29 @@ So let's "regress x on y" in groups with a very small N:
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:center;width: 10em; "&gt; 10.3 &lt;/td&gt;
-   &lt;td style="text-align:center;width: 10em; "&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:center;width: 10em; "&gt; 3.7 &lt;/td&gt;
+   &lt;td style="text-align:center;width: 10em; "&gt; 3 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:center;width: 10em; "&gt; 0.3 &lt;/td&gt;
+   &lt;td style="text-align:center;width: 10em; "&gt; 1.6 &lt;/td&gt;
    &lt;td style="text-align:center;width: 10em; "&gt; 1 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:center;width: 10em; "&gt; 11.1 &lt;/td&gt;
+   &lt;td style="text-align:center;width: 10em; "&gt; 8.5 &lt;/td&gt;
+   &lt;td style="text-align:center;width: 10em; "&gt; 5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;width: 10em; "&gt; 14.3 &lt;/td&gt;
+   &lt;td style="text-align:center;width: 10em; "&gt; 8 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;width: 10em; "&gt; 12.5 &lt;/td&gt;
    &lt;td style="text-align:center;width: 10em; "&gt; 6 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;width: 10em; "&gt; 2.4 &lt;/td&gt;
-   &lt;td style="text-align:center;width: 10em; "&gt; 2 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;width: 10em; "&gt; 5.2 &lt;/td&gt;
-   &lt;td style="text-align:center;width: 10em; "&gt; 4 &lt;/td&gt;
   &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
  
-&lt;img src="01-Single-Variable-Regression-Introduction_files/figure-html/exampleOLSplot-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/exampleOLSplot-1.png" style="display: block; margin: auto;" /&gt;
 ]
 
 .pull-right[
@@ -484,7 +489,7 @@ count: false
 class: MSU
 # OLS in 1 variable
 
-&lt;img src="01-Single-Variable-Regression-Introduction_files/figure-html/exampleOLSPlot2-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/exampleOLSPlot2-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 
 The red line is the *sample regression function*, or *SRF*.
 
@@ -548,8 +553,13 @@ class: MSU
 
 # OLS in 1 variable
 
+
+```
+## `geom_smooth()` using formula 'y ~ x'
+```
+
 &lt;div class="figure" style="text-align: center"&gt;
-&lt;img src="01-Single-Variable-Regression-Introduction_files/figure-html/exampleFit-1.png" alt="Regression line for wage2 data" width="90%" /&gt;
+&lt;img src="figs/exampleFit-1.png" alt="Regression line for wage2 data" width="90%" /&gt;
 &lt;p class="caption"&gt;Regression line for wage2 data&lt;/p&gt;
 &lt;/div&gt;
 
@@ -687,18 +697,18 @@ summary(lm(Ynum ~ X, data=ex))
 ## 
 ## Residuals:
 ##       1       2       3       4       5 
-##  1.2798  0.2694 -0.1352  0.1007 -1.5146 
+## -1.2194  0.5907 -0.4295 -0.5671  1.6253 
 ## 
 ## Coefficients:
 ##             Estimate Std. Error t value Pr(&gt;|t|)   
-## (Intercept)  -2.1504     1.1322  -1.899  0.15373   
-## X             2.2254     0.2796   7.960  0.00414 **
+## (Intercept)  -0.9869     1.2394  -0.796  0.48406   
+## X             1.9811     0.2385   8.306  0.00366 **
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 1.159 on 3 degrees of freedom
-## Multiple R-squared:  0.9548,	Adjusted R-squared:  0.9397 
-## F-statistic: 63.36 on 1 and 3 DF,  p-value: 0.004136
+## Residual standard error: 1.289 on 3 degrees of freedom
+## Multiple R-squared:  0.9583,	Adjusted R-squared:  0.9444 
+## F-statistic: 68.99 on 1 and 3 DF,  p-value: 0.003657
 ```
 
 ---
@@ -706,6 +716,7 @@ class: MSU
 # Final notes
 
 ### Terminology
+
 `$$y = \beta_0 + \beta_1 x + u$$`
 .pull-left[
 `\(y\)` is called
