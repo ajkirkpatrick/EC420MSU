@@ -80,7 +80,6 @@
 }
 
 
-
 .font300 {
   font-size: 300%;
 }
@@ -187,13 +186,8 @@ color: red;
   color: blue;
 }
 
-code.r{
-  font-size: 16px;
-}
 
-pre{
-  font-size:16px;
-}
+
 
 table {
  padding: 10px
