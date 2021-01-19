@@ -194,7 +194,7 @@ name: WoolPRF
 # Population Regression Function
 
 ```{r Wooldridge21, echo=F, out.width='80%', fig.cap = 'Ch. 2.1 of Wooldridge, example of a conceptual PRF. The line defines the PRF, the expectation of Y conditional on X'}
-knitr::include_graphics('../graphics/Wooldridge/Figure 2-1.jpg')
+knitr::include_graphics('figs/Fig21.png')#('../graphics/Wooldridge/Figure 2-1.jpg')
 
 # .footnote[From Ch. 2.1 of Wooldridge. Shows an example of a conceptual PRF. The line defines the PRF, the expectation of $Y$ conditional on $X$]
 
