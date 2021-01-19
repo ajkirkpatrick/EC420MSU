@@ -45,7 +45,7 @@ __Goal:__
 
 1. Non-linear functional forms
 
-1. Intuition and uses of non-linear forms in economics 
+1. Intuition and uses of non-linear forms in economics
 
 1. Regression in R
 
@@ -59,12 +59,7 @@ Last time, we discussed a single variable regression from Wooldridge `wage2` whe
 
 `$$wage = \beta_0 + \beta_1 educ + u$$`
 
-
-```
-## `geom_smooth()` using formula 'y ~ x'
-```
-
-&lt;img src="02-Single-Variable-Regression-Transformations_files/figure-html/Wooldridge0k-1.png" width="85%" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/Wooldridge0k-1.png" width="85%" style="display: block; margin: auto;" /&gt;
 
 This resulted in a `\(\hat{\beta}_1 = 60.21\)`. How do we interpret this coefficient?
 
@@ -115,12 +110,7 @@ The "all else held equal" part is very important.
 class: MSU
 # Interpretation
 
-
-```
-## `geom_smooth()` using formula 'y ~ x'
-```
-
-&lt;img src="02-Single-Variable-Regression-Transformations_files/figure-html/Wooldridgerepeat-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/Wooldridgerepeat-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 
 - `\(\hat{\beta}_1\)` is `\(\frac{\Delta wage}{\Delta educ}\)`
 - `\(\hat{\beta}_1\)` is the slope of the line
@@ -177,12 +167,7 @@ Define `\(wage1000 = .001 \times wage\)`
 class: MSU
 # Rescaling Y and X
 
-
-```
-## `geom_smooth()` using formula 'y ~ x'
-```
-
-&lt;img src="02-Single-Variable-Regression-Transformations_files/figure-html/Wooldridge1k-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/Wooldridge1k-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 Looks pretty similar, right? But the y-axis scale is very different.
 
 ---
@@ -463,7 +448,7 @@ Another way of thinking about non-linear functions is that `\(\frac{\Delta y}{\D
 
 
 .pull-right[
-&lt;img src="02-Single-Variable-Regression-Transformations_files/figure-html/nonlinearExample1-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/nonlinearExample1-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 ]
 
 
@@ -485,10 +470,10 @@ class: MSU
 
 - but imposes that relationship whether it is appropriate (top) or not (bottom).
 
-&lt;img src="02-Single-Variable-Regression-Transformations_files/figure-html/goodNonlinearExample-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/goodNonlinearExample-1.png" width="50%" style="display: block; margin: auto;" /&gt;
 
 
-&lt;img src="02-Single-Variable-Regression-Transformations_files/figure-html/badNonlinearExample-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/badNonlinearExample-1.png" width="50%" style="display: block; margin: auto;" /&gt;
 
 
 
@@ -509,7 +494,7 @@ For instance, plant growth rates over temperatures may be quadratic
 
 The *marginal effect* is saying "the change in `\(y\)` per change in `\(x\)`", or `\(\frac{dy}{dx}\)`.
 
-&lt;img src="02-Single-Variable-Regression-Transformations_files/figure-html/quadraticExample-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/quadraticExample-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
