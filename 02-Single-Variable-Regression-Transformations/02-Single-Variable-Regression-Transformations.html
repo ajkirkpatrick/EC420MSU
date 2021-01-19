@@ -7,7 +7,7 @@
     <link href="libs/remark-css/default.css" rel="stylesheet" />
     <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
     <link href="libs/remark-css/metropolis-fonts.css" rel="stylesheet" />
-    <link rel="stylesheet" href="../EC420_S21.css" type="text/css" />
+    <link rel="stylesheet" href="EC420_S21.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
@@ -16,7 +16,7 @@ class: center, middle, inverse, title-slide
 # Single Variable Regression: Transformations and Functional Form
 ## EC420 MSU Spring 2021
 ### Justin Kirkpatrick
-### Last updated December 10, 2020
+### Last updated January 19, 2021
 
 ---
 
@@ -59,7 +59,12 @@ Last time, we discussed a single variable regression from Wooldridge `wage2` whe
 
 `$$wage = \beta_0 + \beta_1 educ + u$$`
 
-&lt;img src="figs/Wooldridge0k-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+```
+## `geom_smooth()` using formula 'y ~ x'
+```
+
+&lt;img src="02-Single-Variable-Regression-Transformations_files/figure-html/Wooldridge0k-1.png" width="85%" style="display: block; margin: auto;" /&gt;
 
 This resulted in a `\(\hat{\beta}_1 = 60.21\)`. How do we interpret this coefficient?
 
@@ -76,10 +81,16 @@ Our PRF is:
 
 --
 
-- "One additional year of education is associated with a 60.21 increase in expected monthly earnings, all else held equal"
+&gt; "One additional year of education is associated with a `\(\beta_1 =\)` 60.21 increase in *expected* monthly earnings, **all else held equal**"
+
+--
+
+- Why "expected"? We are estimating the PRF, so we are looking for the relationship between *expected* monthly earnings and education.
+
+--
 
 - Why "all else held equal"? Because we have assumed that `\(E[U|X]=0\)`, so our estimate tells us how `\(E[Y]\)` changes as `\(X\)` *and not* `\(U\)` changes.
-  - `\(U\)` is held at zero
+  - `\(U\)` is held at zero, no matter the `\(X\)`
   
 ---
 class: MSU
@@ -88,11 +99,15 @@ class: MSU
 ## Ceteris Paribus
 Latin for "all else held equal"
 
+--
+
 ----
 
-So `\(\hat{\beta}_1\)` is 
+&lt;br&gt;&lt;br&gt;
 
-### "the increase in the expectation of `\(wage\)` associated with a 1-unit increase in `\(educ\)`, ceteris paribus"
+So the interpretation of `\(\hat{\beta}_1\)` is:
+
+&gt; "The (estimated) increase in the expectation of `\(wage\)` associated with a 1-unit increase in `\(educ\)`, ceteris paribus"
 
 The "all else held equal" part is very important. 
 
@@ -100,7 +115,12 @@ The "all else held equal" part is very important.
 class: MSU
 # Interpretation
 
-&lt;img src="figs/Wooldridgerepeat-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+```
+## `geom_smooth()` using formula 'y ~ x'
+```
+
+&lt;img src="02-Single-Variable-Regression-Transformations_files/figure-html/Wooldridgerepeat-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 
 - `\(\hat{\beta}_1\)` is `\(\frac{\Delta wage}{\Delta educ}\)`
 - `\(\hat{\beta}_1\)` is the slope of the line
@@ -110,8 +130,8 @@ class: MSU
 class: MSU
 # Interpretation
 
+### Regression output:
 
-.font90[
 
 ```r
 myRegression = lm(wage ~ educ, data=wage2)
@@ -138,8 +158,6 @@ summary(myRegression)
 ## Multiple R-squared:  0.107,	Adjusted R-squared:  0.106 
 ## F-statistic: 111.8 on 1 and 933 DF,  p-value: &lt; 2.2e-16
 ```
-]
-
 
 
 ---
@@ -159,7 +177,12 @@ Define `\(wage1000 = .001 \times wage\)`
 class: MSU
 # Rescaling Y and X
 
-&lt;img src="figs/Wooldridge1k-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+```
+## `geom_smooth()` using formula 'y ~ x'
+```
+
+&lt;img src="02-Single-Variable-Regression-Transformations_files/figure-html/Wooldridge1k-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 Looks pretty similar, right? But the y-axis scale is very different.
 
 ---
@@ -195,9 +218,11 @@ class: MSU
 class: MSU
 # Rescaling Y and X
 
+
 `\(\hat{\beta}_1 = 0.06\)` when we use `\(wage1000\)`
 
 `\(\hat{\beta}_1 = 60.21\)` when we use `\(wage\)`.
+
 
 --
 
@@ -428,9 +453,8 @@ A non-linear function is any function where the graph is not a straight line.
 class: MSU
 # Non-linear
 
-
 Another way of thinking about non-linear functions is that `\(\frac{\Delta y}{\Delta x}\)` depends on the value of `\(x\)`
-&lt;br&gt;&lt;br&gt;
+
 
 .pull-left[
 - The slope of the graph changes as `\(x\)` changes.
@@ -439,7 +463,7 @@ Another way of thinking about non-linear functions is that `\(\frac{\Delta y}{\D
 
 
 .pull-right[
-&lt;img src="figs/nonlinearExample1-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="02-Single-Variable-Regression-Transformations_files/figure-html/nonlinearExample1-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 ]
 
 
@@ -461,10 +485,10 @@ class: MSU
 
 - but imposes that relationship whether it is appropriate (top) or not (bottom).
 
-&lt;img src="figs/goodNonlinearExample-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+&lt;img src="02-Single-Variable-Regression-Transformations_files/figure-html/goodNonlinearExample-1.png" width="50%" style="display: block; margin: auto;" /&gt;
 
 
-&lt;img src="figs/badNonlinearExample-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+&lt;img src="02-Single-Variable-Regression-Transformations_files/figure-html/badNonlinearExample-1.png" width="50%" style="display: block; margin: auto;" /&gt;
 
 
 
@@ -483,9 +507,9 @@ For instance, plant growth rates over temperatures may be quadratic
 - The *marginal effect* of an increase in temperature will be negative at very high temperatures.
 - And somewhere in the middle, the *marginal effect* will be around zero.
 
-The *marginal effect* is another way of saying "the change in `\(y\)` per change in `\(x\)`", or `\(\frac{dy}{dx}\)`.
+The *marginal effect* is saying "the change in `\(y\)` per change in `\(x\)`", or `\(\frac{dy}{dx}\)`.
 
-&lt;img src="figs/quadraticExample-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="02-Single-Variable-Regression-Transformations_files/figure-html/quadraticExample-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -604,28 +628,22 @@ class: MSU
 # Regression in R
 
 ### First, data
-There is a very helpful packages called "wooldridge" that you can install with `install.packages('wooldridge')`. Then, we can use R's built-in "data" function to load `wage2`
+You should have already installed `wooldridge`. If not, use `install.packages('wooldridge')`. Then, we can use R's built-in "data" function to load `wage2`
 
 
 ```r
-require(wooldridge)
-data(wage2) # creates a wage2 object
-print(wage2[1:5,])
+library(wooldridge)
+wage2 = wooldridge::wage2 # creates a wage2 object
+print(wage2[1:5,1:9]) # first 5 rows; first 9 columns
 ```
 
 ```
-##   wage hours  IQ KWW educ exper tenure age married black south urban sibs
-## 1  769    40  93  35   12    11      2  31       1     0     0     1    1
-## 2  808    50 119  41   18    11     16  37       1     0     0     1    1
-## 3  825    40 108  46   14    11      9  33       1     0     0     1    1
-## 4  650    40  96  32   12    13      7  32       1     0     0     1    4
-## 5  562    40  74  27   11    14      5  34       1     0     0     1   10
-##   brthord meduc feduc    lwage
-## 1       2     8     8 6.645091
-## 2      NA    14    14 6.694562
-## 3       2    14    14 6.715384
-## 4       3    12    12 6.476973
-## 5       6     6    11 6.331502
+##   wage hours  IQ KWW educ exper tenure age married
+## 1  769    40  93  35   12    11      2  31       1
+## 2  808    50 119  41   18    11     16  37       1
+## 3  825    40 108  46   14    11      9  33       1
+## 4  650    40  96  32   12    13      7  32       1
+## 5  562    40  74  27   11    14      5  34       1
 ```
 
 

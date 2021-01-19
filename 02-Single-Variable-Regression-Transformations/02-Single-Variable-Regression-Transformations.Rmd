@@ -7,7 +7,7 @@ output:
   xaringan::moon_reader:
     lib_dir: libs
     yolo: false
-    css: [default, metropolis, metropolis-fonts, "../EC420_S21.css"]
+    css: [default, metropolis, metropolis-fonts, "EC420_S21.css"]
     nature:
       highlightStyle: github
       highlightLines: true
@@ -22,16 +22,14 @@ options(htmltools.dir.version = FALSE)
 library(knitr)
 library(kableExtra)
 opts_chunk$set(
-  fig.align="center",fig.height=4, #fig.width=7,# out.width="748px", #out.length="520.75px",
+  fig.align="center",
   dpi=300, 
   fig.path='figs/',  
   warning=F,
   message=F,
   error=F,
   cache=T,
-  echo=F,
-  engine.path=list(stata="C:/Program Files/Stata16/StataIC-64.exe")#, warning=F, message=F
-  )
+  echo=F)
 library(tidyverse)
 require(cowplot)
 require(ggpubr)
@@ -74,7 +72,7 @@ Last time, we discussed a single variable regression from Wooldridge `wage2` whe
 
 $$wage = \beta_0 + \beta_1 educ + u$$
 
-```{r Wooldridge0k, echo=F, include=T, out.width='90%'}
+```{r Wooldridge0k, echo=F, include=T, out.width='85%'}
 wage2 = wooldridge::wage2
 meanwage = mean(wage2$wage)
 meaneduc = mean(wage2$educ)
@@ -100,10 +98,16 @@ $$E[wage|educ] = \beta_0 + \beta_1 educ$$
 
 --
 
-- "One additional year of education is associated with a `r round(dlm$coefficients[2], 2)` increase in expected monthly earnings, all else held equal"
+> "One additional year of education is associated with a $\beta_1 =$ `r round(dlm$coefficients[2], 2)` increase in *expected* monthly earnings, **all else held equal**"
+
+--
+
+- Why "expected"? We are estimating the PRF, so we are looking for the relationship between *expected* monthly earnings and education.
+
+--
 
 - Why "all else held equal"? Because we have assumed that $E[U|X]=0$, so our estimate tells us how $E[Y]$ changes as $X$ *and not* $U$ changes.
-  - $U$ is held at zero
+  - $U$ is held at zero, no matter the $X$
   
 ---
 class: MSU
@@ -112,11 +116,15 @@ class: MSU
 ## Ceteris Paribus
 Latin for "all else held equal"
 
+--
+
 ----
 
-So $\hat{\beta}_1$ is 
+<br><br>
 
-### "the increase in the expectation of $wage$ associated with a 1-unit increase in $educ$, ceteris paribus"
+So the interpretation of $\hat{\beta}_1$ is:
+
+> "The (estimated) increase in the expectation of $wage$ associated with a 1-unit increase in $educ$, ceteris paribus"
 
 The "all else held equal" part is very important. 
 
@@ -136,14 +144,12 @@ dfit
 class: MSU
 # Interpretation
 
+### Regression output:
 
-.font90[
 ```{r WageRout, echo=T, include=T}
 myRegression = lm(wage ~ educ, data=wage2)
 summary(myRegression)
 ```
-]
-
 
 
 ---
@@ -188,9 +194,11 @@ summary(dklm)
 class: MSU
 # Rescaling Y and X
 
+
 $\hat{\beta}_1 = `r round(dklm$coefficients[2], 3)`$ when we use $wage1000$
 
 $\hat{\beta}_1 = `r round(dlm$coefficients[2],  2)`$ when we use $wage$.
+
 
 --
 
@@ -333,9 +341,8 @@ A non-linear function is any function where the graph is not a straight line.
 class: MSU
 # Non-linear
 
-
 Another way of thinking about non-linear functions is that $\frac{\Delta y}{\Delta x}$ depends on the value of $x$
-<br><br>
+
 
 .pull-left[
 - The slope of the graph changes as $x$ changes.
@@ -418,9 +425,9 @@ For instance, plant growth rates over temperatures may be quadratic
 - The *marginal effect* of an increase in temperature will be negative at very high temperatures.
 - And somewhere in the middle, the *marginal effect* will be around zero.
 
-The *marginal effect* is another way of saying "the change in $y$ per change in $x$", or $\frac{dy}{dx}$.
+The *marginal effect* is saying "the change in $y$ per change in $x$", or $\frac{dy}{dx}$.
 
-```{r quadraticExample, echo=F, include=T, fig.width=6, fig.height=1.4}
+```{r quadraticExample, echo=F, include=T, fig.width=6, fig.height=1.3}
 df.quad = data.frame(Temperature = rnorm(N, 70, 20),
                      u = rnorm(N, 0, 10)) %>%
   dplyr::mutate(Growth = 0 + 3*Temperature + -.02*Temperature^2 + u)
@@ -547,12 +554,12 @@ class: MSU
 # Regression in R
 
 ### First, data
-There is a very helpful packages called "wooldridge" that you can install with `install.packages('wooldridge')`. Then, we can use R's built-in "data" function to load `wage2`
+You should have already installed `wooldridge`. If not, use `install.packages('wooldridge')`. Then, we can use R's built-in "data" function to load `wage2`
 
 ```{r WoolPack1, echo=T, include=T}
-require(wooldridge)
-data(wage2) # creates a wage2 object
-print(wage2[1:5,])
+library(wooldridge)
+wage2 = wooldridge::wage2 # creates a wage2 object
+print(wage2[1:5,1:9]) # first 5 rows; first 9 columns
 ```
 
 

@@ -85,7 +85,7 @@
 }
 
 .font80 {
-  font-size: 80%%;
+  font-size: 80%;
 }
 
 
@@ -189,6 +189,15 @@ color: red;
 .remark-code, .remark-inline-code { font-family: 'Source Code Pro', 'Lucida Console', Monaco, monospace;
                                     font-size: 70%;
                                   }
+
+.pull-left {
+  float: left;
+  width: 47%;
+}
+.pull-right {
+  float: right;
+  width: 47%;
+}
 
 
 table {
