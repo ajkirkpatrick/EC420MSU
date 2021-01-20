@@ -7,7 +7,7 @@ output:
   xaringan::moon_reader:
     lib_dir: libs
     yolo: false
-    css: [metropolis-fonts, default, metropolis, "../EC420_S21.css"]
+    css: [metropolis-fonts, default, metropolis, "EC420_S21.css"]
     nature: 
       highlightStyle: github
       highlightLines: true
@@ -87,7 +87,99 @@ __Goal:__ Refresh or catch up on statistical concepts relevant to econometrics.
 ---
 class: heading-slide
 
-Questions from last week
+Questions from emails
+
+---
+class: MSU
+count: false
+# Questions
+
+**What do you think is the best or most beneficial part of this class is?**
+
+- By far, the tools necessary to assess causal claims. Second-most is familiarity with R.
+
+**How much of this course will be focused on statistics and statistical datasets as opposed to coding and R work?**
+
+- 70% statistics, 30% coding
+
+--
+
+**Will this class be difficult if I don't have any R experience?**
+
+- No. The course is designed to teach you the R skills you'll need to get started. Any R experience is going to be a bonus.
+
+---
+class: MSU
+count: false
+# Questions
+
+
+**I'm interested in Machine Learning. Are there any other ML techniques that can help investigate causality in econometrics?**
+
+- We're just now figuring out how to glean statistical properties from machine learning. The Lasso is probably the furthest along as it is, at its heart, ordinary least squares regression. 
+
+--
+
+**Do you offer an honors option?**
+
+- Alas, I do not. This is only my second year at MSU and I haven't had a chance to think about what an honors course would look like.
+
+---
+class: MSU
+count: false
+#Questions
+
+**How heavily will we be expected to calculate various items by hand**
+
+- You will probably do more pencil-to-paper math in this class than any other upper-division course you will take. The point is to be familiar enough with the method that you know what R is doing when you ask it to run a regression.
+
+--
+
+**What is the grading scale**
+
+- The syllabus has all of the point breakdowns. For the final grade, the cutoff for a 1 was around 50%, 2 at 60%, 3 at 70%, and 4 around 93%.
+
+---
+class: MSU
+count: false
+# Questions
+
+**What R packages will be be using? Will we be using `dplyr`?**
+
+We will stick mostly with `base` functions, but we will use `sandwich` and `lmtest` for our standard errors, `zoo` and `lubridate` for time series, and a few others.
+
+You are welcome to use `dplyr` if you are comfortable with it. I will teach in `base`, but you should have no trouble getting the same result from either.
+
+--
+
+**How much will we need economics for econometrics?**
+
+Very little, actually, except to understand the motivation for our examples.
+
+**When building/analyzing a model, how can we tell when an independent variable (i.e. health) is not truly independent from its dependent variable (i.e. wealth)?**
+
+This is a good question, and it's about the direction of causality. We know wealth is not independent of health! But to what extent would a change in health lead to a change in wealth? That's exactly what we'll be learning.
+
+---
+class: MSU
+count: false
+# Questions
+
+**In addition to problem sets, what is the best way to get better at coding in R?**
+
+Two things: First, do online tutorials and force yourself to copy every bit of example code by hand. Second, challenge yourself - think of some analysis you'd like to produce, and work on it independently. Necessity is the mother of all coding abilities.
+
+**Will this class be similar to PLS201?**
+
+Nope. This class is about the methods first, and the coding skills second. You'll learn coding on the way, but you'll learn it in service of learning econometric methods. 
+
+--
+
+**How long will we usually have to work on the problem sets?**
+
+I'll usually release them 7-10 days before they are due. They can be time consuming, so plan ahead and start as soon as the set is released.
+
+[On to where we left off](#LOP)
 
 ---
 class: MSU
@@ -296,6 +388,7 @@ Population statistics will __always get a greek letter__. Sample statistics don'
 
 ---
 class: MSU
+name: LOP
 # Sample vs. Population
 
 For any *population statistic* we are interested in, there will be a *sample statistic* that will tell us something about the *population statistic*.

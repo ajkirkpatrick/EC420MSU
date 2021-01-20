@@ -32,3 +32,5 @@ quantmod
 wbstats
 broom
 visualize
+lmtest
+sandwich

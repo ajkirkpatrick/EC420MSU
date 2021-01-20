@@ -7,7 +7,7 @@
     <link href="libs/remark-css/metropolis-fonts.css" rel="stylesheet" />
     <link href="libs/remark-css/default.css" rel="stylesheet" />
     <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
-    <link rel="stylesheet" href="../EC420_S21.css" type="text/css" />
+    <link rel="stylesheet" href="EC420_S21.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
@@ -16,7 +16,7 @@ class: center, middle, inverse, title-slide
 # Stats Review
 ## EC420 MSU
 ### Justin Kirkpatrick
-### Last updated January 10, 2021
+### Last updated January 20, 2021
 
 ---
 
@@ -62,7 +62,99 @@ __Goal:__ Refresh or catch up on statistical concepts relevant to econometrics.
 ---
 class: heading-slide
 
-Questions from last week
+Questions from emails
+
+---
+class: MSU
+count: false
+# Questions
+
+**What do you think is the best or most beneficial part of this class is?**
+
+- By far, the tools necessary to assess causal claims. Second-most is familiarity with R.
+
+**How much of this course will be focused on statistics and statistical datasets as opposed to coding and R work?**
+
+- 70% statistics, 30% coding
+
+--
+
+**Will this class be difficult if I don't have any R experience?**
+
+- No. The course is designed to teach you the R skills you'll need to get started. Any R experience is going to be a bonus.
+
+---
+class: MSU
+count: false
+# Questions
+
+
+**I'm interested in Machine Learning. Are there any other ML techniques that can help investigate causality in econometrics?**
+
+- We're just now figuring out how to glean statistical properties from machine learning. The Lasso is probably the furthest along as it is, at its heart, ordinary least squares regression. 
+
+--
+
+**Do you offer an honors option?**
+
+- Alas, I do not. This is only my second year at MSU and I haven't had a chance to think about what an honors course would look like.
+
+---
+class: MSU
+count: false
+#Questions
+
+**How heavily will we be expected to calculate various items by hand**
+
+- You will probably do more pencil-to-paper math in this class than any other upper-division course you will take. The point is to be familiar enough with the method that you know what R is doing when you ask it to run a regression.
+
+--
+
+**What is the grading scale**
+
+- The syllabus has all of the point breakdowns. For the final grade, the cutoff for a 1 was around 50%, 2 at 60%, 3 at 70%, and 4 around 93%.
+
+---
+class: MSU
+count: false
+# Questions
+
+**What R packages will be be using? Will we be using `dplyr`?**
+
+We will stick mostly with `base` functions, but we will use `sandwich` and `lmtest` for our standard errors, `zoo` and `lubridate` for time series, and a few others.
+
+You are welcome to use `dplyr` if you are comfortable with it. I will teach in `base`, but you should have no trouble getting the same result from either.
+
+--
+
+**How much will we need economics for econometrics?**
+
+Very little, actually, except to understand the motivation for our examples.
+
+**When building/analyzing a model, how can we tell when an independent variable (i.e. health) is not truly independent from its dependent variable (i.e. wealth)?**
+
+This is a good question, and it's about the direction of causality. We know wealth is not independent of health! But to what extent would a change in health lead to a change in wealth? That's exactly what we'll be learning.
+
+---
+class: MSU
+count: false
+# Questions
+
+**In addition to problem sets, what is the best way to get better at coding in R?**
+
+Two things: First, do online tutorials and force yourself to copy every bit of example code by hand. Second, challenge yourself - think of some analysis you'd like to produce, and work on it independently. Necessity is the mother of all coding abilities.
+
+**Will this class be similar to PLS201?**
+
+Nope. This class is about the methods first, and the coding skills second. You'll learn coding on the way, but you'll learn it in service of learning econometric methods. 
+
+--
+
+**How long will we usually have to work on the problem sets?**
+
+I'll usually release them 7-10 days before they are due. They can be time consuming, so plan ahead and start as soon as the set is released.
+
+[On to where we left off](#LOP)
 
 ---
 class: MSU
@@ -134,7 +226,7 @@ We label these using lower-case: `\(x\)`
 
 --
 
-And when we have multiple realizations of a RV, we can label them: `\(\{x_1, x_2, x_3\} = \{3, 6, 4\}\)`
+And when we have multiple realizations of a RV, we can label them: `\(\{x_1, x_2, x_3\} = \{2, 3, 6\}\)`
 
 
 ---
@@ -271,6 +363,7 @@ Population statistics will __always get a greek letter__. Sample statistics don'
 
 ---
 class: MSU
+name: LOP
 # Sample vs. Population
 
 For any *population statistic* we are interested in, there will be a *sample statistic* that will tell us something about the *population statistic*.
@@ -335,7 +428,7 @@ class: MSU
 # PDF and CDF
 
 ## A PDF
-&lt;img src="00-Stats-Review_files/figure-html/normalex-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/normalex-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 ---
 class: MSU
 # PDF and CDF
@@ -365,13 +458,13 @@ class: MSU
 
 # An example
 
-&lt;img src="00-Stats-Review_files/figure-html/distributionexample-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/distributionexample-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 class: MSU
 # Another example
 
-&lt;img src="00-Stats-Review_files/figure-html/distributionexample2-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/distributionexample2-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 class: MSU
@@ -676,7 +769,7 @@ class: MSU
 Low variance is `\(\sigma^2 = 1\)`; high variance is `\(\sigma^2 = 16\)`.
 Both means are zero.
 
-&lt;img src="00-Stats-Review_files/figure-html/exVariance1-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/exVariance1-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 class: heading-slide
@@ -1016,7 +1109,7 @@ class: MSU
 # Types of distributions
 
 ### Standard normal pdf:
-&lt;img src="00-Stats-Review_files/figure-html/standardNormalExamplePdf-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/standardNormalExamplePdf-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -1025,7 +1118,7 @@ class: MSU
 # Types of distributions
 
 ### Standard normal cdf:
-&lt;img src="00-Stats-Review_files/figure-html/standardNormalExampleCdf-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/standardNormalExampleCdf-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 class: MSU
@@ -1231,7 +1324,7 @@ Now, that we have a distribution for our estimate, we can standardize it:
  
 Which implies that the now-standardized distribution of `\(\bar{Y}\)`, `\(Z\)`, looks like:
 
-&lt;img src="00-Stats-Review_files/figure-html/NormalExAfter-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/NormalExAfter-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 
 &lt;small&gt;The vertical lines are where `\(F_(z)=\{.025, .975\}\)`. The area under the curve between the lines is .95&lt;small&gt;
 
@@ -1306,7 +1399,7 @@ Let's call our hypothesized population mean `\(\mu_0\)`. It is the *null hypothe
 class: MSU
 # Statistical inference
 
-&lt;img src="00-Stats-Review_files/figure-html/NormalExAfter2-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/NormalExAfter2-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 - If the null hypothesis is correct, the black curve is the pdf ("what we'd expect to see")
 
 - If our statistic `\(\frac{\bar{y} - \mu_0}{\sigma/N}\)` is the red line, do we think we have the distribution right? 
@@ -1588,7 +1681,7 @@ First, we have to define the rejection region:
 class: MSU
 # Statistical inference
 
-&lt;img src="00-Stats-Review_files/figure-html/plott-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/plott-1.png" width="100%" style="display: block; margin: auto;" /&gt;
 
 
 ---
@@ -1717,7 +1810,7 @@ class: clear
 `$$\text{home price} = \beta_0 + \beta_1 \times  \text{distance to landfill} + \epsilon$$`
 
 `$$\text{home price} = 82 + 30 \times \text{distance to landfill} + \epsilon$$`
-&lt;img src="00-Stats-Review_files/figure-html/lineExample2-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/lineExample2-1.png" width="100%" style="display: block; margin: auto;" /&gt;
 
 
 ---
@@ -1729,7 +1822,7 @@ class: MSU
 
 Polynomials take the form `\(ax^3 + bx^2 + cx + d\)`
 
-&lt;img src="00-Stats-Review_files/figure-html/polynomial-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/polynomial-1.png" style="display: block; margin: auto;" /&gt;
 
 
 ---
@@ -1775,7 +1868,7 @@ class: MSU
 - In economics, "log" almost always means "natural log"
 ]
 
-&lt;img src="00-Stats-Review_files/figure-html/naturalLog-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/naturalLog-1.png" width="90%" style="display: block; margin: auto;" /&gt;
 
 ---
 class: MSU
@@ -1831,7 +1924,7 @@ class: MSU
 - Explodes quickly with large `\(x\)`
 ]
 
-&lt;img src="00-Stats-Review_files/figure-html/exponentExample-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/exponentExample-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 ---
 class: inverseMSU
 
