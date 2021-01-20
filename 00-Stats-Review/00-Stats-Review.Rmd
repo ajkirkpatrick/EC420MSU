@@ -622,8 +622,7 @@ $$\frac{1}{N}\sum_{n=1}^{N} x_n - \bar{x} = \bar{x} - \bar{x} = 0$$
 
 
 ---
-class: inverseMSU
-
+class: MSU
 # Mean, variance
 
 ### Expected value
