@@ -226,7 +226,7 @@ We label these using lower-case: `\(x\)`
 
 --
 
-And when we have multiple realizations of a RV, we can label them: `\(\{x_1, x_2, x_3\} = \{5, 3, 6\}\)`
+And when we have multiple realizations of a RV, we can label them: `\(\{x_1, x_2, x_3\} = \{1, 5, 3\}\)`
 
 
 ---
@@ -806,7 +806,7 @@ class: MSU
 
 ## Let's define **Covariance** between `\(X\)` and `\(Y\)`
 
-`$$Cov(X,Y) = \sum_{n=1}^N (x_n - \mu_X)(y_n - \mu_Y)$$`
+`$$Cov(X,Y) = \frac{1}{N} \sum_{n=1}^N (x_n - \mu_X)(y_n - \mu_Y)$$`
 
 Note that we are *summing the pairwise deviations from the mean*.
 
@@ -830,7 +830,7 @@ class: MSU
 
 ### With some algebra, we can also write covariance as:
 
-`$$Cov(X,Y) = \sum_{n=1}^N (x_n - \mu_X)(y_n - \mu_Y) = E(XY) - \mu_X \mu_Y$$`
+`$$Cov(X,Y) = \frac{1}{N} \sum_{n=1}^N (x_n - \mu_X)(y_n - \mu_Y) = E(XY) - \mu_X \mu_Y$$`
 
 Just as `\(E(X)\)` was important to the *measure of central tendency* and `\(E(X^2)\)` was important to the *measure of dispersion* (variance), `\(E(XY)\)` is important to the covariance, a *measure of association*.
 
