@@ -34,21 +34,15 @@ Write your answer here, before your code, or after your code. *italics* or **bol
 wage2 = wooldridge::wage2
 hist(wage2$wage)
 
-firstFunction = jFunction(x = wage2$wage[1], y = wage2$educ[1])
-
 ```
 
 \newpage
 ## 2. Copy the text of the next question here
 
 ```{r q2}
-hist(wage2$educ)
+# Q2 code goes here
 ```
 
 Answer the question based on the output.
-
-\newpage
-## 3. ....
-
 
 
