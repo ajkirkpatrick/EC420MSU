@@ -1,0 +1,54 @@
+---
+title: "Lab No. X"
+author: "Your Name"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  pdf_document: default
+
+---
+
+```{r, include=TRUE, echo = FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      fig.align = 'center')
+```
+
+```{r LibraryChunk, echo = TRUE}
+library(wooldridge)
+
+
+jFunction<-function(x, y){
+ ysquare = y^2 
+ xPlusYSquare = x + ysquare
+ xPlusYSquare
+}
+```
+
+
+## 1. Copy the text of the question here
+
+Write your answer here, before your code, or after your code. *italics* or **bold**.
+
+
+```{r q1}
+
+wage2 = wooldridge::wage2
+hist(wage2$wage)
+
+firstFunction = jFunction(x = wage2$wage[1], y = wage2$educ[1])
+
+```
+
+\newpage
+## 2. Copy the text of the next question here
+
+```{r q2}
+hist(wage2$educ)
+```
+
+Answer the question based on the output.
+
+\newpage
+## 3. ....
+
+
+
