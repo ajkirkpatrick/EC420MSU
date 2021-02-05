@@ -686,27 +686,18 @@ summary(lm(Outcome ~ Dose, data = df))
 
 
 ```{r outputChromePrint, eval=F}
-# 
-# require(pagedown)
-# pagedown::chrome_print(input = gsub(pattern = '\\.Rmd', replacement = '.html', rstudioapi::getSourceEditorContext()$path),
-#                    output = gsub(pattern = '\\.Rmd', replacement = '.pdf', basename(rstudioapi::getSourceEditorContext()$path)),
-#                    #wait = 3,
-#                    timeout = 300,
-#                    format = 'pdf')
+
+
+require(pagedown)
 currentfile = gsub(pattern='\\.Rmd', '', basename(rstudioapi::getSourceEditorContext()$path))
-pagedown::chrome_print(input = paste0('https://ajkirkpatrick.github.io/EC420MSU/',currentfile, '/', paste0(currentfile, '.html')),
-                   output = paste0(currentfile, '.pdf'),
-                   #wait = 3,
-                   timeout = 300,
+inputpath = paste0('https://ajkirkpatrick.github.io/EC420MSU/',currentfile, '/', paste0(currentfile, '.html'))
+browseURL(inputpath)
+pagedown::chrome_print(input = inputpath,
+                   output = file.path(currentfile, paste0(currentfile, '.pdf')),
+                   wait = 3,
+                   timeout = 900,
                    format = 'pdf')
 
-
-currentfile = gsub(pattern='\\.Rmd', '', (rstudioapi::getSourceEditorContext()$path))
-pagedown::chrome_print(input = paste0(currentfile, '.html'),
-                   output = paste0(basename(currentfile), '.pdf'),
-                   #wait = 3,
-                   timeout = 300,
-                   format = 'pdf')
 
 ```
 
