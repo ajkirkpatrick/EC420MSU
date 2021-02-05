@@ -8,7 +8,7 @@ output:
 ---
 
 
-```{r LibraryChunk, echo = TRUE}
+```{r LibraryChunk, echo = FALSE}
 
 ## Keep this line always
 knitr::opts_chunk$set(echo = TRUE,

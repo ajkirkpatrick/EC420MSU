@@ -4,7 +4,7 @@
 # The hastag is a "comment" - it tells R that this isn't code.
 # You can use it to write notes in your code
 
-## Dataypes
+## Data types
 ## 
 # Numeric
 a <- 1

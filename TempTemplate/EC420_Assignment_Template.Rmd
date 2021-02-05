@@ -1,0 +1,48 @@
+---
+title: "Assignment No. 1"
+author: "Your Name"
+date: ""
+output:
+  pdf_document: default
+
+---
+
+```{r, include=TRUE, echo = FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      fig.align = 'center')
+```
+
+```{r LibraryChunk, echo = TRUE}
+library(wooldridge)
+wage = wooldridge::wage2
+plot(wage$wage, wage$educ)
+
+jFunction<-function(x, y){
+ ysquare = y^2 
+ xPlusYSquare = x + ysquare
+ xPlusYSquare
+}
+```
+
+## 1. What does the plot tell you about wage and education?
+
+It looks like wage goes up when education goes up! This is amazing! Nobody knows this.
+
+
+```{r q1, echo = TRUE, warning=F, message=F}
+download.file('https://ssc442kirkpatrick.netlify.app/example/01-example_files/figure-html/regents-exams-example-1.png', destfile = 'tempdl.png')
+
+knitr::include_graphics('tempdl.png')
+
+```
+
+\newpage
+## 2. Copy the text of the next question here
+
+```{r q2}
+# Q2 code goes here
+```
+
+Answer the question based on the output.
+
+

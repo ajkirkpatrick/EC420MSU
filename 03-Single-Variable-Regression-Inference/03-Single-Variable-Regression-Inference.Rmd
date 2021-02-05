@@ -33,15 +33,51 @@ library(tidyverse)
 require(cowplot)
 require(ggpubr)
 require(haven)
+require(xaringancolor)
+
 ```
 
 layout: true
 
 <div class="msu-header"></div> 
 
+<div style = "position:fixed; visibility: hidden">
+$$\require{color}\definecolor{yellow}{rgb}{1, 0.8, 0.16078431372549}$$
+$$\require{color}\definecolor{orange}{rgb}{0.96078431372549, 0.525490196078431, 0.203921568627451}$$
+$$\require{color}\definecolor{MSUgreen}{rgb}{0.0784313725490196, 0.52156862745098, 0.231372549019608}$$
+</div>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  TeX: {
+    Macros: {
+      yellow: ["{\\color{yellow}{#1}}", 1],
+      orange: ["{\\color{orange}{#1}}", 1],
+      MSUgreen: ["{\\color{MSUgreen}{#1}}", 1]
+    },
+    loader: {load: ['[tex]/color']},
+    tex: {packages: {'[+]': ['color']}}
+  }
+});
+</script>
+
+<style>
+.yellow {color: #FFCC29;}
+.orange {color: #F58634;}
+.MSUgreen {color: #14853B;}
+</style>
+
+
+```{r flair_color, echo=FALSE}
+library(flair)
+yellow <- "#FFCC29"
+orange <- "#F58634"
+MSUgreen <- "#14853B"
+```
+
 
 ---
-class: inverseMSU
+class: MSU
 name: Overview
 
 # This lecture  
@@ -81,7 +117,7 @@ $$y = \beta_0 + \beta_1 x + u$$
  
 --
  
-- "Fitting a line" 
+- "Fitting a line"
   - The PRF and the SRF
   
 --
@@ -92,9 +128,9 @@ $$y = \beta_0 + \beta_1 x + u$$
 
 --
 
-- SST (Sum of Squares Total) = $\sum_{i=1}^{N}(y_i - \bar{y})^2$
-  - SSE (Sum of Squares Explained) = $\sum_{i=1}^{N}(\hat{y}_i - \bar{y})^2$
-  - SSR (Sum of Squares Residual) = $\sum_{i=1}^{N}\hat{u}^2_i$
+- .MSUgreen[SST] (Sum of Squares Total) = $\sum_{i=1}^{N}(y_i - \bar{y})^2$
+  - .MSUgreen[SSE] (Sum of Squares Explained) = $\sum_{i=1}^{N}(\hat{y}_i - \bar{y})^2$
+  - .MSUgreen[SSR] (Sum of Squares Residual) = $\sum_{i=1}^{N}(\hat{u}_i - \hat{\bar{u}})^2$
 
 
 
@@ -148,7 +184,7 @@ What do we need to test a hypothesis?
 
 --
 
-A distribution
+A .orange[distribution]
 - $E[\hat{\beta}_1]$
 - $Var(\hat{\beta}_1)$
 - $\hat{\beta}_1 \sim N(?,?)$ (let's assume we know it's Normal for now)
@@ -164,30 +200,53 @@ Now, remember that we are looking at $\hat{\beta}$, not $\beta$ itself.
 - $\beta$ is a population parameter, 
   - It is unobserved
   - It is a constant
-  - Because it is a constant, it can move in and out of $E$xpectations and variances as a constant would.
+  - Because it is a constant, it can move in and out of .MSUgreen[Expectations] and .MSUgreen[Variances] as a constant would.
   
 - $\hat{\beta}$ depends on the sample. It is therefore a random variable.
   - It has an expected value
   - It has a variance
   - We can use a statistical test on hypothesis about $\hat{\beta}$.
   
-These are two different things, we are interested in whether or not they are the same in $E$
+$\beta$ and $\hat{\beta}$ are two different things, we are interested in whether or not they are the same in $E$
 
 ---
 class: MSU
 # Review statistical inference
 
+
+## Gauss-Markov
+.pull-left[
+```{r gm, fig.cap = 'Carl Friedrich Gauss', out.width = '80%', message = F, warning=F}
+download.file('https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Carl_Friedrich_Gauss.jpg/800px-Carl_Friedrich_Gauss.jpg', destfile = 'gauss.jpg', mode='wb', quiet = T)
+knitr::include_graphics('gauss.jpg')
+```
+]
+
+.pull-right[
+```{r gm2, fig.cap='Andrey Markov', fig.scap = 'Wikimedia Commons', out.width = '80%'}
+download.file('https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/AAMarkov.jpg/800px-AAMarkov.jpg', destfile = 'markov.jpg', mode='wb', quiet = T)
+knitr::include_graphics('markov.jpg')
+```
+]
+
+
+.font40[Both images courtesy of Wikimedia Commons]
+---
+class: MSU
+# Review statistical inference
+
+
 We will need to make the following four assumptions to get $E[\hat{\beta}]$
 
 ### Gauss-Markov Assumptions
 
-1. SLR.1: In the population, $y$ is a linear function of the parameters, $x$, and $u$: $y = \beta_0 + \beta_1x+u$
+1. .orange[SLR.1]: In the population, $y$ is a linear function of the parameters, $x$, and $u$: $y = \beta_0 + \beta_1x+u$
 
-2. SLR.2: the sample $(y_i, x_i): i= 1, 2, \cdots, n$ follows the population model and are independent.
+2. .orange[SLR.2]: The sample $(y_i, x_i): i= 1, 2, \cdots, n$ follows the population model and are independent.
 
-3. SLR.3: "Sample Variation in the Explanatory ( $X$ ) Variable". That is, $x_i$ is not the same for all $i$'s.
+3. .orange[SLR.3]: "Sample Variation in the Explanatory ( $X$ ) Variable". That is, $x_i$ is not the same for all $i$'s.
 
-4. SLR.4: "Zero conditional mean". $E[u|x] = 0$ for all $x$.
+4. .orange[SLR.4]: "Zero conditional mean". $E[u|x] = 0$ for all $x$.
 
 <br>
 File these away for a minute. We'll need them.
@@ -197,9 +256,12 @@ File these away for a minute. We'll need them.
 class: MSU
 # Expectation of the estimate
 
+## Expectation of the estimate: Bias
+
 We know how to calculate, from our sample, $\hat{\beta}$
 
 We would hope (and will now prove) that $E[\hat{\beta}] = \beta$
+
 - This is the first step in deriving the distribution of $\hat{\beta}$
 - Section 2.5a of Wooldridge
   - If $E[\hat{\beta}] = \beta$, then the estimator is **unbiased**. Let's see if this is the case:
@@ -207,7 +269,7 @@ We would hope (and will now prove) that $E[\hat{\beta}] = \beta$
 --
 
 $$\hat{\beta}_1 = \frac{\widehat{Cov}(X,Y)}{\widehat{Var}(X)} = \frac{\frac{1}{N-1} \sum(x_i - \bar{x})(y_i-\bar{y})}{\frac{1}{N-1} \sum(x_i - \bar{x})^2} = \frac{\sum(x_i - \bar{x})y_i}{\sum(x_i-\bar{x})^2}$$
-- The first equality is from our definition two lectures ago.
+- The first equality is our derivation of $\hat{\beta}_1$.
 - The second uses the definition of Covariance and Variance
 - The third cancels out the $\frac{1}{N-1}$ and does some simplification of the numerator (see Appendix A of Wooldridge)
 
@@ -225,7 +287,7 @@ $$\hat{\beta}_1 = \frac{\sum(x_i - \bar{x})y_i}{\sum(x_i-\bar{x})^2}$$
   - Remember, we originally introduced $SST$ as the *Sum of Squares Total* in a regression and it referred to the total variance in $Y$, the left-hand-side (LHS) of our regression.
 --
 
-- Substitute our model for $y_i$: $y_i = \beta_0 + \beta_1 x_i + u_i$, our model:
+- Substitute our model for $y_i$: $y_i = \beta_0 + \beta_1 x_i + u_i$
 --
 
 - Rename $x_i - \bar{x}$ as $d_i$, for **d**eviations from $\bar{x}$.
@@ -241,9 +303,9 @@ Let's take a second and make sure everyone is on board here. Remember, $d_i = x_
 <br><br><br>
 --
 
-Take the $\beta$'s out as they are constants:
+Move the $\beta$'s out as they are constants:
 
-$$\hat{\beta}_1 = \frac{\beta_0 \sum(d_i) + \beta_1 \sum(d_i x_i) + \sum(d_i u_i)}{SST_x}$$
+$$\hat{\beta}_1 = \frac{\overbrace{\beta_0 \sum(d_i)}^{\text{First term}} + \overbrace{\beta_1 \sum(d_i x_i)}^{\text{Second term}} + \overbrace{\sum(d_i u_i)}^{\text{Third term}}}{SST_x}$$
 --
 
 In that numerator, $\beta_0 \sum(d_i)$ must be $0$ since $\sum(x_i - \bar{x}) = 0$. We can ignore it! <br><br>
@@ -254,7 +316,7 @@ $$\hat{\beta}_1 =\frac{0}{SST_x} + \frac{\beta_1 \sum (d_i x_i)}{SST_x} + \frac{
 class: MSU
 # Expectation of the estimate
 
-The second term : 
+The second term: 
 $$\frac{\beta_1 \sum(d_i x_i)}{SST_x} = \frac{\beta_1 \sum((x_i - \bar{x})x_i)}{SST_x} = \frac{\beta_1 \sum((x_i - \bar{x})(x_i-\bar{x}))}{SST_x} = \frac{\beta_1 SST_x}{SST_x}$$
 And since $SST_x$ is in the denominator and cancels, we will end up with $\beta_1$.
 <br>
@@ -262,19 +324,18 @@ And since $SST_x$ is in the denominator and cancels, we will end up with $\beta_
 
 #### This is very important: notice that we now have the true value of beta in there.
 
-$\beta_1$ is the true beta. It is *part of* $\hat{\beta}_1$, but there's still the third term:
+$\beta_1$ is the .red[true beta]. It is *part of* $\hat{\beta}_1$, but there's still the third term:
 
 $$\frac{\sum(d_i u_i)}{SST_x} = \frac{\sum((x_i - \bar{x})u_i)}{SST_x}$$
 
 --
 
-$$\hat{\beta}_1 = \beta_1 + \frac{\sum((x_i - \bar{x})u_i)}{SST_x}$$
+$$\hat{\beta}_1 = 0 + \beta_1 + \frac{\sum((x_i - \bar{x})u_i)}{SST_x}$$
 
 We will say that the estimate of $\beta_1$, $\hat{\beta}_1$ is the true $\beta$ plus some term.
 
 ---
 class: MSU
-
 # Expectation of the estimate
 
 $$\hat{\beta}_1 = \beta_1 + \frac{\sum((x_i - \bar{x})u_i)}{SST_x}$$
@@ -325,7 +386,7 @@ $\Rightarrow E[\hat{\beta_1}] = \beta_1$.
 
 --
 
-Hooray, our estimator, $\hat{\beta}_1$ is unbiased, and we know it is distributed with mean of $\beta$
+Our estimator, $\hat{\beta}_1$ is .red[unbiased], and we know it is distributed with mean of $\beta_1$
 
 ---
 class: MSU
@@ -366,6 +427,22 @@ class: MSU
 
 4. SLR.4: "Zero conditional mean". $E[u|x] = 0$ for all $x$.
 
+#### These get us to "$\hat{\beta}$ is unbiased"
+
+---
+class: MSU
+# Variance of the estimate
+
+### Gauss-Markov Assumptions
+
+1. SLR.1: In the population, $y$ is a linear function of the parameters, $x$, and $u$: $y = \beta_0 + \beta_1x+u$
+
+2. SLR.2: the sample $(y_i, x_i): i= 1, 2, \cdots, n$ follows the population model and are independent.
+
+3. SLR.3: "Sample Variation in the Explanatory ( $X$ ) Variable". That is, $x_i$ is not the same for all $i$'s.
+
+4. SLR.4: "Zero conditional mean". $E[u|x] = 0$ for all $x$.
+
 ### Add one more assumption:
 
 Add SLR.5: $Var[u|x] = \sigma^2_u$ for all $x$.
@@ -373,7 +450,6 @@ Add SLR.5: $Var[u|x] = \sigma^2_u$ for all $x$.
 
 ---
 class: MSU
-
 # Variance of the estimate
 
 ### SLR.5: $Var[u|x] = \sigma^2_u$ for all $x$
@@ -382,7 +458,7 @@ class: MSU
 - We do **not** need this assumption to show that $\hat{\beta}$ is an unbiased estimator for $\beta$
   - But we do need this assumption to calculate the variance of $\hat{\beta}$.
 
-- It does not mean that we know $\sigma^2_u$.
+- It does not mean that we know $\sigma^2_u$. .red[We don't]
 
 ---
 class: MSU
@@ -426,7 +502,7 @@ For any realization of $x$
 
 - Variance of the estimator is increasing in $\sigma^2_u$.
 - Variance of the estimator is decreasing in $SST_x$, variation in $X$.
---
+
 
 ---
 class: MSU
@@ -437,7 +513,7 @@ class: MSU
 --
 
 - $\hat{u}$ seems like a good start.
-- In our model, $u_i$ is the *error*, but we observe $\hat{u}$, which is the residual.
+- In our model, $u_i$ is the .red[*error*], but we observe $\hat{u}$, which is the .red[residual].
   - $\hat{u}_i = u_i - (\hat{\beta}_0 - \beta_0) - (\hat{\beta}_1 - \beta_1)x_i$
   - So $E[\hat{u_i}] = u_i$
   
