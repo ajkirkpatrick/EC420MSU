@@ -7,7 +7,7 @@ output:
   xaringan::moon_reader:
     lib_dir: libs
     yolo: false
-    css: [default, metropolis, metropolis-fonts, ajk_css]
+    css: [default, metropolis, metropolis-fonts, "EC420_S21.css"]
     nature: 
       highlightStyle: github
       highlightLines: true
@@ -21,11 +21,14 @@ options(htmltools.dir.version = FALSE)
 library(knitr)
 library(kableExtra)
 opts_chunk$set(
-  fig.align="center",fig.height=4, #fig.width=7,# out.width="748px", #out.length="520.75px",
+  fig.path='figs/',
+  out.width= '90%',
+  warning = F,
+  message = F,
+  error=F,
   dpi=300, #fig.path='Figs/',
   cache=T,
-  echo=F
-  )
+  echo=F)
 library(tidyverse)
 require(cowplot)
 require(ggpubr)
@@ -41,27 +44,48 @@ require(lmtest)
 layout: true
 
 <div class="msu-header"></div> 
----
-class: inverseMSU
-# Class Business
+
+<div style = "position:fixed; visibility: hidden">
+$$\require{color}\definecolor{yellow}{rgb}{1, 0.8, 0.16078431372549}$$
+$$\require{color}\definecolor{orange}{rgb}{0.96078431372549, 0.525490196078431, 0.203921568627451}$$
+$$\require{color}\definecolor{MSUgreen}{rgb}{0.0784313725490196, 0.52156862745098, 0.231372549019608}$$
+$$\require{color}\definecolor{DUKEblue}{rgb}{0.00392156862745098, 0.129411764705882, 0.411764705882353}$$
+</div>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  TeX: {
+    Macros: {
+      yellow: ["{\\color{yellow}{#1}}", 1],
+      orange: ["{\\color{orange}{#1}}", 1],
+      MSUgreen: ["{\\color{MSUgreen}{#1}}", 1],
+      DUKEblue: ["{\\color{DUKEblue}{#1}}", 1]
+    },
+    loader: {load: ['[tex]/color']},
+    tex: {packages: {'[+]': ['color']}}
+  }
+});
+</script>
+
+<style>
+.yellow {color: #FFCC29;}
+.orange {color: #F58634;}
+.MSUgreen {color: #14853B;}
+.DUKEblue {color: #012169;}
+</style>
 
 
-
-**HW2**
-- .red[Due] this Sunday Feb 16th at 11:59pm
-- I made a small update to Task 1.1(e) (changed the variables in a plot I ask you to make).
-
-**Quiz 2**
-- Average of **6.42**, Median of **7**
-- Even if you think you have a wrong number, keep going!
-
-```{r QuizStats, out.width='60%'}
-knitr::include_graphics('Quiz2Stats.png')
+```{r flair_color, echo=FALSE}
+library(flair)
+yellow <- "#FFCC29"
+orange <- "#F58634"
+MSUgreen <- "#14853B"
+DUKEblue <- "#012169"
 ```
 
 
 ---
-class: inverseMSU
+class: MSU
 name: Overview
 
 # This lecture  
@@ -72,8 +96,7 @@ __Goal:__
 
 2. Review single variable inference
   - $Var(\hat{\beta}_1)$
-  - SLR.1-SLR.4
-  - SLR.5
+  - SLR.1-SLR.4 + SLR.5
 
 --
 
@@ -84,7 +107,7 @@ __Goal:__
 
 4. Multicolinearity
 
-5. OLS is **B.L.U.E.**
+5. OLS is .DUKEblue[**B.L.U.E.**]
 
 6. Heteroskedasticity
 
@@ -108,7 +131,7 @@ class: MSU
 ### Extending the single variable regression, we discussed "partialling out":
 
 $$y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + u$$
-$$y = \tilde{\beta}_0 + \tilde{\beta}_1 x_1  + u \text{ (the tilde here means "bad")}$$
+$$y = \tilde{\beta}_0 + \tilde{\beta}_1 x_1  + \tilde{u} \text{ (the tilde here means "bad")}$$
 Where the correct $\beta_1$ could be obtained if we "partialled out":
 
 $$x_1 = \delta_0 + \delta_1 x_2 + v$$
@@ -117,12 +140,12 @@ and regressing on the residual:
 
 $$y = \beta_0 + \beta_1 \hat{v} + u$$
 
-Yields a correct $\hat{\beta}_1$. 
+Yields an unbiased estimate $\hat{\beta}_1$ of the effect of a change in $x_1$ on the expectation of $Y$, *ceteris paribus*.
 
 
 ---
 class: MSU
-
+# Last time...
 
 ### This tells us that OLS on two variables:
 $$y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + u$$
@@ -137,7 +160,7 @@ $$x_1 = \delta_0 + \delta_1 x_2 + v$$
 
 $$\hat{v} = x_1 - \hat{\delta}_0 - \hat{\delta}_1 x_2$$
 
-$\hat{v}$ is correlated with $x_1$, but is not correlated with $x_2$
+$\hat{v}$ is correlated with $x_1$, .orange[but is not correlated with] $x_2$
 
 ]
 
@@ -146,7 +169,7 @@ $$x_2 = \gamma_0 + \gamma_1 x_1 + w$$
 .center[and]
 
 $$\hat{w} = x_2 - \hat{\gamma}_0 - \hat{\gamma}_1 x_1$$
-$\hat{w}$ is correlated with $x_2$, but is not correlated with $x_1$
+$\hat{w}$ is correlated with $x_2$, .orange[but is not correlated with] $x_1$
 
 ]
 
@@ -157,9 +180,13 @@ class: MSU
 
 The previous slide means:
 
-$$\hat{\beta}_1 =  \frac{\widehat{Cov}(X,Y)}{\widehat{Var}(X)} =  \frac{\widehat{Cov}(\hat{v},Y)}{\widehat{Var}(\hat{v})}$$
+$$\hat{\beta}_1 =  \frac{\widehat{Cov}(X_1,Y)}{\widehat{Var}(X_1)} =  \frac{\widehat{Cov}(\hat{v},Y)}{\widehat{Var}(\hat{v})}$$
 
-And the same with $\hat{\beta}_2$, but with $\hat{w}$. 
+and naturally:
+
+$$\hat{\beta}_2 =  \frac{\widehat{Cov}(X_2,Y)}{\widehat{Var}(X_2)} =  \frac{\widehat{Cov}(\hat{w},Y)}{\widehat{Var}(\hat{w})}$$
+
+
 - The residuals of a first-stage regression of $x_1$ on $x_2$ and vice versa.
 
 
@@ -178,7 +205,7 @@ Where:
 - SSR = Sum of Squared Residual = $\sum_{i=1}^n (\hat{u}_i - \bar{u})^2 =\sum_{i=1}^n \hat{u}_i^2$<br><br>
 
 
-And since $SSE + SSR = SST$, then $R^2 = \left(1 - \frac{SSR}{SST}\right)$
+And since $SSE + SSR = SST$, then $R^2 = \frac{SSE}{SST} = \left(1 - \frac{SSR}{SST}\right)$
 
 $R^2$ gives us the fraction of total variance *explained by the model*
 
@@ -196,13 +223,13 @@ SLR.3: "Sample Variation in the Explanatory ( $X$ ) Variable". That is, $x_i$ is
 
 SLR.4: "Zero conditional mean". $E[u|x] = 0$
 
-$\Rightarrow \hat{\beta}$ is unbiased estimate of $\beta$.
+SLR.1-SLR.4 $\Rightarrow \hat{\beta}$ is .orange[unbiased estimate] of $\beta$.
 
 --
 
 SLR.5: $Var[u|x] = \sigma^2_u$ for all $x$. (*homoskedasticity*)
 
-$\Rightarrow Var(\hat{\beta}) = \frac{\sigma^2_u}{SST_x}$
+SLR.5 $\Rightarrow Var(\hat{\beta}) = \frac{\sigma^2_u}{SST_x}$
 
 
 ---
@@ -210,7 +237,7 @@ class: MSU
 # Last time (or earlier)
 
 ### $Var(\hat{\beta})$ for single-variable regression:
-We took a look at $\beta$ up to this point:
+We formulated $\beta$ up to this point earlier:
 $$\hat{\beta}_1 = \beta_1 + \frac{\sum((x_i - \bar{x})u_i)}{SST_x}$$
 And then took the variance of this, noting that $Var(\beta_1)=0$ because it is a (constant) population parameter.
 
@@ -252,7 +279,7 @@ $$\hat{\sigma}_u^2 = \frac{1}{(N-3)} \sum_{i=1}^{N} \hat{u}_i^2 = \frac{SSR}{N-3
 class: MSU
 # Variance of the estimator
 
-#### Generalizing to $K$ variables
+### Generalizing to $K$ variables
 - We always count 1 for $\beta_0$<br>
 - We call the number of $X$'s $K$<br>
 - We would use $\frac{1}{N-K-1}$ if there are $K$ $x$'s.<br>
@@ -280,14 +307,14 @@ $\Rightarrow \hat{\sigma}^2_u$ gets **larger**
 
 $\Rightarrow \widehat{Var}(\hat{\beta})$ gets **larger**
 
-And thus our confidence intervals get larger, rejection region gets smaller, and we lose *precision*
+And thus .orange[our confidence intervals get larger, rejection region gets smaller, and we lose *precision*]
 
 
 ---
 class: MSU
 # Variance of the estimator
 
-### So we know our multivariate $\hat{\sigma}^2_u$. 
+### So we know how to calculate our multivariate $\hat{\sigma}^2_u$. 
 
 ### What about the rest of $\frac{\hat{\sigma}^2_u}{SST_x}$? What is $SST_x$?
 - Before, we had one $x$, so $SST_x$ was straightforward.
@@ -311,7 +338,7 @@ The data:
 sstdf = data.frame(x1 = c(1,5,6),
                    x2 = c(-2,0,2))
 
-knitr::kable(sstdf, 'html', align=c('cc'))%>% kable_styling(bootstrap_options = 'basic')
+knitr::kable(sstdf, align=c('cc')) %>% kable_styling(bootstrap_options = 'basic')
 
 ```
 <br><br>
@@ -339,8 +366,8 @@ class: MSU
 ### We need to make one more adjustment
 We need to account for how unique the variance in each of the $x_k$'s is.
 - Imagine if we had two $x$'s: $x_j, x_k$, but they were *almost* always the same number. 
-- Think: temperature and rainfall.
-- The estimates of the corresponding $\beta$'s: $\beta_j$ and $\beta_k$, should have a lot of variance to them because we aren't sure which is actually explaining the variation in $y$.
+  - Think: temperature and rainfall.
+- The estimates of the corresponding $\beta$'s: $\beta_j$ and $\beta_k$, should have a lot of variance to them because we aren't sure which is *actually* explaining the variation in $y$.
 
 ### So, we are going to weight each $SST_{x_j}$ by $(1-R^2_j)$
 Where $R^2_j$ is the $R^2$ of the regression $x_j = \delta_0 + \delta_1 x_1 + \cdots + \delta_k x_k + v$. 
@@ -406,7 +433,7 @@ class: MSU
 ### X degrees Farenheit to Y degrees Celsisus conversion: 
 $$(X^{\circ}F - 32) \times \frac{5}{9} = Y^{\circ}C$$
 
-```{r DegFC, echo=F, include=T, out.width='90%'}
+```{r DegFC, echo=F, include=T, out.width='70%'}
 df = tibble(F = 0:120,
                 C = (F-32)*(5/9))
 
@@ -484,7 +511,7 @@ class: MSU
 # Multiple regression assumptions  
 
 ### A neat thing happens when assumptions 1-5 hold
-## OLS is B.L.U.E.
+## OLS is .DUKEblue[B.L.U.E.]
 
 - **B**est
   - Has the lowest variance
@@ -532,7 +559,7 @@ $$ u|x_1, x_2, \cdots, x_k \sim N(0, \sigma^2_u)$$
 ### Then:
 $$y|x_1, \cdots, x_k \sim N(\beta_0 + \beta_1 x_1 + \cdots + \beta_k x_k, \sigma^2_u)$$
 
-Note that this is the distribution of $y$ conditional on the $x$'s. All of the random variation comes from $u$. $x$'s conditionally shift the mean.
+Note that this is the distribution of $y$ conditional on the $x$'s. .orange[All of the random variation comes from] $u$. $x$'s conditionally shift the mean .orange[deterministically].
 
 --
 
@@ -564,7 +591,7 @@ class: MSU
 ### So now we know :
 - $E[\hat{\beta}]$
 - $Var(\hat{\beta})$
-- That $\hat{\beta}$ is normally distributed
+- That $\hat{\beta}$ really is normally distributed
 
 ### That's what we need to start testing things!
 
@@ -572,21 +599,21 @@ $$\frac{\hat{\beta} - \beta}{se(\hat{\beta})} \sim N(0,1) \quad\text{and}\quad  
 
 ---
 class: MSU
-
+# Homoskedasticity
 
 Now is a good time to revisit MLR.5, homoskedasticity: 
 
-```{r WooldridgeHomoskedasticity, echo=F, include=T, fig.cap='Homoskedasticity (from Wooldridge)', out.width='75%'}
+```{r WooldridgeHomoskedasticity, echo=F, include=T, fig.align = 'center', fig.cap='Homoskedasticity (from Wooldridge)', out.width='75%'}
 include_graphics('../graphics/Wooldridge/Figure 2-8.jpg')
 ```
 
 ---
 class: MSU
-
+# Homoskedasticity
 
 And what to do about heteroskedasticity:
 
-```{r WooldridgeHeteroskedasticity, echo=F, include=T, fig.cap='Heteroskedasticity (from Wooldridge)', out.width='75%'}
+```{r WooldridgeHeteroskedasticity, echo=F, fig.align = 'center', include=T, fig.cap='Heteroskedasticity (from Wooldridge)', out.width='75%'}
 include_graphics('../graphics/Wooldridge/Figure 2-9.jpg')
 ```
 
@@ -611,14 +638,15 @@ It comes at a cost, though: it inflates errors (make larger)
 ---
 class: MSU
 # Homoskedasticity
-## Heteroskedasticity-robust standard errors: how do they work
+
+## Heteroskedasticity-robust standard errors: how do they work?
 
 The problem is that $x_j$ may be correlated with $u$ and thus $\sigma^2_m \neq \sigma^2_n$ - there is no common, single $\sigma^2$. 
 
 In the **single variable regression case**, we would account for this:
 $$\widehat{Var}(\hat{\beta}_1) = \frac{\sum_{i=1}^N(x_i - \bar{x})^2 \hat{u}_i^2}{(SST_x)^2}$$
 
-Note that we have squared the sum-of-squares total in the denominator. The numerator looks a little like covariance, but it's the covariance of squared terms.
+Note that we have squared the sum-of-squares total in the denominator. The numerator looks a little like covariance, but it's more like the covariance of .orange[squared] terms.
 
 ---
 class: MSU
@@ -659,6 +687,8 @@ class: MSU
   - The .pseudocode[HC1] gives a specific type of HC errors
   - It is identical to the `, robust` errors in Stata.
   
+If you do not adjust your standard errors, you must justify exactly why you are assuming homoskedasticity.
+  
 ---
 class: MSU
 # Homoskedasticity
@@ -679,3 +709,37 @@ class: MSU
 coeftest(myOLS, vcov = vcovHC(myOLS, 'HC1'))
 ```
 
+- .orange['HC1'] yields Stata-type robust errors
+  - If you are planning on taking EC422 with Prof. Imberman, use 'HC1'.
+  
+---
+class: MSU
+# Homoskedasticity
+
+### There are two meanings of the word "robust" in econometrics
+
+- Robust standard errors, which is what we are discussing here
+
+- A "robust" regression is one that is not affected by a particular specification issue
+  - When we saw that we could include unrelated $x$'s and not worry about getting bias, our regression was "robust"
+
+  
+  
+
+
+
+---
+class: MSU
+# Bonus
+
+### Using the `fixest` package
+
+```{r Example3, out.width='90%', echo=T, warning=F, message = F}
+library(fixest)
+myFEOLS = feols(wage ~ educ + exper, wage2) 
+# feols is fixed-effect OLS. We will get to fixed effects soon
+summary(myFEOLS, se = 'hetero') # se = 'standard'
+
+```
+
+`fixest` package's `feols` lets you list the std. error correction in the `summary(...)` call, which is handy. It does a lot more as well.
