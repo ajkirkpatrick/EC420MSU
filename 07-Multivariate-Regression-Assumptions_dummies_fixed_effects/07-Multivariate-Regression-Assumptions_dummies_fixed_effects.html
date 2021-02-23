@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Multivariate Regression: Part IV - Assumptions, Dummies, and Fixed Effects</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Justin Kirkpatrick" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis-fonts.css" rel="stylesheet" />
+    <script src="libs/kePrint/kePrint.js"></script>
+    <link href="libs/lightable/lightable.css" rel="stylesheet" />
+    <link rel="stylesheet" href="EC420_S21.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Multivariate Regression: Part IV - Assumptions, Dummies, and Fixed Effects
+## EC420 MSU
+### Justin Kirkpatrick
+### Last updated February 22, 2021
+
+---
+
+
+
+layout: true
+
+&lt;div class="msu-header"&gt;&lt;/div&gt; 
+
+&lt;div style = "position:fixed; visibility: hidden"&gt;
+`$$\require{color}\definecolor{yellow}{rgb}{1, 0.8, 0.16078431372549}$$`
+`$$\require{color}\definecolor{orange}{rgb}{0.96078431372549, 0.525490196078431, 0.203921568627451}$$`
+`$$\require{color}\definecolor{MSUgreen}{rgb}{0.0784313725490196, 0.52156862745098, 0.231372549019608}$$`
+`$$\require{color}\definecolor{DUKEblue}{rgb}{0.00392156862745098, 0.129411764705882, 0.411764705882353}$$`
+&lt;/div&gt;
+
+&lt;script type="text/x-mathjax-config"&gt;
+MathJax.Hub.Config({
+  TeX: {
+    Macros: {
+      yellow: ["{\\color{yellow}{#1}}", 1],
+      orange: ["{\\color{orange}{#1}}", 1],
+      MSUgreen: ["{\\color{MSUgreen}{#1}}", 1],
+      DUKEblue: ["{\\color{DUKEblue}{#1}}", 1]
+    },
+    loader: {load: ['[tex]/color']},
+    tex: {packages: {'[+]': ['color']}}
+  }
+});
+&lt;/script&gt;
+
+&lt;style&gt;
+.yellow {color: #FFCC29;}
+.orange {color: #F58634;}
+.MSUgreen {color: #14853B;}
+.DUKEblue {color: #012169;}
+&lt;/style&gt;
+
+
+
+
+
+---
+class: MSU
+name: Overview
+
+# This lecture  
+
+__Goal:__
+
+1. Briefly review last week (linear hypotheses and F-test, restricted/unrestricted model)
+
+2. Relax assumption of normal errors (MLR.6)
+  - *Asymptotic Normality*
+--
+
+
+3. Dummy variables
+
+4. Fixed Effects
+
+6. Panel Data
+
+---
+class: MSU
+# Linear Hypothesis and F-tests
+
+### Single hypothesis
+- Uses just one `\(\beta_j\)`
+- Usually `\(H_0: \beta_j = 0\)`
+
+### Linear Hypothesis
+- Testing for equality: `\(\beta_j = \beta_k\)`
+  - `\(\beta_j - \beta_k = 0\)`
+  - .pseudocode[car] packages, .pseudocode[linearHypothesis]
+    
+    
+---
+class: MSU
+# Linear Hypothesis and F-tests
+
+### F-test for test of joint significance
+Answers the question **do these coefficients jointly equal to zero**?
+- `\(\beta_j = \beta_k = \beta_l = 0\)`
+- Which is another way of saying "do they explain `\(y\)`"
+- Based on 
+  - `\(SSR_{UR}\)`, the SSR from an unrestricted model
+  - `\(SSR_{R}\)`, the SSR from the restricted ( `\(\beta = 0\)` ) model
+  
+### R gives us an `\(F\)`-test for all coefficients jointly
+- Compared to a restricted model where *only* `\(\beta_0\)`, the intercept.
+
+
+
+---
+
+class: MSU
+# Asymptotic Normality
+
+### Gauss-Markov Regression Assumptions: 
+
+| | |
+|:---:|:---|
+|MLR.1| The population, `\(y\)` is a linear function of the parameters `\(x\)` and `\(u\)`: `\(y = \beta_0 + \beta_1 x_1 + \cdots + \beta_k x_k + u\)` |
+|MLR.2| The sample `\((y_i, x_i): i = 1,2,\cdots,n\)` follows the population model and are independent |
+|MLR.3| No multicolinearity / "full rank": `\(x_j\)` is not a linear transformation of `\(x_k\)` for all `\(j,k\)`. |
+|MLR.4| Zero conditional mean: `\(E[u \vert x_1,x_2,\cdots,x_k] = 0\)` for all `\(x\)`. |
+|MLR.5| `\(Var[u \vert x_1, \cdots, x_k]= \sigma^2_u\)` for all `\(x\)`. |  
+|MLR.6| `\(u\)` is normally distributed ( `\(u \sim N\)` ) |
+
+---
+class: MSU
+# Asymptotic Normality
+
+### If we combine MLR.6 with MLR.4 and MLR.5, we are assuming "exact normality"
+
+### Exact Normality:
+- The population error `\(u\)` is *mean independent* of the explanatory variables `\(x_1, x_2, \cdots, x_k\)`
+- And it is normally distributed with zero mean and variance `\(\sigma^2\)`: `\(u\sim N(0,\sigma^2)\)`
+  - Let's call this "exact normality"
+  - We need this *only* for inference (t's, F-tests)
+
+### Mean Independence:
+"Mean independence" is `\(E[u|x_1, \cdots, x_k] = c\)` and `\(E[u] = 0\)` (therefore `\(c=0\)`)
+
+---
+class: MSU
+# Asymptotic Normality
+
+### "Asymptotic" just means "pertaining to very large N's"
+- That is, very large samples.
+--
+
+### The "asymptotic properties" of an estimator are:
+- "What it does when `\(N\rightarrow \infty\)`"
+  - When "N gets larger and larger"
+- Particularly, does it get *closer and closer* to some desirable value?
+--
+
+### MLR6, the "exact normality" assumption, may not be necessary with a very large `\(N\)`
+- Which is good, because it probably doesn't hold in many cases!
+
+--
+
+Let's look at one where exact normality doesn't hold
+
+---
+class: MSU
+# Asymptotic Normality
+
+### Example 3.5 in Wooldridge
+`$$NumArrests = \beta_0 + \beta_1 pcnv + \beta_2 avgsentence + \beta_3 ptime + \beta_4 qemp + u$$`
+
+Example 3.5 in Wooldridge discusses regressing *Number times arrested* on some variables of interest. Since most people are arrested zero times, `\(y|x_1, x_2, \cdots, x_k\)` and the associated errors, `\(u|x_1, x_2, \cdots, x_k\)` are most definitely not normally distributed!
+
+So, the estimators are still:
+
+--
+
+- Unbiased (MLR1-4)
+
+--
+
+- Have valid variances (MLR5 or HC-robust)
+
+--
+
+- But we do not know the exact distribution to use: `\(u\)` is not necessarily normal, so `\(\beta\)` is not necessarily normally distributed. Therefore, our `\(t\)`-test is not valid.
+
+
+---
+class: MSU
+# Asymptotic Normality
+
+### The Central Limit Theorem to the rescue
+
+The CLT states that any average, once standardized, is distributed standard normal when `\(n\)` gets very large.
+
+--
+
+- By **average**, we mean anything that is the form `\(\frac{1}{N} \sum_{i=1}^N x_i\)`
+
+--
+
+- By **standardized**, we mean anything that subtracts the true mean and divides by the standard deviation
+- We used this fact in looking at the *se of the mean*: 
+`$$\frac{\bar{Y} - \mu_Y}{\frac{\sigma}{\sqrt{n}}} \sim N(0,1)$$`
+
+
+
+---
+class: MSU
+# Asymptotic Normality
+
+### `\(\hat{\beta}\)` is also an average
+- `\(\widehat{Cov}(Y,X)\)` is an average: `\(\frac{1}{N-1} \sum_{i=1}^N (x_i - \bar{x})(y_i - \bar{y})\)`
+- `\(\widehat{Var}(X)\)` is also an average just the same
+  - `\(\beta\)` depends on a bunch of averages!
+
+### So if we *properly standardize* it, we know it is asymptotically normal *regardless* of the distribution of `\(u\)`
+- This is true even if `\(u\)` is very obviously not normal.
+
+--
+
+### This only applies as `\(n \rightarrow \infty\)`. It is an asymptotic result
+
+---
+class: MSU
+# Asymptotic normality
+
+### Even when MLR.6 doesn't hold
+We can say that our estimator, `\(\beta\)`, has a normal **asymptotic variance**
+
+Which means it is normally distributed **when `\(n \rightarrow \infty\)`**.
+- Asymptotic standard error
+- Asymptotic 95% Confidence Interval, etc.
+
+And, since a `\(t_{\infty - K - 1}\)` is the same as a `\(N(0,1)\)`, we can use the normal tables instead of the t-tables.
+
+When `\(n\)` is small and `\(u\)` is not normal, then we use "small sample" properties, which we won't cover in this class.
+
+---
+class: MSU
+# Consistency
+
+
+### Consistency is a property of an estimat**or**, much like "unbiased"
+- It is about what happens to the estimator when `\(n\)` gets larger and larger. 
+- On the other hand, *bias* is about the expected value of the estimator.
+
+### Definition
+&gt; An estimator is consistent when it converges in probability to the correct population value as the sample size grows.
+
+#### Converges in probability
+For any tiny, tiny number we can choose, say `\(\epsilon\)`, a consistent estimator `\(\hat{\beta}\)` will have some `\(n\)` large enough that `\(Pr(|\hat{\beta} - \beta| &gt; \epsilon) \rightarrow 0\)` as `\(n \rightarrow \infty\)`
+
+---
+class: MSU
+# Consistency
+
+### Remember our *standard error of the mean*
+`$$se(\bar{X}) = \sqrt{\dfrac{\sigma^2}{n}}$$`
+
+If we had a small `\(n\)`
+- We had a pretty big std. err on `\(\bar{X}\)`
+
+But if we had a really big `\(n\)`
+- We got a std. error that was smaller and smaller...
+--
+
+
+With a big enough `\(n\)`, the std. error of the mean becomes very very small
+- And a plot looks like a "spike"
+
+### **That's the concept of consistent**
+
+
+---
+class: MSU
+# Consistency
+
+A good example of *biased* but *consistent* is the use of the population variation formula on a sample:
+`$$\hat{\sigma}^2_{biased} = \frac{1}{N}\sum_{i=1}^N (x_i - \bar{x})^2$$`
+
+Biased, yes. But *consistent* since the estimate goes to the correct value as `\(n\rightarrow \infty\)`
+
+.footnote[The proof showing why the 1/N calculation is biased is long and drawn-out. Just remember that 1/N is biased.]
+---
+class: MSU
+# Asympotic Normality
+
+### The end result is that we can relax MLR6 in large samples and not worry about `\(u\)` being normally distributed and **still:**
+- Know that `\(\hat{\beta}\)` is normally distributed
+- Know that we can use a `\(t\)`-statistic (since we are still estimating `\(\hat{\sigma^2}\)`)
+- And know that since `\(\hat{\sigma}^2\)` is consistent, with large samples, `\(\frac{\hat{\beta}-\beta}{\sqrt{\frac{\hat{\sigma}^2}{SST_x}}} \sim N(0,1)\)`
+
+---
+class: inverseMSU
+# Asymptotic Normality
+
+### Any questions?
+
+---
+class: heading-slide
+
+Dummy Variables
+
+
+---
+class: MSU
+# Dummy Variables
+
+### A dummy is any variable that takes **only** one of two values:
+
+`$$\{0,1\}$$`
+
+- This is also called a **binary** variable
+
+### Sometimes called an "indicator variable" as well
+- Because it "indicates" if something *qualitative* is true.
+- Also, sometimes written as `\(\mathbb{1}(condition)\)` e.g. `\(1(age&gt;65)\)`
+  - It is equal to 1 for that observation if that observation's age is greater than 65.
+  - It is equal to 0 otherwise
+  
+### In Wooldridge Ch. 7.1
+- He uses the example of `\(male\)` and `\(female\)`, with a variable equal to `\(1\)` if `\(female==TRUE\)`.
+
+---
+class: MSU
+# Dummy Variables
+
+### Since it takes on numeric values, we can use it in a regression:
+`$$y = \beta_0 + \beta_1 educ + \delta_0 1(female) + u$$`
+- Sometimes, it will just say that " `\(x_2\)` is a binary indicator variable that takes on the value of 1 if..."
+- In Wooldridge, it just says `\(y = \beta_0 + \delta_0 female + \cdots + u\)`
+  - You are left to infer that `\(female\)` is either `\(\{0,1\}\)`.
+- There are other ways that a dummy variable may be indicated as well, but almost all authors will describe when a dummy/binary/indicator is being used.
+--
+
+- The "dummy' allows `\(y\)` to vary by one discrete amount ( `\(\delta_0\)` here) when the condition is true.
+
+--
+
+Clearly, the indicator must refer to something observable in the data
+- They aren't magical!
+
+---
+class: MSU
+# Dummy Variables
+
+### The "separate intercept" interpretation
+Wooldridge frames the coefficient on the binary variable as **intercept shift** between females and males.
+
+&lt;img src="Figure 7-1.jpg" width="60%" style="display: block; margin: auto;" /&gt;
+For males, the intercept is `\(\beta_0\)`. For females, `\(\beta_0 + \delta_0\)` (here `\(\delta_0 &lt; 0\)`).
+
+
+
+---
+class: MSU
+# Dummy Variables
+
+### Since a binary variable is always either `\(\{0,1\}\)`, it always shifts by one constant amount
+- Just like the Wooldridge Fig 7-1
+
+### It doesn't alter the *slope* of the line directly, but it *can* account for variation (higher average wages for men) that then allows the slope to be better estimated
+- So the slope may be different with the dummy included:
+`$$wage = \beta_0 + \beta_1 educ + u$$`
+and
+
+`$$wage = \alpha_0 + \alpha_1 1(female) + \alpha_2 educ + u$$`
+will not result in `\(\beta_1=\alpha_2\)`. They will be different estimates.
+
+---
+class: MSU
+# Dummy Variables
+.more-left[
+&lt;img src="figs/wage1-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+.less-right[
+The black dashed line is the combined regression ignoring `\(female\)`
+
+The blue is the fitted regression for `\(female==0\)`, the red for `\(female==1\)`
+]
+
+
+.footnote[Remember, you're adding a variable, and adding a variable can only *help* explain more variation (see our discussion on R2 and F-tests)]
+
+---
+class: MSU
+# Dummy Variables
+
+### Dummy Variables *with* continuous variables
+
+`$$OutOfPocket = \beta_0 + \beta_1 1(age&gt;65) + \beta_2 cigarettes + u$$`
+Here, `\(OutOfPocket\)` is the annual dollars spent out of pocket on healthcare.
+- We think it is affected by number of cigarettes smoked
+- We think it might be affected by age
+
+### So why not just use the variable itself?
+- Why a dummy `\(1(age&gt;65)\)` and not just `\(age\)` as a RHS `\(x\)`?
+---
+class: MSU
+# Dummy Variables
+
+### So why not just use the variable itself?
+- Why a dummy `\(1(age&gt;65)\)` and not just `\(age\)` as a RHS `\(x\)`?
+
+
+- First, we may not want to impose that constant marginal effect - sure, we could have `\(\beta_{age}\)`, but it means we'd be assuming the same effect of age from 10 years old to 11 years old as we do from 64 years old to 65!
+--
+&lt;br&gt;
+- Second, there may be a "threshold" we're interested in
+  - For example, Medicare starts at 65 years old.
+  - Then being over 65 (and being on Medicare) would have an important effect to account for.
+  - And we certainly wouldn't want age alone to try to explain it!
+
+---
+class: MSU
+# Dummy Variables
+
+In fact, we could include `\(age\)` and the dummy variable:
+`$$OutOfPocket =\beta_0 + \beta_1 1(age&gt;65) + \beta_2 age + \beta_3 cigarettes + u$$`
+
+### Here's what that data would look like:
+----
+.pull-left[
+|Out of Pocket|Age|1(age&gt;65)|
+|:---:|:---:|:---:|
+|7782|48|0|
+|8136|63|0|
+|9730|86|1|
+|7928|66|1|
+|...|...|...|
+]
+
+.pull-right[
+As you can see, `\(Over65\)` is fully determined by `\(age\)`, but that's OK. They will not be perfectly correlated (correlation is a linear concept).
+
+Let's see how this compares to
+- Just using age
+- Just using the dummy
+- Both
+]
+
+
+---
+class: MSU
+# Dummy Variables
+
+### First, ignoring the over65 dummy, just using Out-Of-Pocket health spending on age:
+
+&lt;img src="figs/DummyEx1-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+.footnote[I'm not going to include *cigarettes* here since it adds another dimension to plot]
+
+---
+class: MSU
+# Dummy Variables
+
+`$$OutOfPocket = \beta_0 + \beta_1 age + u$$`
+
+
+```r
+coeftest(lm1, vcov = vcovHC(lm1, 'HC1'))
+```
+
+```
+## 
+## t test of coefficients:
+## 
+##             Estimate Std. Error t value  Pr(&gt;|t|)    
+## (Intercept) 6408.317   1070.088  5.9886 1.643e-06 ***
+## age           21.368     16.419  1.3014    0.2034    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+
+---
+class: MSU
+# Dummy Variables
+
+### Here's what just including `\(1(age&gt;65)\)` looks like
+
+&lt;img src="figs/DummyEx15-1.png" width="55%" style="display: block; margin: auto;" /&gt;
+
+---
+class: MSU
+# Dummy Variables
+
+`$$OutOfPocket = \beta_0 + \beta_1 1(age&gt;65) + u$$`
+
+
+
+
+```r
+coeftest(lm1b, vcov = vcovHC(lm1b, 'HC1'))
+```
+
+```
+## 
+## t test of coefficients:
+## 
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  7919.62     207.21 38.2207   &lt;2e-16 ***
+## over65TRUE   -284.28     265.53 -1.0706   0.2932    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+
+---
+class: MSU
+# Dummy Variables
+
+### Here's what that looks like including both `\(age\)` and `\(1(age&gt;65)\)`:
+
+&lt;img src="figs/DummyEx2-1.png" width="55%" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+class: MSU
+# Dummy Variables
+
+
+
+```r
+coeftest(lm2, vcov = vcovHC(lm2, 'HC1'))
+```
+
+```
+## 
+## t test of coefficients:
+## 
+##              Estimate Std. Error t value  Pr(&gt;|t|)    
+## (Intercept)   869.162   1456.278  0.5968    0.5554    
+## age           120.779     24.721  4.8857 3.791e-05 ***
+## over65TRUE  -1760.798    316.821 -5.5577 6.055e-06 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+
+
+---
+class: MSU
+# Dummy Variables
+
+### One interpretation of `\(\beta_0\)` is "the expected value of `\(y\)` when `\(x=0\)`"
+- I'm going add `\(cigarettes\)` back in here:
+
+`$$OutOfPocket = \beta_0 + \beta_1 1(age&gt;65) + \beta_2 cigarettes + u$$`
+
+- When does `\(x=0\)` here?
+
+- So, what is the `\(E[Y|age&lt;65, cigarettes==0]\)`?
+
+- What is the `\(E[Y|age&gt;65, cigarettes==0]\)`?
+
+
+---
+class: MSU
+# Dummy Variables
+
+### That seems like a comparison of means because it is.
+
+
+```r
+t.test(OutOfPocket ~ over65, data=df)
+```
+
+```
+## 
+## 	Welch Two Sample t-test
+## 
+## data:  OutOfPocket by over65
+## t = 1.0708, df = 28.076, p-value = 0.2934
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  -259.4510  828.0067
+## sample estimates:
+## mean in group FALSE  mean in group TRUE 
+##            7919.622            7635.345
+```
+
+Compare that to the first regression with only a dummy for `\(1(age&lt;65)\)`
+---
+class: MSU
+# Dummy Variables
+
+### Interpretation of Dummy Variables
+
+#### The dummy variable has a "base" level that is *included in* `\(\beta_0\)`
+- And the coefficient on the dummy **is the difference between the base level and the "dummy is true" level**
+  - This is because `\(\beta_0 = E[Y|X=0]\)` for all `\(X\)`
+  
+--
+
+- If there are two dummies, `\(x_1\)` and `\(x_2\)`:
+  - `\(\beta_0\)` is the `\(E[Y|x_1=0, x_2 = 0]\)`
+  - That is, it is the value when both are "false"
+  - And `\(\beta_1\)` is the relative value if **only** `\(x_1\)` were true, **ceteris paribus**
+  - Same for `\(\beta_2\)`, **ceteris paribus**
+--
+
+- It does *not* tell us anything about `\(x_1\)` and `\(x_2\)` being true together, except that we can add the effects of `\(x_1\)` being true and `\(x_2\)` being true.
+
+---
+class: MSU
+# Dummy Variables
+
+### Dummy Variables fall under the category of "specification"
+- All of the rules about `\(x\)`'s still hold
+  - MLR3 - No Multicolinearity
+- Dummies don't change the way we estimate equations or coefficients
+- Dummies don't change our assumptions or use of the residuals `\(\hat{u}\)`
+- Dummies don't change *how* we calculate `\(\hat{\beta}\)`, `\(se(\hat{\beta})\)`, or `\(SSR\)` etc.
+
+### Dummies *do* (hopefully) improve our model
+- By accounting for and explaining variation that continuous variables don't
+- And by being "interpretable"
+  - Lots of ways we can account/explain variation, but not all are "interpretable"
+
+
+
+---
+class: MSU
+# Dummy Variables
+### The dummy variable trap
+
+What if we add a variable for under 65 as well?
+
+|Out of Pocket|Age|Over65|Under65|
+|:---:|:---:|:---:|:---:|
+|7782|48|0|1|
+|8136|63|0|1|
+|9730|86|1|0|
+|7928|66|1|0|
+|...|...|...|...|
+
+--
+
+### Remember MLR3? No perfect colinearity? Uh-oh.
+
+
+---
+class: MSU
+# Dummy Variables
+
+### So we can't have `\(1(age&gt;65)\)` and `\(1(age&lt;65)\)`
+- Because MLR.3, no multicolinearity
+- We can only *identify* the *difference* between over/under 65.
+  - The intercept, `\(\beta_0\)` is the intercept for the *base* level
+  - The coefficient is the *intercept shift*.
+  
+---
+class: heading-slide
+
+Any questions on dummies?
+
+---
+class: heading-slide
+
+Panel Data
+---
+
+class: MSU
+# Panel Data
+
+### Panel Data is what we all a dataset where we have multiple observations for each unit of observation
+- We have a sample of 100 people
+- For each person, we have 12 years of earnings
+  - We have `\(N=100 \times 12 = 120\)`
+
+### Or
+- We have a sample of 15 countries
+- For each country we have 30 years of infant mortality rates
+  - We have `\(N=15 \times 30 = 450\)`
+
+---
+class: MSU
+# Panel Data
+
+### Contrast Panel Data with other types of data:
+
+#### Time series data
+- We have one observation per time period
+- But of only one thing.
+  - There are no concurrent time periods.
+  
+Stock values would be a time series if talking about one stock:
+- **AAPL** has one time series of data
+
+---
+class: MSU
+# Panel Data
+
+### AAPL
+&lt;img src="figs/AAPL-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+Time series, not panel data.
+---
+class: MSU
+# Panel Data
+
+### Contrast Panel Data with other types of data:
+#### Cross-sectional data
+- We have multiple observation units, but only one observation of each
+
+Country-level data (for a single year, or average) would be cross-sectional
+
+&lt;img src="figs/WB-1.png" width="40%" style="display: block; margin: auto;" /&gt;
+
+---
+class: MSU
+# Panel Data
+
+### We have been working with cross-sectional data so far.
+- We will get to time series later on
+- Let's focus on Panel Data today
+
+### Let's say we had two countries that we observe
+- Say, "Cuba" and "Colombia"
+- And we observe each one once a year for five years
+
+---
+class: MSU
+# Panel Data
+
+&lt;table class="table" style="font-size: 10px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Country &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; GDP &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; POP &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Year &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; GDPPC &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Colombia &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 47.8 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 33.1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1990 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1445.3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Colombia &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 92.5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 36.4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1995 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2539.9 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Colombia &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 99.9 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 39.6 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 2000 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2520.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Colombia &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 145.6 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 42.6 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 2005 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3414.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Colombia &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 286.6 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 45.2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 2010 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6336.7 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Colombia &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 293.5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 47.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 2015 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6175.9 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Cuba &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 28.6 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 26.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1990 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2703.2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Cuba &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 30.4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 27.2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1995 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2794.7 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Cuba &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 30.6 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 27.8 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 2000 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2747.1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Cuba &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 42.6 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 28.2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 2005 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3786.7 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Cuba &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 64.3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 28.1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 2010 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5730.4 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Cuba &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 87.1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 28.3 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 2015 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7694.0 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+class: MSU
+# Panel Data
+ 
+&lt;img src="figs/panel2-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+class: MSU
+# Panel Data
+
+### A naive approach
+
+If we are interested in the effect of population on GDP, we might try fitting a line ignoring `\(Country\)`
+
+&lt;img src="figs/panel3-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+class: MSU
+# Panel Data
+
+&lt;img src="figs/panel4-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+Here, we have included a dummy for `\(Cuba\)`. 
+- The slope is the same across countries (by our specification)
+- The intercept is different (though the intercept is very far off the chart here)
+
+---
+class: MSU
+# Panel Data
+
+
+```r
+lm1 = lm(GDP ~ POP + as.factor(Country), data = pop_two)
+coeftest(lm1, vcov = vcovHC(lm1, 'HC1'))
+```
+
+```
+## 
+## t test of coefficients:
+## 
+##                         Estimate Std. Error t value  Pr(&gt;|t|)    
+## (Intercept)            -575.5840    93.4567 -6.1588 0.0001669 ***
+## POP                      18.0719     2.3715  7.6204 3.257e-05 ***
+## as.factor(Country)Cuba  122.7046    31.9972  3.8349 0.0039979 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+---
+class: MSU
+# Panel Data
+
+### In the previous slide regression:
+- This is similar to the male grouping from before
+- It has a slightly different interpretation
+  - We think there is something unobserved about `\(Cuba\)` that gives it a different average GDP, even conditional on POP.
+  - The *dummy* is the *country-level effect* for all of the things about `\(Cuba\)` that change it's GDP overall, independent of POP.
+  
+  
+### Now, consider that we could have three countries in the data
+- We would have one `\(\beta_0\)` (the base level)
+- And we would have **two** intercept shifts - one for each of the non-base levels
+
+### When we allow there to be any number of binary indicators, we call them "fixed effects".
+
+---
+class: MSU
+# Panel Data
+
+### The most common form of Panel Data is Unit x Time
+- That's what we have here: We observed Cuba over different time periods
+- And Colombia over the same time periods
+
+### So the fixed effect captures things about Cuba (relative to Colombia) that do not differ over time
+- Things that are always there
+
+### Of course, we can also have time fixed effects!
+- If there is something different about, say, 2009 that is the same across multiple countries
+- Like, say, a global recession...
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
