@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Multivariate Regression: Part V - Interactions and Interpretations</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Justin Kirkpatrick" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="EC420_S21.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Multivariate Regression: Part V - Interactions and Interpretations
+## EC420
+### Justin Kirkpatrick
+### Last updated February 24, 2021
+
+---
+
+
+
+layout: true
+
+&lt;div class="msu-header"&gt;&lt;/div&gt; 
+
+&lt;div style = "position:fixed; visibility: hidden"&gt;
+`$$\require{color}\definecolor{yellow}{rgb}{1, 0.8, 0.16078431372549}$$`
+`$$\require{color}\definecolor{orange}{rgb}{0.96078431372549, 0.525490196078431, 0.203921568627451}$$`
+`$$\require{color}\definecolor{MSUgreen}{rgb}{0.0784313725490196, 0.52156862745098, 0.231372549019608}$$`
+`$$\require{color}\definecolor{DUKEblue}{rgb}{0.00392156862745098, 0.129411764705882, 0.411764705882353}$$`
+&lt;/div&gt;
+
+&lt;script type="text/x-mathjax-config"&gt;
+MathJax.Hub.Config({
+  TeX: {
+    Macros: {
+      yellow: ["{\\color{yellow}{#1}}", 1],
+      orange: ["{\\color{orange}{#1}}", 1],
+      MSUgreen: ["{\\color{MSUgreen}{#1}}", 1],
+      DUKEblue: ["{\\color{DUKEblue}{#1}}", 1]
+    },
+    loader: {load: ['[tex]/color']},
+    tex: {packages: {'[+]': ['color']}}
+  }
+});
+&lt;/script&gt;
+
+&lt;style&gt;
+.yellow {color: #FFCC29;}
+.orange {color: #F58634;}
+.MSUgreen {color: #14853B;}
+.DUKEblue {color: #012169;}
+&lt;/style&gt;
+
+
+
+
+
+---
+class: MSU
+name: Overview
+
+# This lecture  
+
+__Goal:__
+
+1. Answer any questions on last lectures (inference and fixed effects)
+
+2. Fixed Effects with Multiple Groups
+  - Interpretation
+  - Construction
+  - "Within-group variation" and partialling out
+  - Time fixed effects
+
+3. Interactions w/dummies
+  - Functional form
+  - Interpretation
+  - Interpretation
+  - Interpretation!
+
+
+
+---
+class: heading-slide
+
+Questions from last week?
+
+---
+class: MSU
+# Fixed Effects
+
+### Last class, we covered a binary variable fixed effect
+- One variable taking the value of `\(\{0,1\}\)`. For example
+  - `\(1(female)\)`
+  - `\(1(age&gt;65)\)`
+
+### Interpretation
+- A .orange[shift] in the intercept **relative to the base group**
+  - Base group: `\(male\)`
+  - Base group: `\(age&lt;65\)`
+- The "base group" (or "base level") is represented in the intercept: `\(\beta_0\)`
+- The other group(s) ( `\(female\)` , `\(age&gt;65\)` ) have shifted intercepts:
+  - `\(\beta_0\)` for the base (male, under 65)
+  - `\(\beta_0 + \beta_1\)` for a female under 65
+  - `\(\beta_0 + \beta_1 + \beta_2\)` for a female over 65
+  - `\(\beta_0 + \beta_2\)` for a male over 65
+  
+`$$y = \beta_0 + \beta_1 1(female) + \beta_2 1(age&gt;65) + u$$`
+  
+---
+class: MSU
+# Fixed Effects
+
+&lt;img src="Figure 7-1.jpg" width="80%" style="display: block; margin: auto;" /&gt;
+
+
+---
+class: MSU
+# Fixed Effects
+
+### Ceteris Paribus still applies
+Interpretation of the dummy variable fixed effect coefficient is:
+&gt; "The change in the expectation of Y from being in the group relative to being in the base group, *ceteris paribus*"
+
+We are using "in the group" here to mean "the observations for which the dummy is true"
+
+### The "base level" is very important
+- Since the in-group intercept is `\(E[Y|in-group] = \beta_0 + \beta_1\)`, but the coefficient is `\(\beta_1\)`, we have to be careful.
+- The coefficient is the *difference* between the base level and the in-group.
+- The "base" group is sometimes called **the omitted level**
+
+---
+class: MSU
+# Fixed Effects
+
+## Interpretation of `\(\{0,1\}\)` dummy variables
+
+### In the Wooldridge example
+`$$wage = \beta_0 + \beta_1 1(female) + \beta_2 educ + u$$`
+&gt; "Conditional on education, females make on average `\(\beta_1\)` more/less than males, ceteris paribus"
+
+.footnote[More/less depending on whether or not the coefficient is negative]
+---
+class: MSU
+# Fixed Effects
+
+
+### In the age example:
+`$$Out-of-pocket = \beta_0 + \beta_1 age + \beta_2 1(age&gt;65) + u$$`
+&gt; "Individuals over 65 years of age pay `\(\beta_2\)` more/less in out-of-pocket expenses relative to those under 65, controlling for the linear effect of age, ceteris paribus"
+
+Here, we have to be a little more specific since the fixed effect and the continuous variable, `\(age\)`, both refer to age. It would be strange to say "conditional on age, being 65 means paying `\(\beta_1\)` more/less".
+
+---
+class: MSU
+# Fixed Effects
+
+### We can have more than one fixed effect:
+`$$wage = \beta_0 + \beta_1 1(female) + \beta_2 1(age&gt;65) + u$$`
+- `\(E[wage | male, under 65]\)` = `\(\beta_0\)`
+
+--
+
+- `\(E[wage | female, under 65]\)` = ??
+
+--
+
+- `\(E[wage | female, over 65]\)` = ??
+
+
+---
+class: heading-slide
+
+Fixed effects with multiple groups
+
+---
+class: MSU
+# Fixed Effects
+
+### What if we have three groups?
+Take *education* as an example - we can "bin" education into:
+
+| High School or less | | 2- or 4-year college degree | | Graduate degree|
+|:---:|:---:|:---:|:---:|:---:|
+|"HS"||"College"||"Graduate"|
+
+When this is represented with one variable, it's called a **categorical** variable
+
+---
+class: MSU
+# Fixed Effects 
+
+### Our three groups would work as follows:
+
+|wage|experience|educ|education
+|:---:|:---:|:---:|:---:|
+|9000|0|12|HS|
+|20000|5|16|College|
+|60000|12|14|College|
+|27000|2|18|Graduate|
+|32000|10|9|HS|
+
+.footnote[In the US, primary (required) education is 12 years, undergraduate is 4 additional years, and graduate school is 2-5+ additional years.]
+---
+class: MSU
+# Fixed Effects
+
+### Base level with categorical variable
+- There is still a "base level" (or "omitted level")
+- It is *your* choice as to which one is the "base level"
+  - Coefficient estimates will still add up the same.
+  - Interpretability is easier if you choose wisely
+  - We should choose "HS" as the "base level" here, so that estimates are relative to HS
+    - This is incorporating *ordinal* information since we think `\(wage_{grad} &gt; wage_{college} &gt; wage_{HS}\)`
+  
+### Numeric representation
+- To represent a categorical variable with 3 categories, we need to create **two** more columns
+  - If there are `\(K\)` categories, then we need `\(K-1\)` new columns
+  - Whichever one we don't create a column for is the "base"
+    - It's effect will be found in the `\(\beta_0\)` (the intercept)
+    
+---
+class: MSU
+# Fixed Effects
+
+### Using "HS" as the base level:
+|wage|experience|education|education==College|education==Graduate|
+|:---:|:---:|:---:|:---:|:---:|:---:|
+|9000|0|HS|0|0|
+|20000|5|College|1|0|
+|60000|12|College|1|0||
+|27000|2|Graduate|0|1|
+|32000|10|HS|0|0|
+
+If we run this in R (leaving out the "education" column), we would get a coefficient for `\(education==College\)` and `\(education==Graduate\)`
+- These would be the increase in the expected wage resulting from moving between the HS group to the College (or Graduate, respectively) group, *ceteris paribus*.
+
+---
+class: MSU
+# Fixed Effects
+
+In R, categorical variables are a special type of variable called "**factor**"
+
+
+.small[.pseudocode[df$education = as.factor(df$education)]]
+- R stores the labels separately, but will let you refer to them
+- If we use .pseudocode[str(df)], we can see the factor structure
+- .red[I'm going to switch to a dataset that has a categorical in it]
+
+```r
+census = wooldridge::census2000
+str(census)
+```
+
+```
+## 'data.frame':	29501 obs. of  6 variables:
+##  $ state   : Factor w/ 51 levels "Alabama","Alaska",..: 41 39 11 29 3 5 38 27 14 19 ...
+##  $ puma    : int  100 2502 1800 100 206 1601 1309 100 3301 1600 ...
+##  $ educ    : int  13 13 12 13 16 12 13 13 16 16 ...
+##  $ lweekinc: num  6.47 6.09 7.03 6.69 7.34 ...
+##  $ exper   : int  37 14 21 12 18 15 29 14 22 26 ...
+##  $ expersq : int  1369 196 441 144 324 225 841 196 484 676 ...
+```
+
+---
+class: MSU
+# Fixed Effects
+
+### To go from a factor to a character string
+
+```r
+census$state = as.character(census$state)
+head(census)
+```
+
+```
+##            state puma educ lweekinc exper expersq
+## 1 South Carolina  100   13 6.471038    37    1369
+## 2   Pennsylvania 2502   13 6.087648    14     196
+## 3        Georgia 1800   12 7.034049    21     441
+## 4         Nevada  100   13 6.694181    12     144
+## 5        Arizona  206   16 7.338538    18     324
+## 6     California 1601   12 6.422247    15     225
+```
+
+```r
+str(census)
+```
+
+```
+## 'data.frame':	29501 obs. of  6 variables:
+##  $ state   : chr  "South Carolina" "Pennsylvania" "Georgia" "Nevada" ...
+##  $ puma    : int  100 2502 1800 100 206 1601 1309 100 3301 1600 ...
+##  $ educ    : int  13 13 12 13 16 12 13 13 16 16 ...
+##  $ lweekinc: num  6.47 6.09 7.03 6.69 7.34 ...
+##  $ exper   : int  37 14 21 12 18 15 29 14 22 26 ...
+##  $ expersq : int  1369 196 441 144 324 225 841 196 484 676 ...
+```
+
+---
+class: MSU
+# Fixed Effects
+
+### More important, how to go from character string to factor
+
+
+```r
+census$state = as.factor(census$state)
+head(census)
+```
+
+```
+##            state puma educ lweekinc exper expersq
+## 1 South Carolina  100   13 6.471038    37    1369
+## 2   Pennsylvania 2502   13 6.087648    14     196
+## 3        Georgia 1800   12 7.034049    21     441
+## 4         Nevada  100   13 6.694181    12     144
+## 5        Arizona  206   16 7.338538    18     324
+## 6     California 1601   12 6.422247    15     225
+```
+
+```r
+str(census)
+```
+
+```
+## 'data.frame':	29501 obs. of  6 variables:
+##  $ state   : Factor w/ 51 levels "Alabama","Alaska",..: 41 39 11 29 3 5 38 27 14 19 ...
+##  $ puma    : int  100 2502 1800 100 206 1601 1309 100 3301 1600 ...
+##  $ educ    : int  13 13 12 13 16 12 13 13 16 16 ...
+##  $ lweekinc: num  6.47 6.09 7.03 6.69 7.34 ...
+##  $ exper   : int  37 14 21 12 18 15 29 14 22 26 ...
+##  $ expersq : int  1369 196 441 144 324 225 841 196 484 676 ...
+```
+
+---
+class: MSU
+# Fixed Effects
+
+### If you use a factor variable in a regression, R will construct the additional columns
+
+```r
+census.small = census[census$state=='South Carolina'|census$state=='Arizona'|
+                      census$state=='Nevada',c('lweekinc','state','educ', 'exper')]
+census.small$statefactor = as.factor(census.small$state)
+head(census.small, 10)
+```
+
+```
+##     lweekinc          state educ exper    statefactor
+## 1   6.471038 South Carolina   13    37 South Carolina
+## 4   6.694181         Nevada   13    12         Nevada
+## 5   7.338538        Arizona   16    18        Arizona
+## 17  7.129298        Arizona   12    44        Arizona
+## 31  6.738426 South Carolina   12     8 South Carolina
+## 40  6.827713 South Carolina   12    42 South Carolina
+## 58  7.495542         Nevada   13    15         Nevada
+## 81  6.357709        Arizona   12    25        Arizona
+## 119 6.645391         Nevada   12    32         Nevada
+## 152 5.860730        Arizona   13    27        Arizona
+```
+---
+class: MSU
+# Fixed Effects
+
+
+### How does R convert factors to data columns?
+
+```r
+head(model.matrix(lweekinc ~ educ + exper + statefactor, data = census.small)) # we won't use model.matrix except to peek "under the hood"
+```
+
+```
+##    (Intercept) educ exper statefactorNevada statefactorSouth Carolina
+## 1            1   13    37                 0                         1
+## 4            1   13    12                 1                         0
+## 5            1   16    18                 0                         0
+## 17           1   12    44                 0                         0
+## 31           1   12     8                 0                         1
+## 40           1   12    42                 0                         1
+```
+
+.red[Question]: What is the base level?
+
+
+---
+class: MSU
+# Fixed Effects
+
+
+```r
+summary(lm(lweekinc ~ educ + exper + statefactor, data = census.small))
+```
+
+```
+## 
+## Call:
+## lm(formula = lweekinc ~ educ + exper + statefactor, data = census.small)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -3.6167 -0.3284  0.0254  0.3749  3.2501 
+## 
+## Coefficients:
+##                            Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)                5.529636   0.177034  31.235  &lt; 2e-16 ***
+## educ                       0.070970   0.011758   6.036 2.14e-09 ***
+## exper                      0.004664   0.001954   2.387   0.0172 *  
+## statefactorNevada          0.043311   0.054585   0.793   0.4277    
+## statefactorSouth Carolina -0.059640   0.044963  -1.326   0.1850    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.6706 on 1119 degrees of freedom
+## Multiple R-squared:  0.03657,	Adjusted R-squared:  0.03312 
+## F-statistic: 10.62 on 4 and 1119 DF,  p-value: 1.903e-08
+```
+
+---
+class: MSU
+# Fixed Effects
+
+### A "within-group" interpretation
+- Group fixed effects explain the *mean* of the `\(y\)` variable within that group
+  - E.g. our Cuba/Colombia example on Monday
+  - The intercept is just the difference in means (conditional on the other `\(x\)`'s)
+  
+
+- The group fixed effect accounts for the averge difference *between* groups
+  - And leaves the rest of the `\(x\)`'s to explain the variation in `\(y\)` *within* the group
+  
+  
+- If we think of "partialling out" the fixed effect, this makes even more sense.
+
+---
+class: MSU
+# Fixed Effects
+
+Let's go to our wage/education/experience example. We might think there is a "gender experience gap" where men tend to be more experienced (e.g. due to not giving birth):
+`$$wage = \beta_0 + \beta_1 1(female) + \beta_2 experience + u$$`
+
+Partial out the fixed effect:
+`$$experience = \delta_0 + \delta_1 1(female) + v$$`
+
+`\(\hat{v}\)` is `\(experience\)` that isn't associated with being female. It has had the "gender experience gap" *removed*.
+
+That is, the variation in `\(\hat{v}\)` does not reflect the "male experience gap", so we are *identifying* `\(\beta_2\)` off of variation within the group, eliminating variation between `\(male\)` and `\(female\)`.
+
+
+
+---
+class: MSU
+# Fixed Effects
+
+### So, a regression using `\(\hat{v}\)` in place of `\(experience\)`:
+
+`$$wage = \beta_0 + \beta_2 \hat{v}$$`
+Gives us the correct `\(\beta_2\)` (remember our "partialling out" of `\(x_1,x_2\)`) using the "within group" variation in `\(experience\)`.
+
+
+---
+class: MSU
+# Fixed Effects
+
+### Time fixed effects
+What if we have `\(N\)` observations and `\(T\)` time periods (a common type of panel data), but instead of worrying about group-level differences giving us biased estimates, we worried that some time trend or time-specific shock is making one time period different from the others?
+
+Here, let's look at (entirely fake) data on North American GDP and EXPORT (share of GDP from exports).
+
+We want to know if higher EXPORTS are associated with higher GDP.
+
+
+---
+class: MSU
+# Fixed Effects 
+
+&lt;img src="figs/TimeFE-1.png" width="60%" height="90%" style="display: block; margin: auto;" /&gt;
+
+Since this is constructed (fake) data, I know the right coefficient on `\(EXPORT\)`, `\(\beta_{export}=20\)`
+
+---
+class: MSU
+# Fixed Effects
+
+
+```r
+coeftest(lm(GDP ~ EXPORT, df), vcov = vcovHC, type = 'HC1')
+```
+
+```
+## 
+## t test of coefficients:
+## 
+##             Estimate Std. Error t value  Pr(&gt;|t|)    
+## (Intercept)   74.415     13.843  5.3757 4.085e-06 ***
+## EXPORT       -18.417     27.902 -0.6601    0.5132    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+&lt;img src="figs/three-graphic-1.png" width="35%" style="display: block; margin: auto;" /&gt;
+
+.footnote[Note I used a simplier call to `coeftest`. Before we had `vcov = vcovHC(OLSobject, 'HC1'))`, but that required two steps: one to create the OLS object, and one to call `coeftest`. This does it all at once.]
+
+---
+class: MSU
+# Fixed Effects
+
+
+```r
+coeftest(lm(GDP ~ EXPORT + as.factor(Year), df), vcov = vcovHC, type='HC1')
+```
+
+```
+## 
+## t test of coefficients:
+## 
+##                      Estimate Std. Error t value  Pr(&gt;|t|)    
+## (Intercept)          69.69517   16.29177  4.2779 0.0001872 ***
+## EXPORT              -20.42546   30.00917 -0.6806 0.5014976    
+## as.factor(Year)2007   0.91621   10.83901  0.0845 0.9332170    
+## as.factor(Year)2008   5.43941   10.38025  0.5240 0.6042500    
+## as.factor(Year)2009   1.16664    9.38704  0.1243 0.9019494    
+## as.factor(Year)2010   1.41325   11.04306  0.1280 0.8990514    
+## as.factor(Year)2011   7.32123    9.72125  0.7531 0.4574514    
+## as.factor(Year)2012   7.90148    8.67860  0.9105 0.3700877    
+## as.factor(Year)2013  12.03960   11.23519  1.0716 0.2927386    
+## as.factor(Year)2014  10.44856    9.64676  1.0831 0.2876807    
+## as.factor(Year)2015  10.34100    9.05938  1.1415 0.2630128    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+```r
+# note - you can use "as.factor" in the ~ formula
+```
+
+
+---
+class: MSU
+# Fixed Effects
+
+
+```r
+coeftest(lm(GDP ~ EXPORT + as.factor(Year) + as.factor(Country), df), vcov = vcovHC, type='HC1')
+```
+
+```
+## 
+## t test of coefficients:
+## 
+##                        Estimate Std. Error  t value  Pr(&gt;|t|)    
+## (Intercept)            61.51985    1.32211  46.5317 &lt; 2.2e-16 ***
+## EXPORT                 18.99747    3.33745   5.6922 5.466e-06 ***
+## as.factor(Year)2007     1.70466    0.59633   2.8586 0.0082725 ** 
+## as.factor(Year)2008     3.46827    0.92018   3.7691 0.0008512 ***
+## as.factor(Year)2009    -2.77565    0.93890  -2.9563 0.0065428 ** 
+## as.factor(Year)2010    -1.74059    1.30822  -1.3305 0.1949056    
+## as.factor(Year)2011     6.13854    0.85611   7.1702 1.293e-07 ***
+## as.factor(Year)2012     6.42312    0.97667   6.5766 5.659e-07 ***
+## as.factor(Year)2013     8.59009    1.07620   7.9819 1.846e-08 ***
+## as.factor(Year)2014     9.26587    0.65546  14.1365 1.023e-13 ***
+## as.factor(Year)2015    10.24245    0.70164  14.5978 4.860e-14 ***
+## as.factor(Country)DOM -21.18461    0.68779 -30.8008 &lt; 2.2e-16 ***
+## as.factor(Country)MEX -21.73305    0.58530 -37.1312 &lt; 2.2e-16 ***
+## as.factor(Country)US    5.05193    0.66545   7.5917 4.656e-08 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+---
+class: MSU
+# Fixed Effects
+
+### Yes, you can specify more than one set of categorical variables
+- Just as you can have more than one dummy variable
+- The interpretation of each one is still the same: the effect of being in the group/time period relative to the base group/time period, *ceteris paribus*.
+- These are called **two-way fixed effects** (TWFE)
+  - When used on panel data
+  - And when there is one fixed effect for each of the panel data's dimensions
+    - `\(N\)` countries and `\(T\)` years here.
+
+### Fixed effects and Partialling Out
+On the next slide, GDP_HAT is the residual from regressing GDP on categorical Year and Country
+- Same for EXPORT_HAT
+
+---
+class: MSU
+#Fixed Effects
+
+### Our original data before partialling out:
+&lt;img src="figs/twowayFEbefore-1.png" width="65%" height="90%" style="display: block; margin: auto;" /&gt;
+---
+class: MSU
+# Fixed Effects
+
+### After paritalling out left: YEAR and right: YEAR and COUNTRY
+&lt;img src="figs/twowayFE-1.png" width="65%" height="90%" style="display: block; margin: auto;" /&gt;
+
+---
+class: MSU
+# Fixed Effects
+
+
+### The code I used to parital out and plot the prior slide:
+```
+df = df %&gt;%
+  dplyr::mutate(EXPORT_HAT = resid(lm(EXPORT ~ as.factor(Year) + as.factor(Country), data=df)),
+                GDP_HAT = resid(lm(GDP ~ as.factor(Year) + as.factor(Country), data=df)))
+
+
+c = ggplot(df, aes(x = Year, y=GDP_HAT, col=Country)) + geom_line(lwd=2) +
+theme_bw() + theme(legend.position='none')
+
+d = ggplot(df, aes(x = EXPORT_HAT, y = GDP_HAT, col=Country)) + geom_point() + theme_bw()
+
+plot_grid(c,d)
+```
+
+---
+class: heading-slide
+
+Interactions with Dummies
+---
+class: MSU
+# Interactions
+
+### Dummy variables shift *the intercepts*
+- Very useful when a group (or time) has a different mean
+
+- Covers *"unobserved, time-invariant differences"*
+
+### But what if we think that the *slopes* differ
+- For instance, maybe each country in our GDP/EXPORT example has *it's own unique relationship* between `\(GDP\)` and `\(EXPORT\)`?
+
+- This can be *in addition* to thinking that each country has its own unique intercept
+  - In fact, it would be odd to think that they'd have their own unique slope but *not* a unique intercept.
+  
+---
+class: MSU
+# Interactions
+
+### How do we let the slopes vary?
+- In a way very similar to letting the intercepts vary
+- Let's look at it in an example with only two categories (a single dummy)
+
+`$$y = \beta_0 + \beta_1 1(condition) + \beta_2 x_1 + \underbrace{\beta_3 \times x_1 \times 1(condition)}_{\text{The interaction term}} + u$$`
+
+### A couple things to note:
+- `\(x_1\)` is our variable of interest here
+- `\(condition\)` is our group dummy (like `\(male\)` or `\(age&gt;65\)` )
+- `\(x_1\)` appears twice, once with `\(\beta_2\)`, and *again* in the interaction of `\(x_1 \times 1(condition)\)`
+
+---
+class: MSU
+# Interactions
+
+`$$y = \beta_0 + \beta_1 1(condition) + \beta_2 x_1 + \underbrace{\beta_3 x_1 1(condition)}_{\text{The interaction term}} + u$$`
+Refreshing our interpretation of the intercept:
+- The intercept for the base group is `\(\beta_0\)`
+- The intercept for the in-group defined by `\(condition\)` is `\(\beta_0 + \beta_1\)`
+--
+
+
+Applying the same thought process to the interaction:
+- **For the base group**, the marginal change in `\(y\)` from a unit increase in `\(x_1\)` is `\(\beta_2\)`
+- **For the in-group**, the marginal change in `\(y\)` from a unit increase in `\(x_1\)` is `\(\beta_2 + \beta_3\)`
+
+`$$\text{For the base group: }\frac{\Delta y}{\Delta{x_1}} = \beta_2$$`
+
+`$$\text{For the in-group:   }\frac{\Delta y}{\Delta{x_1}} = \beta_2 + \beta_3$$`
+
+---
+class: MSU
+# Interactions
+
+### Of course, we can have &gt;2 groups (categorical)
+`$$\begin{eqnarray}
+y = \beta_0 &amp;+&amp; \beta_1 1(group==2) + \beta_3 1(group==3) + \beta_4 x_1  \\
+&amp;+&amp; \beta_5 x_1 1(group==2) + \beta_6 x_1 1(group==3) + u
+\end{eqnarray}$$`
+
+---
+class: MSU
+# Interactions 
+
+### What does that look like?
+|wage|experience|educ|educ = College|educ = Graduate|experience x educ == College|experience x educ == Graduate|
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+|9000|0|HS|0|0|0|0|
+|20000|5|College|1|0|5|0|
+|60000|12|College|1|0|12|0|
+|27000|2|Graduate|0|1|0|2|
+|32000|10|HS|0|0|0|0|
+
+---
+class: MSU
+# Interactions
+
+### And in R:
+.pseudocode[lm(wage ~ as.factor(educ) + exper + as.factor(educ)*exper, data=df)]
+
+Here, you'll get **intercept .orange[shift]** coefficients on:
+- educ = College
+- educ = Grad
+
+
+And you'll get **slope .orange[shift]** coefficients on:
+- experience for educ = College
+- experience for educ = Graduate
+
+---
+class: MSU
+# Interactions 
+
+### The wage/education/experience regression would be:
+`$$\begin{eqnarray}
+wage = \beta_0 &amp;+&amp; \beta_1 1(educ==College) + \beta_2 1(educ==Grad) + \beta_3 exper \\
+&amp;+&amp; \beta_4 x_1 1(educ==Coll) + \beta_5 x_1 1(educ==Grad) + u
+\end{eqnarray}$$`
+### Expected Values conditional on X:
+- `\(E[wage|exper, educ = HS] = \beta_0 + \beta_3 \times exper\)`
+- `\(E[wage|exper, educ = Coll] = (\beta_0 + \beta_1) + (\beta_3 + \beta_4) \times exper\)`
+- `\(E[wage|exper, educ = Grad] = (\beta_0 + \beta_2) + (\beta_3 + \beta_5) \times exper\)`
+
+### Just as we do with the intercepts, we add to the base level
+- Note that when we have three categories `\(\{HS,Coll,Grad\}\)` and we want the `\(E[wage|exper, educ==Grad]\)`, we do **not** add in the intercept-shift or slope-shift for `\(educ==Coll\)`.
+
+---
+class: MSU
+# Interactions
+
+### The naive pooled (black) and the intercept-shift only:
+&lt;img src="figs/SlopeShift1-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+---
+class: MSU
+# Interactions
+
+### And letting *intercept* and *slope* vary:
+&lt;img src="figs/SlopeShift2-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+---
+class: MSU
+# Interactions
+
+
+```
+## 
+## t test of coefficients:
+## 
+##                Estimate Std. Error t value  Pr(&gt;|t|)    
+## (Intercept)    15.52086    9.33517  1.6626  0.102183    
+## educColl       22.58345   10.14406  2.2263  0.030189 *  
+## educGrad       28.32628    9.97941  2.8385  0.006375 ** 
+## exper           1.72848    0.61230  2.8229  0.006649 ** 
+## educColl:exper  1.66493    0.77769  2.1409  0.036816 *  
+## educGrad:exper  4.17432    0.81558  5.1182 4.211e-06 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+---
+class: MSU
+# Interactions
+
+
+The true slopes (since this is fictional data) are:
+
+| educ | Slope |
+|:---:|:---:|
+| HS | 1|
+| Coll |4|
+| Grad | 5|
+
+---
+class: MSU
+# Interactions
+
+### How would we say this?
+&gt; `\(\beta_4\)` is the college-specific increase in the relationship between per-year-of-experience and wages relative to HS graduates
+
+- We can also just think of it in terms of slope: a positive `\(\beta_4\)` means the slope is steeper (more up) than HS
+
+### Significance
+- The statistical test that is output in these regressions refers to whether or not that coefficient is zero
+- For a intercept-shift ( `\(\beta_1\)` or `\(\beta_2\)` ), the test tells us whether or not the *intercept* (or *mean*) outcome of the in-group is different from the base level.
+- For a slope-shift (interaction, e.g. `\(\beta_3\)` or `\(\beta_4\)` ), the test tells us whether or not the *slope* is different of the in-group is different from the base level.
+  - That is, it asks: "does this group have a *different relationship between exper and wage* than the base group?"
+
+---
+class: MSU
+# Interactions
+
+### Two-dummy interactions:
+`$$\begin{eqnarray}
+Out-of-pocket = \beta_0 &amp;+&amp; \beta_1 1(single) + \beta_2 1(age&gt;65) \\
+&amp;+&amp; \beta_3 1(single) 1(age&gt;65) + u
+\end{eqnarray}$$`
+
+We have the same interpretation for `\(\beta_0\)` thru `\(\beta_2\)`
+- **But** `\(\beta_3\)` tells us the `\(E[Out-of-pocket|\text{both things true}]\)`
+
+### This means a single person over 65 adds *four* beta's together:
+- `\(E[O-o-p|\text{married, 64 years old}] = \beta_0\)`
+- `\(E[O-o-p|\text{single, 64 years old}] = \beta_0 + \beta_1\)`
+- `\(E[O-o-p|\text{married, 66 years old}] = \beta_0 + \beta_2\)`
+- `\(E[O-o-p|\text{single, 66 years old}] = \beta_0 + \beta_1 + \beta_2 + \beta_3\)`
+
+This is because a single person over 65 is all four things at once. `\(\beta_3\)` is interpreted as the additional effect of being *both* &gt;65 and single.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

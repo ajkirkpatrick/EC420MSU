@@ -20,8 +20,10 @@ output:
 options(htmltools.dir.version = FALSE)
 library(knitr)
 library(kableExtra)
-opts_chunk$set(fig.path='figs/',
-  out.width= '90%',
+opts_chunk$set( 
+  fig.path='figs/',
+  out.width= '80%',
+  fig.align = 'center',
   warning = F,
   message = F,
   error=F)
@@ -50,9 +52,47 @@ layout: true
 
 <div class="msu-header"></div> 
 
+<div style = "position:fixed; visibility: hidden">
+$$\require{color}\definecolor{yellow}{rgb}{1, 0.8, 0.16078431372549}$$
+$$\require{color}\definecolor{orange}{rgb}{0.96078431372549, 0.525490196078431, 0.203921568627451}$$
+$$\require{color}\definecolor{MSUgreen}{rgb}{0.0784313725490196, 0.52156862745098, 0.231372549019608}$$
+$$\require{color}\definecolor{DUKEblue}{rgb}{0.00392156862745098, 0.129411764705882, 0.411764705882353}$$
+</div>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  TeX: {
+    Macros: {
+      yellow: ["{\\color{yellow}{#1}}", 1],
+      orange: ["{\\color{orange}{#1}}", 1],
+      MSUgreen: ["{\\color{MSUgreen}{#1}}", 1],
+      DUKEblue: ["{\\color{DUKEblue}{#1}}", 1]
+    },
+    loader: {load: ['[tex]/color']},
+    tex: {packages: {'[+]': ['color']}}
+  }
+});
+</script>
+
+<style>
+.yellow {color: #FFCC29;}
+.orange {color: #F58634;}
+.MSUgreen {color: #14853B;}
+.DUKEblue {color: #012169;}
+</style>
+
+
+```{r flair_color, echo=FALSE}
+library(flair)
+yellow <- "#FFCC29"
+orange <- "#F58634"
+MSUgreen <- "#14853B"
+DUKEblue <- "#012169"
+```
+
 
 ---
-class: inverseMSU
+class: MSU
 name: Overview
 
 # This lecture  
@@ -90,7 +130,7 @@ class: MSU
   - $1(age>65)$
 
 ### Interpretation
-- A .red[shift] in the intercept **relative to the base group**
+- A .orange[shift] in the intercept **relative to the base group**
   - Base group: $male$
   - Base group: $age<65$
 - The "base group" (or "base level") is represented in the intercept: $\beta_0$
@@ -229,7 +269,7 @@ class: MSU
 |27000|2|Graduate|0|1|
 |32000|10|HS|0|0|
 
-If we run this in R (leaving out the "education" column, since those are words and we can't regress on words), we would get a coefficient for $education==College$ and $education==Graduate$
+If we run this in R (leaving out the "education" column), we would get a coefficient for $education==College$ and $education==Graduate$
 - These would be the increase in the expected wage resulting from moving between the HS group to the College (or Graduate, respectively) group, *ceteris paribus*.
 
 ---
@@ -277,7 +317,8 @@ class: MSU
 
 ### If you use a factor variable in a regression, R will construct the additional columns
 ```{r AddVars, echo=T}
-census.small = census[census$state=='South Carolina'|census$state=='Arizona'|census$state=='Nevada',c('lweekinc','state','educ', 'exper')]
+census.small = census[census$state=='South Carolina'|census$state=='Arizona'|
+                      census$state=='Nevada',c('lweekinc','state','educ', 'exper')]
 census.small$statefactor = as.factor(census.small$state)
 head(census.small, 10)
 ```
@@ -362,7 +403,8 @@ We want to know if higher EXPORTS are associated with higher GDP.
 class: MSU
 # Fixed Effects 
 
-```{r TimeFE, echo=F, include=T, out.width='95%'}
+```{r TimeFE, echo=F, include=T, out.width = '60%',  out.height='90%'}
+set.seed(1970)
 NN = 4
 TT = 10
 df = expand.grid(Country = c('US','CAN','MEX','DOM'),
@@ -381,7 +423,7 @@ df = df %>%
   dplyr::mutate(GDP = rnorm(n(), mean=GDP, sd = sqrt(VAR_C))) %>%
   dplyr::mutate(GDP = ifelse(Year%in%c(2009, 2010), GDP-7, GDP))
 
-write_dta(df, path='../Data/tempMLR4.dta')
+# write_dta(df, path='../Data/tempMLR4.dta')
 
 a = ggplot(df, aes(x = Year, y=GDP, col=Country)) + geom_line(lwd=2) + theme_bw() + theme(legend.position='none')
 b = ggplot(df, aes(x = EXPORT, y = GDP, col=Country)) + geom_point() + theme_bw()
@@ -391,15 +433,22 @@ plot_grid(a,b)
 Since this is constructed (fake) data, I know the right coefficient on $EXPORT$, $\beta_{export}=20$
 
 ---
-class: clear
+class: MSU
+# Fixed Effects
 
 ```{r three, echo=T}
 coeftest(lm(GDP ~ EXPORT, df), vcov = vcovHC, type = 'HC1')
 ```
 
+```{r three-graphic, echo=F, out.width = '35%'}
+ggplot(df, aes(x = EXPORT, y = GDP, col=Country)) + geom_point() + theme_bw() + geom_smooth(aes(col = NULL), method = 'lm', se=FALSE)
+```
+
+.footnote[Note I used a simplier call to `coeftest`. Before we had `vcov = vcovHC(OLSobject, 'HC1'))`, but that required two steps: one to create the OLS object, and one to call `coeftest`. This does it all at once.]
 
 ---
-class: clear
+class: MSU
+# Fixed Effects
 
 ```{r four, echo=T}
 coeftest(lm(GDP ~ EXPORT + as.factor(Year), df), vcov = vcovHC, type='HC1')
@@ -408,7 +457,8 @@ coeftest(lm(GDP ~ EXPORT + as.factor(Year), df), vcov = vcovHC, type='HC1')
 
 
 ---
-class: clear
+class: MSU
+# Fixed Effects
 
 ```{r five, echo=T}
 coeftest(lm(GDP ~ EXPORT + as.factor(Year) + as.factor(Country), df), vcov = vcovHC, type='HC1')
@@ -421,19 +471,29 @@ class: MSU
 ### Yes, you can specify more than one set of categorical variables
 - Just as you can have more than one dummy variable
 - The interpretation of each one is still the same: the effect of being in the group/time period relative to the base group/time period, *ceteris paribus*.
-- On the next slide, GDP_HAT is the residual from regresing GDP on categorical Year and Country
-  - Same for EXPORT_HAT
-  
-- These are called **two-way fixed effects**
+- These are called **two-way fixed effects** (TWFE)
   - When used on panel data
   - And when there is one fixed effect for each of the panel data's dimensions
     - $N$ countries and $T$ years here.
-    
+
+### Fixed effects and Partialling Out
+On the next slide, GDP_HAT is the residual from regressing GDP on categorical Year and Country
+- Same for EXPORT_HAT
+
+---
+class: MSU
+#Fixed Effects
+
+### Our original data before partialling out:
+```{r twowayFEbefore, out.width = '65%', out.height = '90%', echo = F}
+plot_grid(a,b)
+```
 ---
 class: MSU
 # Fixed Effects
 
-```{r twowayFE, echo=F, include=T, out.width='90%'}
+### After paritalling out left: YEAR and right: YEAR and COUNTRY
+```{r twowayFE, echo=F, include=T, out.width = '65%', out.height = '90%'}
 df = df %>%
   dplyr::mutate(EXPORT_HAT = resid(lm(EXPORT ~ as.factor(Year) + as.factor(Country), data=df)),
                 GDP_HAT = resid(lm(GDP ~ as.factor(Year) + as.factor(Country), data=df)))
@@ -443,6 +503,25 @@ d = ggplot(df, aes(x = EXPORT_HAT, y = GDP_HAT, col=Country)) + geom_point() + t
 plot_grid(c,d)
 ```
 
+---
+class: MSU
+# Fixed Effects
+
+
+### The code I used to parital out and plot the prior slide:
+```
+df = df %>%
+  dplyr::mutate(EXPORT_HAT = resid(lm(EXPORT ~ as.factor(Year) + as.factor(Country), data=df)),
+                GDP_HAT = resid(lm(GDP ~ as.factor(Year) + as.factor(Country), data=df)))
+
+
+c = ggplot(df, aes(x = Year, y=GDP_HAT, col=Country)) + geom_line(lwd=2) +
+theme_bw() + theme(legend.position='none')
+
+d = ggplot(df, aes(x = EXPORT_HAT, y = GDP_HAT, col=Country)) + geom_point() + theme_bw()
+
+plot_grid(c,d)
+```
 
 ---
 class: heading-slide
@@ -471,11 +550,11 @@ class: MSU
 - In a way very similar to letting the intercepts vary
 - Let's look at it in an example with only two categories (a single dummy)
 
-$$y = \beta_0 + \beta_1 1(condition) + \beta_2 x_1 + \underbrace{\beta_3 x_1 1(condition)}_{\text{The interaction term}} + u$$
+$$y = \beta_0 + \beta_1 1(condition) + \beta_2 x_1 + \underbrace{\beta_3 \times x_1 \times 1(condition)}_{\text{The interaction term}} + u$$
 
 ### A couple things to note:
 - $x_1$ is our variable of interest here
-- $condition$ is our group dummy ( $male$ or $age>65$ )
+- $condition$ is our group dummy (like $male$ or $age>65$ )
 - $x_1$ appears twice, once with $\beta_2$, and *again* in the interaction of $x_1 \times 1(condition)$
 
 ---
@@ -512,7 +591,7 @@ class: MSU
 # Interactions 
 
 ### What does that look like?
-|wage|experience|educ|educ = College|educ = Graduate|experience x educ==College|experience x educ==Graduate|
+|wage|experience|educ|educ = College|educ = Graduate|experience x educ == College|experience x educ == Graduate|
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 |9000|0|HS|0|0|0|0|
 |20000|5|College|1|0|5|0|
@@ -527,12 +606,12 @@ class: MSU
 ### And in R:
 .pseudocode[lm(wage ~ as.factor(educ) + exper + as.factor(educ)*exper, data=df)]
 
-Here, you'll get intercept shift coefficients on:
+Here, you'll get **intercept .orange[shift]** coefficients on:
 - educ = College
 - educ = Grad
 
 
-And you'll get **slope** shift coefficients on:
+And you'll get **slope .orange[shift]** coefficients on:
 - experience for educ = College
 - experience for educ = Graduate
 
@@ -558,17 +637,17 @@ class: MSU
 # Interactions
 
 ### The naive pooled (black) and the intercept-shift only:
-```{r SlopeShift1, echo=F, include=T, out.width='100%'}
+```{r SlopeShift1, echo=F, include=T, out.width='60%'}
 NN = 60
 LEV = data.frame(educ = c('HS','Coll','Grad'),
-                 slope = c(1, 2, 3),
+                 slope = c(1, 4, 5),
                  meanexper = c(15,8, 8),
                  meanwage = c(25,40,50),
                  stringsAsFactors=F)
 
 ww = LEV[sample(1:3, size=NN, replace=T),] %>%
   dplyr::mutate(exper = rpois(NN, meanexper)) %>%
-  dplyr::mutate(wage = meanwage + slope*exper + rnorm(NN, 0, 10)) %>%
+  dplyr::mutate(wage = meanwage + slope*exper + rnorm(NN, 0, 8)) %>%
   dplyr::select(wage, exper, educ) %>%
   dplyr::mutate(educ = factor(educ, levels=c('HS','Coll','Grad')))
 
@@ -588,7 +667,7 @@ class: MSU
 # Interactions
 
 ### And letting *intercept* and *slope* vary:
-```{r SlopeShift2, echo=F, include=T, out.width='100%'}
+```{r SlopeShift2, echo=F, include=T, out.width='60%'}
 lm.FE2lm = lm(wage ~ educ + exper + educ*exper, ww)
 lm.FE2 = coefficients(lm.FE2lm)
 
@@ -659,3 +738,17 @@ We have the same interpretation for $\beta_0$ thru $\beta_2$
 This is because a single person over 65 is all four things at once. $\beta_3$ is interpreted as the additional effect of being *both* >65 and single.
 
 
+
+```{r outputChromePrint, include=F, eval=F}
+
+require(pagedown)
+currentfile = gsub(pattern='\\.Rmd', '', basename(rstudioapi::getSourceEditorContext()$path))
+inputpath = paste0('https://ajkirkpatrick.github.io/EC420MSU/',currentfile, '/', paste0(currentfile, '.html'))
+browseURL(inputpath)
+pagedown::chrome_print(input = inputpath,
+                   output = file.path(currentfile, paste0(currentfile, '.pdf')),
+                   #wait = 3,
+                   timeout = 300,
+                   format = 'pdf')
+
+```
