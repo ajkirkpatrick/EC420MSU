@@ -750,5 +750,6 @@ pagedown::chrome_print(input = inputpath,
                    #wait = 3,
                    timeout = 300,
                    format = 'pdf')
+print(inputpath)
 
 ```

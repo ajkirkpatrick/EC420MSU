@@ -1,0 +1,514 @@
+---
+title: "Midterm Review"
+subtitle: "EC420 MSU"
+author: "Justin Kirkpatrick"
+date: "Last updated `r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    yolo: false
+    css: [default, metropolis, metropolis-fonts, "EC420_S21.css"]
+    nature: 
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false 
+
+      
+
+---
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(knitr)
+library(kableExtra)
+opts_chunk$set( 
+  fig.path='figs/',
+  out.width= '80%',
+  fig.align = 'center',
+  warning = F,
+  message = F,
+  error=F)
+library(tidyverse)
+require(cowplot)
+require(ggpubr)
+require(haven)
+require(plot3D)
+require(stargazer)
+require(quantmod)
+require(wbstats)
+require(lubridate)
+require(scales)
+require(broom)
+require(wooldridge)
+require(lmtest)
+require(sandwich)
+
+
+options("getSymbols.warning4.0"=FALSE)
+# require(see)
+
+```
+
+layout: true
+
+<div class="msu-header"></div> 
+
+<div style = "position:fixed; visibility: hidden">
+$$\require{color}\definecolor{yellow}{rgb}{1, 0.8, 0.16078431372549}$$
+$$\require{color}\definecolor{orange}{rgb}{0.96078431372549, 0.525490196078431, 0.203921568627451}$$
+$$\require{color}\definecolor{MSUgreen}{rgb}{0.0784313725490196, 0.52156862745098, 0.231372549019608}$$
+$$\require{color}\definecolor{DUKEblue}{rgb}{0.00392156862745098, 0.129411764705882, 0.411764705882353}$$
+</div>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  TeX: {
+    Macros: {
+      yellow: ["{\\color{yellow}{#1}}", 1],
+      orange: ["{\\color{orange}{#1}}", 1],
+      MSUgreen: ["{\\color{MSUgreen}{#1}}", 1],
+      DUKEblue: ["{\\color{DUKEblue}{#1}}", 1]
+    },
+    loader: {load: ['[tex]/color']},
+    tex: {packages: {'[+]': ['color']}}
+  }
+});
+</script>
+
+<style>
+.yellow {color: #FFCC29;}
+.orange {color: #F58634;}
+.MSUgreen {color: #14853B;}
+.DUKEblue {color: #012169;}
+</style>
+
+
+```{r flair_color, echo=FALSE}
+library(flair)
+yellow <- "#FFCC29"
+orange <- "#F58634"
+MSUgreen <- "#14853B"
+DUKEblue <- "#012169"
+```
+
+
+---
+class: MSU
+name: Overview
+
+# This Review
+
+### Today, we will spend 60 minutes or so reviewing some key concepts that will be necessary for the midterm
+
+1. The slides **absolutely will not** be a complete and total review. They will be guides that we will use during class. I will be adding to them Monday before class (and after posting).
+
+3. Ask questions.
+
+5. These topics are not an exhaustive list of things you should know. They are the core concepts of the course.
+
+6. Use the practice problems online. Be able to do them by hand with your calculator.
+  - But most importantly, know *what* you are doing as you do them.
+  
+---
+class: MSU
+# The Midterm
+
+### The midterm will be very much like your quizzes.
+- Mix of multiple choice, short answer, and numeric exercises
+- Heavier on interpretation of coefficients and thinking through problems
+- Cumulative up to and including last week
+  - Interactions in regression
+
+--
+
+- You are permitted to have your notes, and you can use R
+  - Won't help you much, but we can't proctor, so no sense in trying to restrict something we can't restrict, right?
+
+---
+class: MSUMSU
+
+### I cannot over-emphasize enough that the quizzes are vital to your understanding of the material.
+If you are stuck in working though the quiz questions, ask for help!
+
+### TA Office Hours are in syllabus.
+
+---
+class: heading-slide
+
+Prof. Kirkpatrick's chosen topics
+
+---
+class: MSU
+# Operations
+
+### Know the following:
+Where $a,b,c$ are constants and $X,Y$ are random variables
+- $E[aX + bY]$
+- $Var(aX + b)$
+- $Var(X + Y)$
+- $Cov(aX, bY)$
+
+--
+
+
+From an earlier quiz:
+
+$X \sim N(\mu_X, \sigma^2_X)$ an $Y \sim N(\mu_Y, \sigma^2_Y)$. Define $W = aX + Y$ where $a$ is a constant. What is $E[W]$ and $Var(W)$?
+- $E[W] = E(aX+Y)$
+- $Var(W) = Var(aX+Y)$
+
+---
+class: MSU
+# Variance and Covariance
+
+### Know the formulas for:
+$$\widehat{Var}(X) = \frac{1}{n-1} \sum_{i=1}^n (x_i - \bar{x})^2$$
+- understand why this measures dispersion of a RV
+
+$$\widehat{Cov}(X,Y) = \frac{1}{n-1} \sum_{i=1}^n (x_i -\bar{x})(y_i - \bar{y})$$
+
+- Understand why this measures the way two random variables move together
+
+### And know the difference between the sample estimate and the population parameter
+
+---
+class: MSU
+# Unbiased
+
+- Define *unbiased*
+  - $E[\hat{\beta}] = \beta$
+  
+- Is OLS unbiased?
+  - Yes, under MLR1-MLR4
+  
+- What assumptions do we have to make to know $\hat{\beta}$ is unbiased
+
+---
+class: MSU
+# Population vs. Sample
+
+### We are usually after population parameters
+- $\mu$
+- $\sigma$
+- $\beta$
+
+### But we settle for estimates
+- $\bar{x}$
+- $\hat{\sigma}$
+- $\hat{\beta}$
+
+### Estimator
+- The "plan" for generating an estimate from sample data
+
+### Estimate
+- The realized value of the estimator given a sample
+
+---
+class: MSU
+# Population vs. Sample
+
+### The Population Regression Function (PRF)
+$$E[Y|X] = \beta_0 + \beta_1 x_1 + \beta_2 x_2$$
+
+### The Sample Regression Function (SRF)
+$$\hat{y} = \hat{\beta}_0 + \hat{\beta}_1 x_1 + \hat{\beta}_2 x_2$$
+
+- The SRF is the OLS regression line - it is the fitted values ( $\hat{y}$ ) using the regression estimate
+- It should never have the $u$ or $\hat{u}$ in it
+  - It never has $y$ in it, only $\hat{y}$
+- $\hat{y}$ given $\hat{\beta}$ and $x_1,x_2$ is our best estimate of $E[Y|X_1 = x_1, X_2 = x_2]$
+  
+  
+---
+class: MSU
+# R
+
+It would behoove you to know the use of the basic R commands that appeared in your homeworks:
+
+- .pseudocode[lm]
+- .pseudocode[which]
+- .pseudocode[coeftest] for robust errors
+- .pseudocode[df[1,5:6]] to index row 1, columns 5-6
+- .pseudocode[plot]
+
+
+---
+class: MSU
+# Interpreting
+
+In a regression:
+$$y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + u$$
+
+- What does $\beta_0$ tell us?
+- What does $\beta_1$ tell us?
+- What does $\beta_2$ tell us?
+- What do we mean by *ceteris paribus*?
+
+---
+class: MSU
+# Interpreting
+
+In a regression:
+$$log(y) = \beta_0 + \beta_1 log(x_1) + u$$
+
+- What is our interpretation of $\beta_1$?
+
+$$log(y) = \beta_0 + \beta_1 x_1 + u$$
+
+- What is our interpretation of $\beta_1$ now?
+
+$$ y = \beta_0 + \beta_1 log(x_1) + u$$
+
+- What is our interpretation of $\beta_1$ now?
+
+---
+class: MSU
+# Partialling Out
+
+### Understand the intuition behind "partialling out" in multiple regression
+- Why do we need to do it?
+  - $y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + u$
+  - $y = \tilde{\beta}_0 + \tilde{\beta}_1 x_1 + \tilde{u}$
+  
+<br><br><br><br><br>
+NOTE: The $\tilde{\beta}$ are the "naive, biased" $\beta$'s. What if we want to correctly estimate $\beta_1$ in the second equation?
+
+---
+class: MSU
+# Partialling Out
+
+### How can we get an unbiased $\beta_1$ without running the full regression?
+- First, regress $x_1 = \delta_0 + \delta_1 x_2 + v$
+- Second, calculate $\hat{v} = x_1 - \hat{\delta}_0 - \hat{\delta}_1 x_2$
+- Third, regress $y = \beta_0 + \beta_1 \hat{v} + u$
+  - **Be able to explain why this works.**
+  - What is "in" $\hat{v}$ that is correlated with $x_1$?
+  - What is "in" $\hat{v}$ that is not correlated with $x_1$?
+
+---
+class: MSU
+# Partialling Out
+
+### The reason we talk about partialling out is that it relates to our interpretation of our coefficient estimates *ceteris paribus*
+
+Multiple variable regression with OLS *implicitly does the partialling out*, so the $\beta$'s we get when we run:
+
+$$y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + u$$
+are **as if we had partialed $x_2$ out of $x_1$, and partialed $x_1$ out of $x_2$**
+
+
+---
+class: MSU
+# Partialing Out
+
+### Let's compare a simple and multiple regression estimates
+This time looking at $\beta_1$
+- $y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + u$
+- $y = \tilde{\beta}_0 + \tilde{\beta}_1 x_1 + \tilde{u}$
+
+How will $\beta_1$ differ from $\tilde{\beta}_1$?
+
+It depends on the relationship between $x_1$ and $x_2$
+- $x_1 = \delta_0 + \delta_1 x_2 + v$ and $x_2 = \gamma_0 + \gamma_1 x_1 + w$
+
+It is true that:
+- $\hat{\tilde{\beta}}_1 = \hat{\beta}_1 + \hat{\beta}_2 \hat{\delta}_1$
+- In words: to whatever extent $x_1$ and $x_2$ are correlated, $\hat{\tilde{\beta}}_1$ will include that correlation. Knowing this, when would the simple regression estimate **equal** the multiple regression (multivariate) estimate?
+
+---
+class: MSU
+# Variance in multiple regression
+
+### The variance of $\hat{\beta}_1$ in single variable:
+$$\frac{\sigma^2_u}{SST_x}$$
+
+### The variance of $\hat{\beta}_j$ in multiple regression:
+$$\frac{\sigma^2_u}{SST_{x_j}(1-\hat{R}^2_j)}$$
+
+where $\hat{R}^2_j$ is the $R^2$ from a regression of
+$$x_j = \delta_0 + \delta_1 x_k + \cdots + v$$
+- It is "how much of $x_j$ is explained by the other variables, $x_k, \cdots$"
+
+---
+class: MSU
+# Variance in multiple regression
+
+### We can calculate $\hat{\sigma}^2_u$
+$$\hat{\sigma}^2_u = \frac{SSR}{N-K-1} = \frac{\sum_{i=1}^N \hat{u}^2}{N-K-1}$$
+
+### We subtract K and 1 because of the number of parameters we are estimating
+- In single-variable, we did $N-2$, which is $N-K-1$ when $K=1$
+
+### $\hat{\sigma}^2$ is then used in the formula for $Var(\hat{\beta})$
+
+
+---
+class: MSU
+# Goodness of Fit
+
+### You will need to have memorized the following:
+
+- $SST = \sum_{i=1}^n (y_i - \bar{y})^2$
+- $SSR = \sum_{i=1}^n (u_i - \bar{u})^2$
+- $SSE = \sum_{i=1}^n (\hat{y} - \hat{\bar{y}})^2$
+- $SST = SSR + SSE$
+
+You will also need to be able to interpret them (what do they mean)
+
+### Be able to calculate an $R^2$ (as on the quiz)
+- $R^2 = \frac{SSE}{SST} = 1 - \frac{SSR}{SST}$
+
+
+---
+class: MSU
+# Interactions
+
+### In a regression:
+$$y = \beta_0 + \beta_1 x_1 + \beta_2 1(condition) + \beta_3x_11(condition) + u$$
+
+
+- An intercept, $\beta_0$
+- $\beta_1$ is a slope $\frac{\Delta y}{\Delta x_1}$, the change in $E[Y]$ associated with a change in $X$, *ceteris paribus*
+- $\beta_2$, an intercept shift for $1(condition)$
+- $\beta_3$, a slope shift:
+  - The *change* in the slope $\frac{\Delta y}{\Delta x_1}$ associated with $1(condition)$.
+<br>
+- If $\beta_0,\beta_1,\beta_2$ are positive, what does it mean if $\beta_3$ is positive?
+- What is the "base" level?
+
+---
+class: MSU
+# Interactions 
+
+### Know the difference between the shift and the $E[Y|X]$
+- $E[Y|condition==TRUE, x_1] = \beta_0 + \beta_1 x_1 + \beta_2 + \beta_2x_1$
+- $E[Y|condition==FALSE, x_1] = \beta_0 + \beta_1 x_1$
+
+- The coefficient on $1(condition)$ and the interaction of $x_1 1(condition)$ gives the **shift** (the difference) in intercept and slope.
+
+---
+class: MSU
+# Heteroskedasticity
+
+### Be able to spot it in an example
+- Variance around the fitted line is not constant over all values of $x$
+- The Wooldridge example plot we used many times
+
+### Know how to fix it in R in general
+- Eicker-Huber-White Heteroskedastic-Consistent Errors
+
+---
+class: MSU
+# Gauss-Markov 
+
+### Know what each of these is, and why they are necessary:
+
+MLR1.  In the population, $y$ is a linear function of the parameters $x$ and $u$: $y = \beta_0 + \beta_1 x_1 + \cdots + \beta_k x_k + u$
+
+MLR2. The sample $(y_i, x_i): i = 1,2,\cdots,n$ follows the population model and are independent
+
+MLR3. No multicolinearity / "full rank": $x_j$ is not a linear transformation of $x_k$ for all $j,k$.
+
+MLR4. Zero conditional mean: $E[u|x_1,x_2,\cdots,x_k] = 0$ for all $x$.
+
+--
+
+MLR5. $Var[u|x_1, \cdots, x_k]= \sigma^2_u$ for all $x$.
+
+--
+
+MLR6. The population error $u$ is *independent* of the explanatory variables $x_1, x_2, \cdots, x_k$ and is normally distributed with zero mean and variance $\sigma^2$: $u\sim N(0,\sigma^2)$
+  - "exact normality"
+  - We need this *only* for inference (t's, F-tests)
+  - We can relax this assumption and still have inference 
+  
+
+---
+class: MSU
+# Hypothesis testing
+
+### For a single beta (in single or multiple regression)
+- We have a $\hat{\beta}$, a $Var(\hat{\beta})$, and a distribution ($N$ormal)
+
+Let's sketch out on the board how we think of hypothesis tests.
+
+---
+class: MSU
+# Linear Hypotheses
+
+### We can test hypotheses about one coefficient
+- $\hat{\beta}_1$, $\hat{se}(\hat{\beta}_1)$, and MLR6 mean we can use the *t-statistic*
+  - Why is it not a $N(0,1)$?
+  
+### We can test hypotheses about multiple coefficients
+- $\beta_{jc} = \beta_{univ}$
+- .pseudocode[linearHypothesis]
+
+### And we can test **joint restictions**
+- Does $\beta_1 = \beta_2 = \beta_3 = 0$ 
+- "Jointly zero"
+- This is **not** testing each separately
+
+---
+class: MSU
+# F-test
+
+### Joint restrictions
+- We use the $F-test$ to do a test of the form  $\beta_1 = \beta_2 = \beta_3 = 0$ 
+- We have an "unrestricted" model with all $\beta$'s.
+- We have a "restricted" model where these $\beta$'s are zero.
+
+### We can calculate
+- $SSR_{UR}$
+- $SSR_{R}$
+
+$$F \sim \frac{\frac{SSR_{R} - SSR_{UR}}{K}}{\frac{SSR_{UR}}{N-K-1}}$$
+Where we are restricting all $K$ $\beta$'s. The formula is similar when restricting $q<K$ parameters.
+
+---
+class: MSU
+# From the reading responses
+
+### What formulas do we need to memorize
+
+### Know the sample calculations for:
+- $\bar{x}$
+- $Var(x)$
+  - and that Std. Dev = $\sqrt{Var(x)}$
+- $Cov(x,y)$
+- $SSR$
+- $SSE$
+- $SST$
+- $\hat{beta}_0$
+- $hat{\beta}_1$
+- $se(\hat{\beta}_1)$ for single-variable regression
+- $se(\hat{\beta}_j)$ for multivariable regression
+  - Including what $\hat{R}^2_j$ is.
+  
+
+
+
+
+---
+class: MSU
+# Good luck
+
+### I am available in our Slack, or by email.
+
+
+
+```{r outputChromePrint, include=F, eval=F}
+
+require(pagedown)
+currentfile = gsub(pattern='\\.Rmd', '', basename(rstudioapi::getSourceEditorContext()$path))
+inputpath = paste0('https://ajkirkpatrick.github.io/EC420MSU/',currentfile, '/', paste0(currentfile, '.html'))
+browseURL(inputpath)
+pagedown::chrome_print(input = inputpath,
+                   output = file.path(currentfile, paste0(currentfile, '.pdf')),
+                   #wait = 3,
+                   timeout = 300,
+                   format = 'pdf')
+print(inputpath)
+
+```
+
+
