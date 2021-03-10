@@ -771,9 +771,9 @@ The main takeaways from today:
 8. Lack of balance in covariates may indicate presence of a selection bias
 9. Balance in covariates does not indicate lack of selection bias
 
+ 
 
 
-http://www.justinkirkpatrick.com/EC420MSU/09-Counterfactuals-and-selection-bias/MMTbl13.png
 
 ```{r outputChromePrint, include=F, eval=F}
 
