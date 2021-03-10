@@ -731,7 +731,7 @@ class: MSU
 # Selection bias
 
 ```{r, MM13, echo=F, out.width='90%'}
-knitr::include_graphics('MMTbl13.png')
+knitr::include_graphics('figs/MMTbl13.png')
 ```
 
 
@@ -740,7 +740,7 @@ class: MSU
 # Selection bias
 
 ```{r, MM13again, echo=F, out.width='50%'}
-include_graphics('MMTbl13.png')
+include_graphics('figs/MMTbl13.png')
 ```
 
 ---
@@ -773,7 +773,7 @@ The main takeaways from today:
 
 
 
-
+http://www.justinkirkpatrick.com/EC420MSU/09-Counterfactuals-and-selection-bias/MMTbl13.png
 
 ```{r outputChromePrint, include=F, eval=F}
 
