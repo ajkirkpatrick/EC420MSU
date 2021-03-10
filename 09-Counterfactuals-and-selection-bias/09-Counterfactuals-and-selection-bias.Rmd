@@ -730,18 +730,14 @@ We might hope that we would have "just about equal" values for the (unobserved) 
 class: MSU
 # Selection bias
 
-```{r, MM13, echo=F, out.width='90%'}
-knitr::include_graphics('figs/MMTbl13.png')
-```
+<html><img src="MMtbl13.png" style="width: 90%"/></html>
 
 
 ---
 class: MSU
 # Selection bias
 
-```{r, MM13again, echo=F, out.width='50%'}
-include_graphics('figs/MMTbl13.png')
-```
+<html><img src="MMtbl13.png" style="width: 50%" class="center"/></html>
 
 ---
 class: MSU
