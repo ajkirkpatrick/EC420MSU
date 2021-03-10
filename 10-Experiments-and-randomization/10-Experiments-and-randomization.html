@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Experiments and Randomization</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Justin Kirkpatrick" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis-fonts.css" rel="stylesheet" />
+    <script src="libs/kePrint/kePrint.js"></script>
+    <link href="libs/lightable/lightable.css" rel="stylesheet" />
+    <link rel="stylesheet" href="EC420_S21.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Experiments and Randomization
+## EC420 MSU
+### Justin Kirkpatrick
+### Last updated March 10, 2021
+
+---
+
+
+
+layout: true
+
+&lt;div class="msu-header"&gt;&lt;/div&gt; 
+
+
+&lt;div style = "position:fixed; visibility: hidden"&gt;
+`$$\require{color}\definecolor{yellow}{rgb}{1, 0.8, 0.16078431372549}$$`
+`$$\require{color}\definecolor{orange}{rgb}{0.96078431372549, 0.525490196078431, 0.203921568627451}$$`
+`$$\require{color}\definecolor{MSUgreen}{rgb}{0.0784313725490196, 0.52156862745098, 0.231372549019608}$$`
+`$$\require{color}\definecolor{DUKEblue}{rgb}{0.00392156862745098, 0.129411764705882, 0.411764705882353}$$`
+&lt;/div&gt;
+
+&lt;script type="text/x-mathjax-config"&gt;
+MathJax.Hub.Config({
+  TeX: {
+    Macros: {
+      yellow: ["{\\color{yellow}{#1}}", 1],
+      orange: ["{\\color{orange}{#1}}", 1],
+      MSUgreen: ["{\\color{MSUgreen}{#1}}", 1],
+      DUKEblue: ["{\\color{DUKEblue}{#1}}", 1]
+    },
+    loader: {load: ['[tex]/color']},
+    tex: {packages: {'[+]': ['color']}}
+  }
+});
+&lt;/script&gt;
+
+&lt;style&gt;
+.yellow {color: #FFCC29;}
+.orange {color: #F58634;}
+.MSUgreen {color: #14853B;}
+.DUKEblue {color: #012169;}
+&lt;/style&gt;
+
+
+
+
+
+
+---
+class: MSU
+# Selection bias
+
+### From before...
+
+When we think of the "choice or occurrance" we want to study as the treatment, then *selection bias* is the distortion of the statistic of interest (the Average Treatment Effect) due to the fact that a person's outcomes ( `\(Y_{0,i}\)` and `\(Y_{1,i}\)` ) depend on selection of treatment.
+
+--
+
+That is, the expectation of the treated value and the expectation of the untreated value change with treatment.
+
+`$$E[Y_0 | D = 0] \neq E[Y_0 | D = 1]$$`
+
+--
+
+We had examples from our previous lecture
+
+1. Effect of smoking on Life Expectancy
+
+2. Effect of energy consumption information on energy use
+
+3. Anyone remember any others?
+
+---
+class: MSU
+# Selection bias
+
+### The energy consumption example:
+.center[Our previous example]
+
+&lt;table class="table table-striped" style="font-size: 18px; width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Name &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Treated &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Use Without Tmt &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Use With Tmt &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;border-right:1px solid;"&gt; Allison &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; TRUE &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;border-right:1px solid;"&gt; Bertrand &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; TRUE &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;border-right:1px solid;"&gt; Carmine &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; FALSE &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;border-right:1px solid;"&gt; Dalia &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; FALSE &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+--
+
+Our **Mastering Metrics** reading is about *randomization* to eliminate selection bias, so let's try it.
+
+
+---
+class: heading-slide
+
+Get into a group by row of seating
+
+
+---
+class: MSU
+
+# Randomization
+
+.pull-left[
+In groups, "draw from the data" by randomly assigning treatment
+- First, randomly decide to which group each member belongs.
+- Second, build a new observed dataset with the randomly realized observed values
+  - The "with" value if the person is randomly placed in the with-treatment
+  - The "without" value if the person is randomly placed in the without-treatment
+- Third, calculate the group means and the difference between the group means.
+- Repeat 15 times.
+]
+
+.pull-right[
+&lt;table class="table table-striped" style="font-size: 18px; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Name &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Use Without Tmt &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Use With Tmt &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;border-right:1px solid;"&gt; Allison &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;border-right:1px solid;"&gt; Bertrand &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;border-right:1px solid;"&gt; Carmine &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;border-right:1px solid;"&gt; Dalia &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+ 
+
+
+---
+class: MSU
+
+# Randomization
+
+### Report the 15 trial results: the mean with, the mean without, and the difference between means
+
+--
+
+### Calculate the average over all the randomized trials. What is the average with- and without-treatment value? What is the average difference?
+
+--
+
+### What was our previous result comparing the means?
+
+--
+
+### We know that the Average Treatment Effect is 1. Which one is closer to the true value of 1?
+
+---
+class: MSU
+# Randomization
+
+## Randomization (of treatment) eliminates selection bias
+
+Let's see if we can show this *formally*....
+
+
+---
+class: MSU
+
+# Randomization
+
+Recall that in a previous lecture, we used some algebra on conditional expectations to *decompose* the naive difference in means into two parts:
+
+
+`$$\begin{eqnarray}\small
+&amp;&amp; E[Y | D = 1] - E[Y | D = 0] \\
+&amp;=&amp;  E[Y_1 | D=1] - E[Y_0 | D = 0] \\
+                            &amp;=&amp; E[Y_1 | D=1] - E[Y_0 | D = 0] - E[Y_0 | D=1] + E[Y_0 | D=1] \\
+                            &amp;=&amp; E[Y_1 | D=1] - E[Y_0 | D = 1] + E[Y_0 | D=1] - E[Y_0 | D=0] \\
+                            &amp;=&amp; \underbrace{E[(Y_1 - Y_0) | D=1]}_\text{SATE} + \underbrace{E[Y_0|D=1] - E[Y_0|D=0]}_\text{selection bias}
+\end{eqnarray}$$`
+
+
+
+---
+class: MSU
+
+# Randomization
+
+
+
+`$$\begin{eqnarray}\small
+&amp;&amp; E[Y | D = 1] - E[Y | D = 0] \\
+&amp;=&amp;  E[Y_1 | D=1] - E[Y_0 | D = 0] \\
+                            &amp;=&amp; E[Y_1 | D=1] - E[Y_0 | D = 0] - E[Y_0 | D=1] + E[Y_0 | D=1] \\
+                            &amp;=&amp; E[Y_1 | D=1] - E[Y_0 | D = 1] + E[Y_0 | D=1] - E[Y_0 | D=0] \\
+                            &amp;=&amp; \underbrace{E[(Y_1 - Y_0) | D=1]}_\text{SATE} + \underbrace{E[Y_0|D=1] - E[Y_0|D=0]}_\text{selection bias}
+\end{eqnarray}$$`
+
+Now, we saw that randomization got us closer to the correct answer. It might even be unbiased! But what does randomization do?
+- It randomly assigns treatment
+
+--
+
+- So what would `\(E[Y_0|D=1]\)` be if treatment, `\(D\)`, is random? It would be:
+
+
+`$$E[Y_0|D=1] = E[Y_0|D=0] = E[Y_0] \quad \text{under randomization}$$`
+
+--
+
+So what happens to *selection bias*?
+
+
+---
+class: MSU
+
+# Randomization
+
+### Under randomization, where treatment is randomly assigned, selection bias is equal to zero in expectation
+
+Remember the definition of mean independence: `\(E[Y|X] = E[Y]\)` for RV's `\(Y,X\)`
+
+Applying the same thing to **potential outcomes** of `\(Y\)` and `\(D\)`:
+- Randomization gives us `\((Y_1,Y_0) \perp D\)`
+- `\((Y_1, Y_0) \perp D \Rightarrow E[Y_0|D] = E[Y_0]\)`
+
+--
+
+A comparison of means is then an *unbiased estimate* of the `\(SATE\)`
+
+How would we randomize to answer the following with a simple cross-sectional comparison of means
+- Effect of energy consumption information on future energy consumption
+- Effect of health insurance on health outcomes
+- Effect of college education on future earnings
+
+---
+class: MSU
+# Randomization
+
+Randomization, in it's simplest form, is quite straightforward. If the econometrician&lt;sup&gt;*&lt;/sup&gt; can reliably and with certainty assign treatment to individuals, then great!
+
+But even in closely-managed operation, this won't always work. 
+  - People are good at finding ways around assignment
+  - Even drug trials, which are about as controlled as you can get, are subject to shenanigans.
+  - *Endogenous treatment* is the term frequently used for this
+    - It means that treatment is determined "within the system" (by an individual affected by the treatment).
+    - You will be sick of the term "endogenous" by the end of this semester.
+
+----
+
+.footer[&lt;sup&gt;*&lt;/sup&gt; that's you]
+
+
+---
+class: MSU
+# A brief detour
+
+### Relating SATE to ATE
+- We seem to be able to get to SATE, but what about the ATE?
+  - `\(SATE = E[Y_{1}-Y_{0}|D=1]\)`
+  - `\(ATE = E[Y_1 - Y_0|D=1]\)`
+  
+- If we assume that `\(E[(Y_1 - Y_0)|D=1] = E[(Y_1 - Y_0)|D=0]\)`, then the `\(SATE\)` is the same as the `\(ATE\)`
+- That is, the effect of treatment on the treated is the same as the effect of treatment on the untreated
+
+### This is the *constant effects assumption*
+
+....OK, back to randomization
+
+---
+class: MSU
+# Randomization
+
+## Randomized Control Trial
+
+When the econometrician is able to randomly decide treatment, we call the study a *randomized control trial* or *RCT*.
+- These are *very* common in development economics as they can be done at low-cost in many places.
+
+--
+
+Often, when doing a RCT, we want to make sure we have randomly selected a similar sample into each group (treated, untreated).
+- Imagine if you randomly selected people to take part in a smoking campaign, but your "treated" group were mostly older people. If your outcome of interest is "mortality rate", what would happen?
+
+
+---
+class: MSU
+# Randomization
+
+### Blocking (stratification)
+
+A *blocked* or *stratified* experiment means we have randomly assigned treatment inside of observable subgroups to ensure balance.
+- For example, if our population is 40% college graduates and 60% non-college graduates, and we are assigning treatment to 50% of the participants, we would treat 50% of all college graduates and 50% of all non-college graduates. We would *not* randomly select 50% of all participants.
+
+- "Blocking" because you group observables into "blocks", then select
+  - You can block on more than one characteristic: "college graduates over 40", etc..
+
+- This can help ensure balance.
+
+- Of course, this requires being able to assign treatment.
+
+
+---
+class: MSU
+# Randomization
+
+&lt;img src="http://image.slidesharecdn.com/statschapter5-101115133012-phpapp01/95/stats-chapter-5-40-638.jpg" width="80%" style="display: block; margin: auto;" /&gt;
+.footer[Source: Bravo Students]
+
+
+---
+class: MSU
+
+# Review
+
+1. We talked more about selection bias and examles of it.
+
+2. We talked about randomization and how it can alleviate selection bias.
+
+3. We also showed in notation how randomization alleviates selection bias in comparison of means.
+  - Because `\(E[Y_0 | D = 1] = E[Y_0 | D=0]\)`
+
+4. We defined unbiased and consistent estimators (sample statistics).
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

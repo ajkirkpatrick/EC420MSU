@@ -1,0 +1,479 @@
+---
+title: "Poisson and Other Count Models"
+subtitle: "EC420 MSU Fall 2019"
+author: "Justin Kirkpatrick"
+date: "Last updated `r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    yolo: false
+    css: [default, metropolis, metropolis-fonts, ajk_css]
+    nature: 
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false 
+
+---
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(knitr)
+library(kableExtra)
+library(magick)
+library(here)
+opts_chunk$set(
+  fig.align="center",fig.height=4, #fig.width=7,# out.width="748px", #out.length="520.75px",
+  dpi=300, #fig.path='Figs/',
+  cache=T,
+  echo=F,
+  engine.path=list(stata="C:/Program Files/Stata16/StataIC-64.exe")#, warning=F, message=F
+  )
+library(tidyverse)
+require(cowplot)
+require(ggpubr)
+require(haven)
+require(Statamarkdown)
+require(plot3D)
+require(stargazer)
+require(quantmod)
+require(wbstats)
+require(lubridate)
+require(scales)
+require(broom)
+
+options("getSymbols.warning4.0"=FALSE)
+# require(see)
+
+```
+
+layout: true
+
+<div class="msu-header"></div> 
+
+
+---
+class: inverseMSU
+# Class Business
+
+## Review
+Friday, Dec 5th
+5:00pm - 7:00pm in Natural Sciences 128 (regular room)
+- Pizza 
+
+
+---
+class: inverseMSU
+# Class Business
+
+## Final
+Questions from Midterm + Quizzes
+- Some mechanical questions (will have to do math)
+  - But not as in-depth as Midterm
+
+Conceptual
+- Endogeneity ($E[u|x]\neq 0$)
+- Bias + Consistency
+- MLR1-6; TS1'-TS3'
+
+---
+class: inverseMSU
+# Class Business
+
+
+## Final continued...
+Regression models
+- Identifying assumptions
+  - Diff in Diff
+  - Regression Disc.
+- Using instrumental variables
+  - When, why, how
+- Logit, probit, LPM
+- Count (poisson)
+
+
+---
+class: inverseMSU
+# Last Class
+
+### Binary dependent variable
+$y \in \{0,1\}$
+
+### Logit / Probit and Linear Prob. Model
+LPM: $Pr(y|x) = E[y|x] = \beta_0 + \beta_1 x_1 + \cdots$
+- Unbiased
+- Easy to intepret
+- Two problems
+  - Heteroskedasticity is built in 
+  - Negative probabilities
+
+---
+class: inverseMSU
+# Last Class
+
+### Logit
+- Assume $u$ is logistic
+- $Pr(y|x) = \frac{e^{\mathbf{x\beta}}}{1+e^\mathbf{x \beta}}$
+
+### Probit 
+- Assume $u$ is standard normal
+- $Pr(y|x) = \Phi(\mathbf{x\beta})$
+
+
+---
+class: MSU
+# This class
+
+### Scale factor in Logit/Probit
+
+### Count data
+
+### Poisson distribution
+
+### Estimating with Maximum Likelihood
+
+### Implications of the Poisson distribution
+
+### Overdispersion correction
+
+---
+class: MSU
+# Logit/Probit Scale Factor
+
+### Let $y^*$ be **unobserved**
+$$y^* = \mathbf{x \beta} + e$$
+and
+$$y=1(y^*>0)$$
+That's our indicator function.
+
+### Latent Variable Model
+- If we assume $e$ is independent of $\mathbf{x}$ and maintain that $y = 1(y^*>0)$
+- And we assume that $e$ is distributed *standard normal* (not unusual, right?)
+- Then we can say that:
+$$Pr(y=1|x) = Pr(y^* > 0|x) = Pr(\mathbf{x \beta} + e > 0)$$
+
+---
+class: MSU
+# Logit/Probit Scale Factor
+
+### Latent Variable Model
+But $\mathbf{x}$ is our data (as is $y$), and only $e$ is random
+$$Pr(\mathbf{x \beta}+e>0) = Pr(e > -\mathbf{x \beta}) = 1-Pr(e< -\mathbf{x \beta}) = 1-\Phi(-\mathbf{x \beta})$$
+
+And because $\Phi$ is symmetric, 
+$$1-\Phi(-\mathbf{x \beta}) = \Phi(\mathbf{x \beta})$$
+<br><br>
+### Note that using $\Phi$ means $e \sim N(0,1)$, a **standard normal**
+- Similar if we say $e$ is logistic, $\Lambda(\mathbf{x \beta})$
+- But what if it isn't standard normal or logistic?
+
+---
+class: MSU
+# Logit/Probit Scale Factor
+
+### What if $e$ is not standard normal $e \sim N(0,1)$?
+If we assume that $e$ is normal with some constant variance, $\sigma^2 \neq 1$, then we can write $e$ as a standard normal multiplied by $\sigma$ (which has variance $\sigma^2$):
+$$y^* = \beta_0 + \beta_1 x + \cdots + \sigma e$$
+$$y^* = \frac{1}{\sigma}\left(\beta_0 + \beta_1 x + \cdots \right) + \color{blue}{\frac{\sigma}{\sigma}e}$$
+- This results in the same $Pr(y==1)$ because rescaling doesn't change $1(y^*>0)$. 
+- That is, if $y^*>0$, then $\frac{1}{2}y^*>0$ as well.
+
+--
+
+**Unfortunately**, this means that unless we know $\sigma^2$, we don't know the actual $\beta$ because we are getting **only $\frac{1}{\sigma}\beta$**
+- " $\beta$ is identified up to scale"
+
+
+---
+class: heading-slide
+
+
+Count data
+
+---
+class: MSU
+# Count data
+
+### Count data
+A random variable $y$ where:
+$$y \in \{0,1,2,3,\cdots\}$$
+<br>
+### There is no upper bound on $y$
+$y$ can be any number, so long as it's non-negative and an integer.
+
+
+---
+class: MSU
+# Count data
+
+### Examples
+Number of children in a family
+
+Number of times someone is in a car accident
+
+Number of different brands someone considers when online shopping
+
+Years of school completed
+
+Number of nesting Sage Grouse counted on a survey
+
+
+### There are many distributions that handle count data. Poisson is the most common.
+
+---
+class: heading-slide
+
+Poisson
+
+
+---
+class: MSU
+# Poisson
+
+### When the realization of a random variable is the number of events occurring in a fixed interval of time (or space) with a constant mean rate and which occur independently of the time (distance) since the last event, we frequently call this a "poisson process"
+- The *outcome* we're interested in is the count of events
+- We call each thing we are counting an "event" or "arrival" (when using a fixed interval of time)
+
+
+### Poisson distribution
+The *poisson distribution* is a distribution that returns a non-zero probability for all non-zero integers, and zero otherwise.
+- It is well-suited to count data
+- It is not the *only* distribution that is useful for count data.
+
+---
+class: MSU
+# Poisson
+
+### Note "non-negative" not "positive"
+- $0$ is not positive
+- A poisson random variable *can* take the value of $0$ 
+  - $Pr(y=0)>0$
+  
+### Note that Poisson is a discrete variable
+- Like *bernoulli* (coin flip; binary)
+- So, when we plot it, it is a bar chart histogram, not a smooth curve like Normal.
+
+---
+class: MSU
+
+
+```{r Pois1, echo=F, include=T, out.width='90%'}
+NN = 100000
+ps = rpois(NN, 5)
+hist(ps, main = 'Histogram of x ~ poisson(5)', xlab='x', probability=T)
+abline(v = mean(ps), col='red', lty=2, lwd=3)
+```
+
+---
+class: MSU
+# Poisson
+
+.pull-left[
+```{r PoisGraphic, echo=F, include=T, out.width='60%', fig.cap = 'Simeon Denis Poisson'}
+knitr::include_graphics('https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Sim%C3%A9onDenisPoisson.jpg/450px-Sim%C3%A9onDenisPoisson.jpg')
+```
+]
+
+.pull-right[
+- Poisson: Number of wrongful convictions in a country per year (1837)
+- Bortkiewicz: Number of Prussian soldiers killed by horse kicks per year (1898)
+  - First example of *reliability engineering*
+- Many applications in *operations research*
+ - If a machine fails at rate $x$, then the number of failures observed in an hour will be distributed $x \sim Pois(x)$
+ - You'll have hours with 0 failures. And some with >2.
+]
+
+
+---
+class: MSU
+# Poisson
+
+### Poisson is useful when:
+- There is an underlying rate of occurrence
+- A fixed interval of time or space
+- *events/arrivals occur independently of the time (distance) since the last event*
+
+--
+
+<br>
+### Another example
+Number of letters received in a mailroom per day
+- There is probably some underlying average rate of letter-mailing to this mailroom
+- Each letter mailed occurs independently of other letters
+  - If one person sends a letter, there is no change in the rate at which another person might send a letter to the same mailroom
+- We have a defined interval ("per day")
+
+
+---
+class: MSU
+# Poisson
+
+### Poisson distribution $y \sim Pois(\lambda)$
+$$Pr(y=h) = \frac{\lambda^h e^{-\lambda}}{h!}$$
+.pull-left[
+- $\lambda$ is the (only) parameter
+- $\lambda$ can be any positive number
+- $\lambda$ is called the *rate* parameter
+]
+
+.pull-right[
+- $h$ must be $\{0,1,2,\cdots\}$
+- $h!$ is the factorial function
+  - $4! = 4 \times 3 \times 2 \times 1$
+]
+
+--
+
+### Example: $y \sim Pois(3)$
+$$Pr(y=2) = \frac{\lambda^h e^{-\lambda}}{h!} = \frac{3^2 e^{-3}}{2!} = .224$$
+
+$$Pr(y=3) = \frac{\lambda^h e^{-\lambda}}{h!} = \frac{3^3 e^{-3}}{3!} = .224$$
+
+$$Pr(y=4) = \frac{\lambda^h e^{-\lambda}}{h!} = \frac{3^4 e^{-3}}{4!} = .168$$
+
+---
+class: MSU
+# Poisson
+
+### $\lambda$ (lambda) is the only parameter
+```{r PoisEx2, echo=F, include=T, out.width='90%'}
+par(mfrow=c(1,3))
+hist(rpois(n=10000, lambda=3), main = 'Lambda = 3')
+hist(rpois(n=10000, lambda=5), main = 'Lambda = 5')
+hist(rpois(n=10000, lambda=10), main = 'Lambda = 10')
+```
+
+
+---
+class: MSU
+# Poisson
+
+### A nice feature of the poisson distribution is that:
+$$y\sim Pois(\lambda) \Rightarrow E[y] = \lambda$$
+
+### How do we estimate something of interest like $E[y|x]$?
+- The poisson distribution only has one parameter: $\lambda$
+- Once we know this, we know everything we can about the underlying process.
+- So, it would make sense to set: $\lambda = \mathbf{x\beta} = \beta_0 + \beta_1 x_1 + \cdots$
+
+
+--
+
+However, since $\lambda>0$, it makes more sense to say:
+$$\lambda = e^{\mathbf{x\beta}}$$
+
+That is, we say that the expected value of the poisson process is equal to $e^{\mathbf{x\beta}}$, which we will estimate.
+
+---
+class: MSU
+# Poisson
+
+### We will use *maximum likelihood* again. 
+Let's calculate the likelihood of observing $y=\{3,4,2\}$ conditional on $\beta=.5$ and $x = \{2,5,3\}$
+
+
+.pull-left[
+| y | x |
+|:---:|:-:|
+| 3 | 2 |
+| 4 | 5 | 
+| 2 | 3 | 
+$$let \quad \beta=.5$$
+
+$$\color{blue}{\hat{\lambda}= e^{x \beta} = e^{x \times .5}}$$
+]
+
+.pull-right[
+$$Pr(y=\color{red}{3}|\color{blue}{\lambda=e^{2 \times .5}}) = \frac{[\color{blue}{e^{2 \times .5}}]^\color{red}{3} e^{-\color{blue}{e^{2 \times .5}}}}{\color{red}{3}!}$$
+$$Pr(y=\color{red}{4}|\color{blue}{\lambda=e^{5\times .5}}) = \frac{[\color{blue}{e^{5 \times .5}}]^\color{red}{4} e^{-\color{blue}{e^{5 \times .5}}}}{\color{red}{4}!}$$
+$$Pr(y=\color{red}{2}|\color{blue}{\lambda=e^{3\times .5}}) = \frac{\color{blue}{[e^{3 \times .5}}]^\color{red}{2} e^{-\color{blue}{e^{3 \times .5}}}}{\color{red}{2}!}$$
+]
+
+--
+
+$$\frac{[e^{2 \times .5}]^3 e^{-e^{2 \times .5}}}{3!} \times  \frac{[e^{5 \times .5}]^4 e^{-e^{5 \times .5}}}{4!} \times  \frac{[e^{3 \times .5}]^2 e^{-e^{3 \times .5}}}{2!} = .221 \times .005 \times .113 = .00011 $$
+---
+class: MSU
+# Poisson
+
+### For any guess at $\beta$, we can calculate the likelihood
+$$\beta = .5 \rightarrow L(y|x, \beta)=.00011$$
+
+If we plug in other values of $\beta$, we get other likelihoods
+$$\beta = .1 \rightarrow L(y| x, \beta) = .0012$$
+$$\beta = .05 \rightarrow L(y | x, \beta) = .0004$$
+
+```{r PoisMLE, echo=F, include=T, out.width='70%'}
+poiss <- function(bet){
+  dpois(2, lambda = exp(3*bet)) * dpois(4, lambda = exp(5*bet)) * dpois(3, lambda = exp(2*bet))
+}
+
+curve(poiss, from=.001, to=.75, xlab = expr(beta), ylab = 'Likelihood')
+abline(v = .5)
+```
+
+
+---
+class: MSU
+# Poisson 
+
+### The poisson has some limitations:
+It can handle zeros, but not good if a large mass of 0's
+- For instance, if we were to use a poisson for "number of frozen pizzas purchased in a month"
+- For some people (regular frozen pizza eaters), this would make sense
+- But we have a *mass* of people at 0
+
+```{r PoisEx3, echo=F, include=T, out.width='90%'}
+pp = rpois(10000, lambda=4)
+par(mfrow=c(1,2))
+hist(pp, main='Among pizza purchasers')
+hist(c(pp, rep(0, 5000)), main='Among all shoppers')
+```
+
+ 
+---
+class: MSU
+# Poisson
+
+### The poisson has some limitations:
+In addition to cases where the distribution simply isn't the right one (e.g. lots of 0's)
+- Poisson has only one parameter, $\lambda$
+- if $y \sim Pois(\lambda) \Rightarrow E[y] = \lambda$
+- But also: $Var(y) = \lambda$
+
+This is great **if** we think the data bears this, but otherwise, it's a heroic assumption.
+
+### So, the two problems with Poisson
+- Masses of 0's mean it's not a good distribution to use
+- $Var(y) = E[y] = \lambda$
+
+---
+class: MSU
+# Poisson
+
+### Adjusting for $Var(y) \neq E[y]$
+Let Variance be *proportional* to the mean
+$$Var(y|x) = \sigma^2E[y|x]$$
+
+If $Var(y|x) = E[y|x]$ then $\sigma^2=1$
+
+If $Var(y|x) > E[y|x]$ then $\sigma^2>1$ 
+- This is called *overdispersion*
+- Rare to have $\sigma^2<1$, underdispersion
+
+Wooldridge shows how to calculate the dispersion parameter, $\sigma^2$.
+
+MLE for Poisson is
+- Unbiased & Consistent
+- Inference is possible once dispersion is fixed
+- Coefficients are useful for sign, but also hard to interpret 
+
+
+---
+class: MSU
+# Poisson
+
+### Note that understanding the principles of maximum likelihood and being able to plug into a pdf may prove useful on the final test.
+- Have a solid understanding of slide ~23. Given some data $(y,\mathbf{x})$ and $\beta$, be able to get the likelihood of observing $(y,\mathbf{x})$, $L(y|x, \beta)$.
+
+
+
+

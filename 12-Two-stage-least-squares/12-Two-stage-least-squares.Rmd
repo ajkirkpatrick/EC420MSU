@@ -1,0 +1,569 @@
+---
+title: "Two stage least squares and IV"
+subtitle: "EC420 MSU"
+author: "Justin Kirkpatrick"
+date: "Last updated `r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    yolo: false
+    css: [default, metropolis, metropolis-fonts, ajk_css]
+    nature: 
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false 
+
+      
+
+---
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(knitr)
+library(kableExtra)
+opts_chunk$set(
+  fig.align="center",fig.height=4, #fig.width=7,# out.width="748px", #out.length="520.75px",
+  dpi=300, #fig.path='Figs/',
+  cache=T,
+  echo=F,
+  engine.path=list(stata="C:/Program Files/Stata16/StataIC-64.exe")#, warning=F, message=F
+  )
+library(tidyverse)
+require(cowplot)
+require(ggpubr)
+require(haven)
+require(Statamarkdown)
+require(plot3D)
+require(stargazer)
+require(quantmod)
+require(wbstats)
+require(lubridate)
+require(scales)
+require(broom)
+
+options("getSymbols.warning4.0"=FALSE)
+# require(see)
+
+```
+
+layout: true
+
+<div class="msu-header"></div> 
+
+
+---
+class: inverseMSU
+name: Overview
+
+# Today
+
+### Recall on Monday we:
+- Covered continuous $\times$ continuous interactions
+
+- "What's in the error"
+
+- Introduced the Instrumental Variable (IV)
+  - When our variable of interest, $D$...
+  - is correlated with something in the error and thus is biased.
+  - The IV gives us independent (or *exogenous*) variation in $D$.
+  - Which lets us *identify* the effect of $D$ on $Y$
+  
+
+- IV Requirements
+  - 3 conditions for a valid IV
+---
+class: MSU
+# Today
+
+### Today we will
+- Review the concept of IV
+
+- What does "as-good-as-randomly assigned" mean?
+
+- Estimate an IV using Two-Stage Least Squares (2SLS)
+
+- Testing our IV requirements
+  
+- Calculate the $se(\hat{\beta}^{IV})$
+  - That's the "IV estimator of $\beta$"
+  - We could call our original OLS estimator $\hat{\beta}^{OLS}$
+  
+
+---
+class: MSU
+# Concept of IV
+
+### When we want an *unbiased* estimate of:
+$$ATE = E[Y_1 - Y_0]$$
+### But all we have is observed data:
+$$E[Y_1|D=1] - E[Y_0|D=0]$$
+### And we're worried about selection bias if we use our observed data because $D$ is
+- Possibly correlated with something in the error term
+- The potential outcomes $(Y_{i0}, Y_{i1}) \not\perp D$
+  - Both of these mean the same thing / are the same problem
+
+---
+Class: MSU
+# Concept of IV
+
+### We introduced the term *endogenous*
+- "Endogenous" means "determined within the system"
+- When treatment may be affected by something within our model, we say it may be "endogenous"
+  - When $(Y_{i0}, Y_{i1}) \not\perp D$, then $D$ is endogenous
+  - $Y_{i0}, Y_{i1}$ is *within the system
+  
+  
+### And the term *exogenous*
+- "Exogenous" means "determined outside the system"
+- Nothing in our regression helped determine $D$
+  - Not $Y_{i1}$ or $Y_{i0}$ or anything in $u$
+  
+---
+class: MSU
+
+### Conditionally exogenous is fine:
+- $D$ could be conditionally exogenous, conditional on some controls $X$
+
+<br>
+
+### And note that:
+Any $x$ can be endogenous or exogenous. This isn't limited to $D$. Whether or not endogeneity is a problem depends on context.
+
+
+---
+class: MSU
+# Concept of IV
+
+### $E[Y | D=1] - E[Y | D=0]$ is the same as $\beta_1$ in:
+$$y = \beta_0 + \beta_1 D + u$$
+- $D$ is our variable of interest, our *treatment*
+- $Y$ is our outcome
+
+
+But we are afraid that something in $u$ is correlated with getting treatment, $D$
+- $E[u|D]\neq 0$
+- $D$ is endogenous
+
+---
+class: MSU
+# Concept of IV
+
+### Then, to get an unbiased estimate of $\beta_1$ we need an instrument, $Z$ that:
+- Determines or affects $D$
+- Is "as good as (conditionally) randomly assigned" (is conditionally exogenous)
+- But does not correlate with $u$ or only affects $y$ through $D$ (same thing)
+  - When its uncorrelated, then $E[Y_0 | Z=1] - E[Y_0 | Z=0]$ is $0$, and no selection bias
+    - Except this just tells us about the potential outcomes over $Z$, not $D$, our variable of interest.
+
+---
+class: MSU
+# Concept of IV
+
+### Recall our KIPP example:
+We were interested in calculating the *{Effect of attending KIPP on test scores}*
+
+This would be:
+$$ATE=E[TestScore_{i1} - TestScore_{i0}]$$
+We could calculate:
+$$E[TestScore|KIPP==1] - E[TestScore|KIPP==0]$$
+But, in our selection bias section, we learned that this is not going to get us the actual effect of KIPP because of self-selection into KIPP.
+
+---
+class: MSU
+# Concept of IV
+
+But we know that:
+
+*{Effect of winning lottery on test scores} =* <br>
+*{Effect of winning on attending KIPP}* $\times$ **{Effect of attending KIPP on test scores}**
+
+Written another way that may make more sense:
+$$\small \underbrace{\frac{\text{Change in test scores}}{\text{Change in lottery win}}}_{\text{Observed and Unbiased}} = \underbrace{\frac{\text{Change in test scores}}{\text{Change in attendance}}}_{\text{Thing we're trying to measure without bias}} \times \underbrace{\frac{\text{Change in attendance}}{\text{Change in lottery win}}}_{\text{Observed and Unbiased}}$$
+### But what is that first term? It is:
+$$E[TestScore|Lottery==1] - E[TestScore|Lottery==0]$$
+We can take the sample analog of $E$ and calculate the mean of $TestScore$ for those who won the lottery and those who didn't (ignoring attendance). This is the same as a regression:
+$$TestScore = \phi_0 + \phi_1 Lottery + v$$
+---
+class: MSU
+# Concept of IV
+
+### To clarify that point:
+$$y = \phi_0 + \phi_1 Z + v$$
+
+- $y = TestScore$
+- $Z = Lottery$
+- $D = KIPP$ (attendance)
+
+Is just different notation for:
+$$TestScore = \phi_0 + \phi_1 Lottery + v$$
+
+And:
+$$\begin{eqnarray*}
+\beta_1 &=& E[TestScore|Lottery==1] - E[TestScore|Lottery==0] \\
+&=& E[y|Z==1] - E[y|Z==0]
+\end{eqnarray*}$$
+When $Z$ is as good as randomly assigned, which we'll get to shortly.
+
+---
+class: MSU
+# Concept of IV
+
+### We have unbiased estimate of:
+$$E[y|Z==1] - E[y|Z==0]$$
+Which is the same as $\phi_1$ in:
+$$y = \phi_0 + \phi_1 Z + v$$
+
+### And we have **unbiased**
+$$E[D|Z==1] - E[D|Z==0]$$
+
+Which we can also get from $\gamma_1$ in a regression:
+$$D = \gamma_0 + \gamma_1 Z + w$$
+### Because Z is *as good as randomly assigned* (more on that in a second)
+
+---
+class: MSU
+# Concept of IV
+
+If we take $\phi_1$ as $\frac{\text{Change in test scores}}{\text{Change in lottery win}}$:
+$$y = \phi_0 + \phi_1 Z + v$$
+And if we take $\gamma_1$ as $\frac{\text{Change in attendance}}{\text{Change in lottery win}}$
+$$D = \gamma_0 + \gamma_1 Z + w$$
+
+Then we can calculate 
+$$\frac{\text{Change in test scores}}{\text{Change in attendance}} = \frac{\frac{\text{Change in test scores}}{\text{Change in lottery win}}}{\frac{\text{Change in attendance}}{\text{Change in lottery win}}} $$
+as:
+$$\beta_1^{IV} = \frac{\phi_1}{\gamma_1}$$
+---
+class: MSU
+# As good as random
+
+### IV requires that $Z$ is "as good as randomly assigned, conditional on $x$'s"
+
+### What does "as good as randomly assigned" mean?
+- In our KIPP example, $Z$ was randomly assigned because it was the result of a lottery.
+- But can we have a $Z$ that is not totally randomly assigned?
+
+--
+
+### Yes, we can
+- As long as we *control* for all the things that might not be random.
+- That is, once we have statistical controls in our regression that explain part of how $Z$ affects $D$, the rest of the variation in $Z$ is uncorrelated with anything else in our regression.
+- Example on next slide:
+
+---
+class: MSU
+# As good as random
+
+Papers by the MM authors looked at the effect of military service on lifetime earnings. Since "people who may be inclined to join the army" may have some unobserved characteristics that might also affect military service (e.g. selection bias, $E[u|X]\neq 0$), the authors used people's draft numbers during Vietnam to *instrument* for likelihood of serving in the military.
+
+Draft numbers were randomly assigned. A lower draft number meant you were more likely to be drafted. Some people with low draft numbers joined right away (you got to choose your assignment if you enlisted voluntarily); some always joined (always-takers!).
+
+If drafts were done within age groups - that is, the draft board worked it's way up the numbers until each age group's quota was filled - then your age plus your number would also predict your probability of being drafted. So, your draft number was random *conditional on* your age.
+
+---
+class: MSU
+# As good as random
+
+### SO...
+
+$$Drafted = \gamma_0 + \gamma_1 LowDraftNumber + \gamma_2 AgeGroup + w$$
+### Conditional on age, draft number was as good as randomly assigned.
+- $D$ is $Drafted$
+- $Z$ is $LowDraftNumber$
+- $AgeGroup$ is $x$'s.
+
+And "conditional on $x$'s, $Z$ is as good as randomly assigned"
+
+---
+class: MSU
+# Estimating IV with 2SLS
+
+### Define "Identification"
+The term **identification** is used a lot in econometrics. With our $\beta^{IV}$, we would say we have *identified* $\beta_1$.
+
+**identification** means we can write the parameter of interest, $\beta$, in terms of population moments.
+- $\frac{\phi}{\gamma}$ is in terms of population moments because it is $\frac{\frac{Cov(Y,Z)}{Var(Z)}}{\frac{Cov(D,Z)}{Var(Z)}}$
+- *identification* is a population-moments concept. It is a statement about the population parameter, $\beta$.
+- Of course, if the population moment isn't identified, then our sample analog, $\frac{\hat{\phi}}{\hat{\gamma}}$ is useless.
+
+---
+class: MSU
+# Estimating IV with 2SLS
+
+### On that last slide:
+$$\beta_1^{IV}= \frac{\frac{Cov(Y,Z)}{Var(Z)}}{\frac{Cov(D,Z)}{Var(Z)}}$$
+
+If we cancel things out...
+
+$$\beta_1^{IV} = \frac{Cov(Y,Z)}{Cov(D,Z)}$$
+
+### Remember our first requirement: *relevant first stage*
+If $Z$ has no effect on $D$, what is $Cov(D,Z)$?
+
+So we see where that comes from! We'll point out the other two IV requirements when we run across them
+
+---
+class: MSU
+# Estimating IV with 2SLS
+
+### $\frac{\phi}{\gamma}$ is not useful when you have multiple $x$'s
+We could get $\hat{\beta}^{IV}$ from $\phi$ and $\gamma$, but if we have multiple $x$'s, it's difficult. So we have a different *method* of estimating $\beta^{IV}$:
+
+## Two Stage Least Squares (2SLS)
+
+---
+class: heading-slide
+
+2SLS, the first stage
+
+---
+class: MSU
+# Estimating IV with 2SLS
+
+### First Stage: regress $D$ on $Z, X$:
+$$D = \gamma_0 + \gamma_1 Z + \gamma_2 x_1 + \cdots + w$$
+Since $w$ is uncorrelated with things correlated with $Z$, $\phi_1$ is unbiased.
+
+---
+class: MSU
+# Estimating IV with 2SLS
+
+### Next, generate $\hat{D}$:
+Take $\hat{\phi}$, your estimates and get the predicted value of $D$, $\hat{D}$
+$$\hat{D} = \hat{\gamma}_0 + \hat{\gamma}_1 Z + \hat{\gamma}_2 x_1 + \cdots$$
+
+### This has a "partialling out" flavor
+- $w$ contains all the variation in $D$ that does not explained by $Z$.
+- And likewise $\hat{D}$ contains all the variation in $D$ that **is** explained by $Z$ ($w$ is not in $\hat{D}$)
+
+### Remember
+- IMPORTANT: our problem in the first place was that $D$ was correlated with something unobserved in the error.
+- But $\hat{D}$ is entirely from $Z$ and other exogenous statistical controls, and $Z$ is not correlated with this unobserved problem by *the exclusion restriction*
+
+---
+class: heading-slide
+
+2SLS, the second stage
+
+---
+class: MSU
+# Estimating IV with 2SLS
+
+### For our second stage:
+$$Y = \beta_0 + \beta_1 \hat{D} + \beta_2 x_2 + \cdots + u$$
+And the estimate of $\beta_1$ here is our IV estimate: $\hat{\beta}_1^{IV}$. That is our coefficient of inerest!
+
+### $\beta_1$ is unbiased!
+
+We estimated $\beta_1$ using *only variation in $D$ associated with $Z$, and $Z$ is (assumed to be) uncorrelated with $u$, solving our initial problem.
+
+
+
+---
+class: MSU
+# Estimating IV with 2SLS
+
+### What if we have multiple endogenous variables?
+Wooldridge uses $y_1$ for the outcome, and $y_2, \cdots$ on the right hand side for an endogenous variable that we need to instrument. Wooldridge uses $z$ for all exogenous variables, instruments or not. I prefer to use $x$ since that leaves $z$ for instruments only
+
+In the regression:
+$$y_1 = \beta_0 + \beta_1 y_2 + \beta_2 y_3 + \beta_3 x_1 + \beta_4 x_2 + u$$
+The problems are $y_2$ and $y_3$. Since there are two, **we need two valid instruments**, $z_1$ and $z_2$.
+
+---
+class: MSU
+# Estimating IV with 2SLS
+
+### In our first stage, we also include the $x$'s from the main regression:
+$$y_2 = \gamma_0 + \gamma_1 z_1 + \gamma_2 z_2 + \gamma_3 x_1 + \gamma_4 x_2 + v$$
+Gives us $\hat{y}_2$, while:
+
+$$y_3 = \kappa_0 + \kappa_1 z_1 + \kappa_2 z_2 + \kappa_3 x_1 + \kappa_4 x_2 + w$$
+Which gives us $\hat{y}_3$. Finally, we get a second stage $\beta^{IV}$:
+$$y_1 = \beta_0 + \beta_1 \hat{y}_2 + \beta_2 \hat{y}_3 + \beta_3 x_1 + \beta_3 x_2 + u$$
+Those are the same $x$'s in each regression, no hats. 
+
+---
+class: MSU
+# Estimating IV with 2SLS
+
+### A couple notes:
+- The instruments do not appear in the second stage ( $\hat{y}_2$ and $\hat{y}_3$ are perfectly colinear with $Z$).
+- The exogenous statistical controls, $x_1,x_2$ appear in both stages. 
+  - In fact, if they are used in the first, then left out of the second, the result can be biased.
+  
+
+---
+class: MSU
+# Estimating IV with 2SLS
+
+### We have to have at least one exogenous instrument $z$ for every endogenous variable.
+When we have 2 endogenous variables, we need 2 instruments with two first-stage regressions that both meet the *relevant first stage* requirement.
+
+### We can have more than one instrument per endogenous variable!
+We say we are *overidentified* when this is the case. We can test this (Hausman Test - W15.5)
+
+Overidentification is not necessarily a bad thing, despite the name.
+
+---
+class: MSU
+# IV Requirements
+
+### First, $Z$ must have a causal effect on $D$
+The instrument, $Z$, has to have a casual effect on the variable of interest, $D$.
+- In our example, this means $Z$ has to *change enrollment* (in expectation)
+- This is the *relevant first stage* requirement or condition
+
+#### Testing this requirement
+- We need a test that tells us if all the variables in our model of $D = \gamma_0 + \gamma_1 Z + w$ are any better at predicting $D$ than just guessing $\gamma_0 = \bar{D}$.
+- Sound familiar?
+
+
+
+---
+class: MSU
+# IV Requirements
+
+### Relevant First Stage test
+- In a single variable regression (one instrument), then we can just test if $\gamma_1=0$.
+- If we have two instruments or more, then we use the $F$ test for:
+  - $D = \gamma_0 + \gamma_1 Z_1 + \gamma_2 Z_2 + w$.
+- Rule of thumb: $F$-stat needs to be $>10$ (Stock and Yogo)
+
+
+---
+class: MSU
+# IV Requirements
+
+
+#### Second, $Z$ must be as good as randomly assigned
+The instrument, $Z$, cannot be determined by the omitted variable / selection bias we're trying to get out.
+- This is the *independence requirement*
+
+#### This one, we can't test for.
+This is for the same reason that we can't just test for $E[u|X]=0$, there might still be something out there that is correlated with $Z$ and is also correlted with $D$, which means $Z$ is not randomly assigned.
+
+Instead, we have to make a compelling argument for this to be true.
+
+
+---
+class: MSU
+# IV Requirements
+
+#### Third, $Z$ must affect the outcome only through the variable of interest
+The instrument, $Z$, cannot have a direct affect on the outcome
+- This is the *exclusion restriction*.
+
+#### This one, we can't directly test for either
+We have to make a compelling argument for this to be true.
+
+If we have multiple instruments, we can sort of test this, though...
+
+---
+class: MSU
+# IV Requirements
+
+#### But, if we have many instruments available (more than we have endogenous variables), we can choose which one is best
+We do this by comparing the $\beta^{IV}$ estimated with one instrument, then the other. They *should* give the same result if they both meet the requirements, right? If they're different (statistically speaking), then we have a problem. One (or both) doesn't meet the *exclusion restriction*.
+
+Don't assume failing-to-reject this test means the instruments meet the *exclusion restriction*.
+
+---
+class: MSU
+# IV Requirements
+
+### The overidentification (Hausman) Test
+
+#### First, take the $\hat{u}$ from your second stage
+Remember, this is $y-\hat{y}$ where $\hat{y}$ is from the 2nd stage.
+
+#### If all of your instruments meet the *exclusion restriction*, then they should not be correlated with this residual, $\hat{u}$.
+$$\hat{u} = \eta_0 + \eta_1 z_1 + \eta_2 z_2 + \eta_3 x_1 + \cdots + \varepsilon$$
+
+The $R^2$  tells us whether or not all of the (hopefully exogenous) $z$'s and $x$'s on the RHS are unrelated to $\hat{u}$.
+
+$nR^2 \sim \chi^2_q$ where $q$ is the number of instruments minus the number of endogenous variables.
+
+---
+class: MSU
+# IV Requirements
+
+### What about $R^2$ of the second stage?
+
+$$y = \beta_0 + \beta_1 \hat{D} + \beta_2 x_1 + \cdots + u$$
+
+As Wooldridge states, $R^2$ from IV is not very useful; we aren't trying to explain more variation, we're trying to use a specific subset of the variation to get at a causal estimate.
+
+We ignore it.
+
+---
+class: MSU
+# se of IV estimator
+
+The whole point of this was to do inference on an *unbiased* estimate of $\hat{\beta}$, which is $\hat{\beta}^{IV}$.
+
+But we used two stages, so what is the $se(\hat{\beta^{IV})$? We can't use just the 2nd stage, right?
+- (No, we can't)
+
+### First, we assume:
+Something-like-MLR5: $Var(u|z) = \sigma^2$
+- Same as before, but $z$ instead of $x$
+- Still homoskedasticity
+- Still have a robust version
+
+---
+class: MSU
+# se of IV estimator
+
+### For one endogenous $x$, and one instrument $z$
+$$se(\hat{\beta}_1^{IV}) = \frac{\sigma^2}{n \sigma^2_x \rho^2_{x,z}}$$
+- $n\sigma^2_x$ looks a lot like $SST_x$ since $\hat{\sigma}^2_x = \frac{1}{N-1}\sum (x_i - \bar{x})$
+
+### What is $\rho_{x,z}$?
+It is the *correlation coefficient* of $x$ and $z$:
+$$\rho_{x,z} = \frac{Cov(X,Z)}{\sqrt{Var(X)} \sqrt{Var(Z)}}$$
+
+---
+class: MSU
+# se of IV estimator
+
+### Another way of writing $se(\hat{\beta}_1^{IV})$ is:
+$$se(\hat{\beta}_1^{IV}) = \frac{\hat{\sigma^2}}{SST_x R^2_{x,z}}$$
+Where $R^2_{x,z}$ is the $R^2$ in the **first-stage** regression.
+- If that $R^2_{x,z}$ is exactly $1$, then this is the same as $\hat{\beta}^{OLS}$.
+  - What would it mean if $R^2_{x,z}=1$? 
+  
+- If $R^2_{x,z}$ is small, then what happens?
+
+- Does that make sense?
+
+---
+class: MSU
+# In R
+
+### The AER package in R has an excellent function
+.pseudocode[install.packages('AER')]
+.pseudocode[ivreg(Y ~ D + X1 | X1 + Z1 + Z2, data=df)]
+
+- The first part of the forumla is just like an OLS regression
+- Here, I'm following lecture notation:
+  - $Y$ is the outcome of interest.
+  - $D$is the endogenous variables of interest
+  - $X1$ is an exogenous statistical control
+  - $Z1$ and $Z2$ are the instruments
+  
+Note that this has more than one instrument (Z1, Z2)
+
+Note that X1 *instruments for itself*. R will instrument everything to the left of the |
+
+
+---
+class: MSU
+# In R
+
+### In our KIPP example:
+.pseudocode[IVmodel = ivreg(TestScores ~ KIPP + year | year + Lottery, data=df)]
+
+I've added *year* as an exogenous variable. Time is always exogenous. All instruments will be used to instrument $KIPP$ and $year$.
+
+### We can still use our robust standard errors
+.pseudocode[coeftest(IVmodel, vcov = vcovHC(IVmodel, 'HC1')]

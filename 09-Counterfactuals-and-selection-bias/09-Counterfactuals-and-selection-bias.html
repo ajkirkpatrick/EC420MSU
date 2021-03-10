@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Counterfactuals, Selection Bias, and Randomization</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Justin Kirkpatrick" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis-fonts.css" rel="stylesheet" />
+    <script src="libs/kePrint/kePrint.js"></script>
+    <link href="libs/lightable/lightable.css" rel="stylesheet" />
+    <link rel="stylesheet" href="EC420_S21.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Counterfactuals, Selection Bias, and Randomization
+## EC420 MSU
+### Justin Kirkpatrick
+### Last updated March 10, 2021
+
+---
+
+
+
+layout: true
+
+&lt;div class="msu-header"&gt;&lt;/div&gt; 
+
+
+&lt;div style = "position:fixed; visibility: hidden"&gt;
+`$$\require{color}\definecolor{yellow}{rgb}{1, 0.8, 0.16078431372549}$$`
+`$$\require{color}\definecolor{orange}{rgb}{0.96078431372549, 0.525490196078431, 0.203921568627451}$$`
+`$$\require{color}\definecolor{MSUgreen}{rgb}{0.0784313725490196, 0.52156862745098, 0.231372549019608}$$`
+`$$\require{color}\definecolor{DUKEblue}{rgb}{0.00392156862745098, 0.129411764705882, 0.411764705882353}$$`
+&lt;/div&gt;
+
+&lt;script type="text/x-mathjax-config"&gt;
+MathJax.Hub.Config({
+  TeX: {
+    Macros: {
+      yellow: ["{\\color{yellow}{#1}}", 1],
+      orange: ["{\\color{orange}{#1}}", 1],
+      MSUgreen: ["{\\color{MSUgreen}{#1}}", 1],
+      DUKEblue: ["{\\color{DUKEblue}{#1}}", 1]
+    },
+    loader: {load: ['[tex]/color']},
+    tex: {packages: {'[+]': ['color']}}
+  }
+});
+&lt;/script&gt;
+
+&lt;style&gt;
+.yellow {color: #FFCC29;}
+.orange {color: #F58634;}
+.MSUgreen {color: #14853B;}
+.DUKEblue {color: #012169;}
+&lt;/style&gt;
+
+
+
+
+
+---
+class: MSU
+name: Overview
+# This class
+
+### What does it look like when `\(E[u|X]\neq 0\)`?
+
+### Counterfactuals
+- Define counterfactual, treatment
+
+- Introduce notation for counterfactuals
+  - Potential outcomes framework
+  
+### Selection Bias
+- Define
+
+- Examples
+
+---
+class: MSU
+# This class
+
+### Course goals review
+1. Understand core statistical concepts (OLS, t-tests and other tests)
+2. Read, digest, and be critical of economic papers
+3. Think critically about causality
+4. Code in R with Rmarkdown  
+5. Learn current econometric models for causality
+6. Design research questions
+
+  
+---
+class: MSU heading-slide
+
+Counterfactuals
+
+---
+class: inverseMSU
+name: Counterfactual 
+
+# Counterfactuals
+
+&lt;html&gt;&lt;img src="Frost_tworoads_full.jpg" style="width: 100%"/&gt;&lt;/html&gt;
+Image credit: [Book, Tea, and Sympathy](https://ninamor2013.wordpress.com/2014/04/03/the-road-not-taken-robert-frost/)
+ 
+
+---
+class: MSU
+# Counterfactuals
+
+## Intuitive meaning
+
+- The _counterfactual_ is the outcome that _would be observed_ had something else occurred.
+  - Frost longs to know what _would have resulted_ from choosing the other road
+
+- Implies that a _counterfactual_ is defined by:
+  1. An outcome that has more than one potential value
+  2. A choice or occurrance that may change the realization of the outcome
+  
+Let's call that "choice or occurrance" the **treatment**.
+
+  
+
+---
+class: MSU
+# Counterfactuals
+ 
+So, in the case of Robert Frost's poem:
+
+- Outcome is, well, vague, which is the point of the poem.
+  - But...we do know that he is looking at the difference of _some_ outcome between roads he could have taken.
+
+- The "choice or occurrance" that changed the (vague) outcome is the choosing of the "less traveled" road
+
+Or, think of the two potential outcomes from a medical treatment - outcome with the drug, and outcome without.
+--
+
+### The important point here is that __you do not get to observe both outcomes in reality__
+
+- You can speculate, you can make comparisons, but you never get to see both (or all) counterfactuals.
+
+- Ol' Bob Frost thinks he knows both.
+
+---
+class: MSU
+# Counterfactuals
+
+In a way, when we run a regression, we .orange[pretend] like we know both as well:
+
+`$$LifeExp = \beta_0 + \beta_1 cigarettes + \beta_2 1(exercises) + u$$`
+
+- If we plug in `\(0\)` for `\(exercises\)`, we get the `\(E[LifeExp|exercises==0]\)`.
+  
+- If we plug in `\(1\)` for `\(exercises\)`, we get `\(E[LifeExp|exercises==1]\)`
+
+- `\(\beta_2\)` is the difference in expected life expectancy associated with exercising
+
+- We *identify* this in our regression by having data on people who do exercise, and data on people who don't exercise.
+  - And people who smoke a lot, and people who don't smoke at all...
+  - **And** we assume that all the other things in `\(u\)` follow `\(E[u|cigarettes, exercise] = 0\)`
+  
+---
+class: MSU
+# Counterfactuals
+
+### What would it look like if `\(exercises\)` were in the error term?
+
+`$$LifeExp = \tilde{\beta}_0 + \tilde{\beta}_1 cigarettes + \underbrace{\tilde{u}}_{\beta_2 1(exercises) + v}$$`
+Where `\(v\)` is actually a truly random error term ( `\(E[v|X]=0\)` ).
+
+### .red[Q:] Do we think that `\(exercises\)` (in `\(E[\tilde{u}]\)` ) is uncorrelated with `\(cigarettes\)` ( `\(X\)` )?
+
+--
+
+### .red[Q:] If not, what is the **relationship** between `\(E[\tilde{u}]\)` and `\(X\)`?
+
+---
+class: MSU
+# Counterfactuals
+
+### If we run the naive regression, we can fit the line:
+
+&lt;img src="figs/unnamed-chunk-1-1.png" width="75%" style="display: block; margin: auto;" /&gt;
+
+**This line is drawn assuming that** `\(E[\tilde{u}|X]=0\)`
+- That is, assuming `\(E[\underbrace{\beta_2 1(exercises) + v}_{\tilde{u}} | cigarettes] = 0\)`
+
+
+---
+class: MSU
+# Counterfactuals
+
+### But what if we acknowledge that `\(E[\tilde{u}|X]\neq0\)`
+
+We would need to account for the `\(E[\tilde{u}]\neq 0\)` when `\(X\)` is larger
+- `\(E[\tilde{u}]\)` is "exercises" and `\(X\)` is cigarettes
+- We would think `\(E[\tilde{u}]\)` is negatively correlated with `\(X\)`
+
+If we think about including that "wedge", we'd put out line of best fit in a different place.
+- Of course, we would have to know `\(E[\tilde{u}|X]\)` to actually correct
+- So let's pretend for a moment
+
+---
+class: MSU
+# Counterfactuals
+
+
+&lt;img src="figs/unnamed-chunk-2-1.png" width="75%" style="display: block; margin: auto;" /&gt;
+
+- The red dots are the given data, plotting `\(LifeExp \sim cigarettes\)`
+- The blue triangles are where the points **would be if we could account for** `\(E[\tilde{u}|X]\neq 0\)`
+- Here, `\(E[\tilde{u}|X] = -1.25 \times cigarettes\)`
+
+---
+class: MSU
+# Counterfactuals
+
+&lt;img src="figs/unnamed-chunk-3-1.png" width="75%" style="display: block; margin: auto;" /&gt;
+
+If we draw the line using the blue points which **account for the (unobserved) relationship between `\(u\)` and `\(cigarettes\)`**, then we get a different slope (the blue line).
+
+The red line is the same as the blue line **if and only if** `\(E[\tilde{u}|X]=0\)`. 
+
+---
+class: MSU
+# Counterfactuals
+
+&lt;img src="figs/unnamed-chunk-4-1.png" width="75%" style="display: block; margin: auto;" /&gt;
+
+**So** if we observe one person who smokes a lot, and one who smokes very little, in order to say that the effect of smoking is the difference between the two, we have to be able to say we've accounted for everything else.
+
+---
+class: MSU
+# Counterfactuals
+
+&lt;img src="figs/unnamed-chunk-5-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+**If** we had the same person (so all `\(u\)` are the same), but we could see that person "with" and "without" smoking, we wouldn't have to worry, right? `\(exercise\)` would be the **same**, so would everything else in `\(\tilde{u}\)`
+
+
+---
+class: MSU
+# Counterfactuals
+
+
+### The "potential outcomes" notation (Rubin, 1974)
+
+- Let `\(Y\)` be our outcome
+  - `\(Y_i\)` is individual `\(i\)`'s outcome
+
+- Let `\(D\)` be the __treatment__ variable.
+  - `\(D_i = 1\)` if `\(i\)` is "treated"
+  - `\(D_i = 0\)` if `\(i\)` is "not treated"
+    - Later, we'll talk about what happens if "treatment" is not 0/1 (binary)
+    
+- Let `\(X\)` be the observable characteristics (e.g. `\(X_i\)`)
+  
+---
+
+class: MSU
+
+# Counterfactuals
+
+### `\(Y\)` has some potential outcomes:
+We will index them (tell them apart) using a subscipt
+
+- Let `\(Y_{1i}\)` be the outcome _if_ `\(Y_i\)` is treated (if `\(D_i = 1\)`)
+- Let `\(Y_{0i}\)` be the outcome _if_ `\(Y_i\)` is not treated (if `\(D_i = 0\)`)
+  
+Then, we can write:
+`$$Y_i= \begin{cases}
+    Y_{1i} ,&amp; \text{if } D = 1\\
+    Y_{0i} ,&amp; \text{if } D = 0
+\end{cases}$$`
+
+---
+class: MSU
+# Counterfactuals
+
+### What do we want to know?
+
+What we'd like to know is `\(Y_{1i} - Y_{0i}\)`, individual `\(i\)`'s difference in outcomes with and without treatments, which is the _causal effect of the treatment_ for `\(i\)`.
+
+- Remember, _every_ `\(i\)` has two potential outcomes.
+
+--
+
+For Robert Frost: `\(Y_{1i} - Y_{0i} = \text{''all''}\)`
+
+--
+
+But isn't there a problem here? How do we know `\(Y_{1i}\)` **and** `\(Y_{0i}\)`?
+
+We only see one, not both.
+
+We could try looking beyond a single `\(i\)`, right? But that causes problems, as we saw in the previous example with `\(cigarettes\)` and `\(exercises\)`
+
+---
+class: MSU
+# Counterfactuals
+
+
+### Just as before, the function `\(E\)` is the _expectation_ function. 
+
+`\(E[Y]\)` is the expectation of `\(Y\)`
+
+`\(E[Y] = \frac{1}{N_{pop}} \sum^{N_{pop}}_{n=1} Y_n\)`, which is the _population average_.
+
+Of course, we don't usually observe the full population, so we use _sample average_ instead.
+
+When the _sample average_ is used, MM will usually write `\(\hat{E}[Y]\)` or `\(E_n[Y]\)`
+
+---
+class: MSU
+# Counterfactuals
+
+### Conditional expectations
+
+- Let `\(E[Y]\)` be the expected outcome
+
+- Let `\(E[Y|D=1]\)` be the expected outcome if treated
+  - Read this as "Expectation of Y _conditional on_ D equaling 1"
+  
+- Let `\(E[Y|D=0]\)` be the expected outcome if untreated
+  - Read this as "Expectation of Y _conditional on_ D equaling 0"
+
+--
+
+This leads to some intuitive combinations:
+
+- `\(E[Y_0 | D = 0]\)` and `\(E[Y_1 | D = 1]\)` are what we observe
+
+And some not-so-intuitive combinations:
+
+- `\(E[Y_1 | D = 0]\)` and `\(E[Y_0 | D = 1]\)` (these __are not observed__)
+
+--
+
+- Let's think about what these really mean, as they will come up again.
+  
+ 
+---
+class: MSU
+name: ATEdef
+# Counterfactuals
+
+### What do we really want to know
+
+Unless we are `\(i\)`, we'd actually really like to know the population analog: `\(E[Y_{1} - Y_{0}]\)` 
+
+### This is the __Average Treatment Effect, or ATE__ 
+- `\(ATE=E[Y_1 - Y_0]\)`
+
+We could calculate this by taking the expectation of the causal effect of treatment: `\(E_{i}[Y_{1i} - Y_{0i}] = \frac{1}{N}\sum_{i=1}^{N_{pop}} Y_{1i} - Y_{0i}\)`
+
+But that means we need to know _both_ `\(Y_{1i}\)` and `\(Y_{0i}\)` for each and every `\(i\)`. Getting the __ATE__ has the same issue as getting the causal effect: __we don't observe the counterfactual__
+
+---
+
+class: MSU
+# Counterfactuals
+
+### Why would we want to know this?
+
+Imagine that `\(D\)` is a drug. Then `\(E[Y_1 - Y_0]\)` is the drug's .orange[population] effect. 
+
+- If `\(Y\)` is the number of years surviving after a medical diagnosis, then the _ATE_, `\(E[Y_1 - Y_0]\)` is the expected increase in years of survival.
+
+### Let's define another treatment effect: SATE
+
+__SATE__ is the _Selected average treatment effect_, the _ATE for those that receive treatment_.
+
+_SATE_ = `\(E[Y_1 - Y_0 | D = 1]\)`
+
+This might not be quite as useful as the _ATE_, but under certain assumptions, they are the same. Specifically, under the *constant-effects assumption* (MM, p.10)
+
+---
+class: MSU
+# Counterfactuals
+
+### The **SATE**
+
+The **SATE** also requires that we observe both `\(Y_{1i}\)` and `\(Y_{0i}\)` for each `\(i\)`.
+
+How about we make an assumption:
+- We observe some individual `\(i\)` where `\(D=1\)` and thus we observe `\(Y_{1i}\)`
+- We observe some other individual `\(j\)` where `\(D=0\)` and thus we observe `\(Y_{0j}\)`
+- Let's pretend `\(i\)` and `\(j\)` are interchangable and we compare `\(E[Y_{1}] - E[Y_{0}]\)`! 
+
+We've got some `\(Y_1\)`'s and some `\(Y_0\)`'s, so we have:
+- `\(E[Y|D=1]=E[Y_1|D=1]\)`
+- `\(E[Y|D=0]=E[Y_0|D=0]\)`
+
+
+---
+class: MSU heading-slide
+
+Selection Bias
+
+---
+class: MSU
+# Selection bias
+
+### **Selection bias** occurs when the people who get treated (have `\(D=1\)`) have .orange[different values] for `\(Y_{1i}\)` and `\(Y_{0i}\)` from those who do not get treatment
+
+--
+&lt;br&gt;&lt;br&gt;
+
+### Put formally: `\((Y_{1i}, Y_{0i}) \perp D\)`
+
+That is, the .orange[potential] outcomes are **independent** of treatment
+
+
+
+
+---
+class: MSU
+name: SATE
+
+# Selection bias
+We observe `\(E[Y|D=1]\)` and `\(E[Y|D=0]\)`
+
+`$$\begin{eqnarray}\small
+&amp;&amp; E[Y | D = 1] - E[Y | D = 0] \\
+&amp;=&amp;  E[Y_1 | D=1] - E[Y_0 | D = 0] \\
+                            &amp;=&amp; E[Y_1 | D=1] - E[Y_0 | D = 0] - E[Y_0 | D=1] + E[Y_0 | D=1] \\
+                            &amp;=&amp; E[Y_1 | D=1] - E[Y_0 | D = 1] + E[Y_0 | D=1] - E[Y_0 | D=0] \\
+                            &amp;=&amp; \underbrace{E[(Y_1 - Y_0) | D=1]}_\text{SATE} + \underbrace{E[Y_0|D=1] - E[Y_0|D=0]}_\text{selection bias}
+\end{eqnarray}$$`
+The first equality is based on the definition of what we observe.
+
+The second is just subtracting and adding `\(E[Y_0 | D=1]\)`, which cancels out.
+
+The fourth is using the definition of conditional - two expectations that are conditional on the same thing can be combined.
+
+The last is from the definition of SATE (and introduces the definition of __"selection bias"__).
+ 
+
+---
+class: MSU
+# Selection bias
+
+### What is bias in general?
+
+In this context, bias can be thought of as anything that distorts a statistic of interest like the _ATE_, _SATE_, or population mean.
+
+`\(E[W]\neq \theta\)`
+
+### What is selection bias?
+Selection bias is the distortion that is included when we try to infer a population causal effect from differences in observed outcomes (e.g. what we did before).
+
+Selection bias is a "bias" because it biases our estimate of the thing we want: population SATE.
+
+
+`$$\underbrace{E[Y|D=1] - E[Y|D=0]}_{\text{Observed Comparison of Means}} \neq \underbrace{E[Y_1 - Y_0|D=1]}_{\text{SATE, the thing we want}}$$`
+
+
+---
+class: MSU
+# Selection bias
+
+### What are the common sources of selection bias?
+This can occur if:
+- Treatment is assigned in some way that is associated with potential outcomes
+  - Treatment is given to people with higher `\(Y_{1i}\)`
+  - Optimizing behavior can lead to this
+- Treatment is self-selected
+  - If people are allowed to "select in" to treatment
+  - Esp. if they know their potential outcomes
+  - E.g. the "smokers at the hospital" example
+
+
+
+Note that traditionally, "selection bias" refers to non-random sampling (e.g. you survey people outside of a senior citizens home on their age, and use that to estimate a population average age - it'll be biased!)
+
+
+---
+class: MSU
+
+# Selection bias
+
+### Some examples of selection bias
+
+If we are interested in the effect of college on earnings...
+- We would worry that the sort of people who select into college do so because they know they have a high `\(Y_{1i}\)`, where the treatment is "attending college".
+  
+If we are interested in the effect of a drug on expected survival time...
+- We would worry that people who select to take a drug might have very bad (low) values of `\(Y_{0i}\)`, the outcome without the drug, and thus "select in" to treatment. Without the drug, they would have a much worse (lower) survival expectancy than those who do not select in to treatment. If we compare the average survival of the treated to the untreated, we will not get a useful measure.
+
+---
+class: MSU
+# Selection bias
+
+
+If we are interested in the effect of health insurance on some health outcome...
+- We would worry that people who have insurance might have very different potential health outcomes. For one, people who purchase insurance tend to have higher income, and higher income earners tend to have better health regardless of insurance. `\(Y_{0i} &gt; Y_{0j}\)` when `\(income_i &gt; income_j\)`.
+
+---
+class: MSU
+
+# Selection bias
+
+### Some examples of selection bias
+
+If we are interested in the effect of smoking on probability of stroke (and we ignore age)...
+- **Let's discuss this in class:**
+  - What would the treatment and control groups be defined by?
+  - Would there be any reason people would "select" into a group?
+  - Would there be any reason to think there would be a selection bias?
+
+---
+class: MSU
+
+# Selection bias
+
+### Formally, selection bias occurs when
+`$$E[Y_0 | D = 1] - E[Y_0 | D = 0] \neq 0$$`
+Which is when 
+
+`$$E[Y_0 | D=1] \neq E[Y_0 | D=0]$$`
+
+The potential outcome associated with no treatment is different for those who are treated relative to those who are otherwise untreated.
+
+Another way of saying this is that treatment `\(D\)` is **not** independent of the values of `\((Y_{1i}, Y_{0i}\)`)
+- `\((Y_{1i}, Y_{0i}) \not\perp D\)`
+
+And, `\(E[Y_0 | D=1]\)` is never observed, so we cannot just subtract off the selection bias from our naive comparison of means: `\(E[Y|D=1] - E[Y|D=0]\)`.
+
+
+---
+class: MSU
+# Selection bias
+
+To summarize, when we do a comparison of means:
+
+`$$E[Y|D=1] - E[Y|D=0]$$`
+
+we get the .DUKEblue[SATE] + .red[Selection Bias:]
+
+`$$\color{blue}{E[Y_1 - Y_0 | D=1]} + \color{red}{E[Y_0 | D=1] - E[Y_0 | D= 0]}$$`
+
+
+And when we regress `\(y = \beta_0 + \beta_1 D + u\)`, we are doing a "comparison of means"
+
+---
+class: MSU
+
+# Selection bias 
+
+### Another example:
+
+Imagine we have an energy conservation program where a homeowner has someone come to their home and show them their energy consumption, as well as ways they can save electricity. We would want to know the treatment effect of this program - maybe policymakers want to know how effective it is. Or maybe we have a theory that costly information keeps homeowners from consuming a more efficient amount of energy.
+
+---
+class: MSU
+# Selection bias
+
+ 
+.pull-left[
+Our sample is four people.
+
+&lt;table class="table table-striped" style="font-size: 18px; width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Name &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Use Without Tmt &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Use With Tmt &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;border-right:1px solid;"&gt; Allison &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;border-right:1px solid;"&gt; Bertrand &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;border-right:1px solid;"&gt; Carmine &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;border-right:1px solid;"&gt; Dalia &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+.font60[Unrealistic data (we observe both potential outcomes)]
+
+]
+
+.pull-right[
+- Here we get to *unrealistically* observe both outcomes `\(Y_{i0}\)` **and** `\(Y_{i1}\)`
+
+- Define the [Average Treatment Effect](#ATEdef)?
+
+- Calculate the Average Treatment Effect here.
+
+
+]
+
+
+---
+class: MSU
+# Selection bias
+ 
+
+
+.pull-left[
+Our sample is four people.
+
+&lt;table class="table table-striped" style="font-size: 18px; width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Name &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Treated &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Use Without Tmt &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Use With Tmt &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;border-right:1px solid;"&gt; Allison &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; TRUE &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;border-right:1px solid;"&gt; Bertrand &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; TRUE &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;border-right:1px solid;"&gt; Carmine &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; FALSE &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;font-weight: bold;border-right:1px solid;"&gt; Dalia &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; FALSE &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+.font60[Unrealistic data (we observe both potential outcomes)]
+]
+
+.pull-right[
+- Allison and Bertrand are "treated"; we observe their "Use With" values
+
+- Carmine and Dalia are "untreated"; we observe only their "Use Without" values
+]
+
+---
+class: MSU
+# Selection bias
+
+First, let's be naive. Let's look at the average use **of those who received the treatment** and compare it to the average use **of those who did not**, `\(E[Y|D=1] - E[Y|D=0]\)`
+
+
+.center[
+| Name | Treated | Observed |
+|:---|:---:|:---:|
+|**Allison**|TRUE|3|
+|**Bertrand**|TRUE|4|
+|**Carmine**|FALSE|3|
+|**Dalia**|FALSE|4|
+]
+
+--
+Why might the naive estimate not be the same as the ATE (or the SATE)
+
+---
+
+class: MSU
+
+# Selection bias
+
+### Why does our naive comparison of means not yield the (S)ATE?
+
+--
+
+### Let's draw this on the board
+
+---
+class: clear
+
+---
+class: MSU
+# Selection bias
+
+Now, we've seen **selection bias** in action, and we showed that it is part of what we get from a naive comparison of means [using algebra on conditional expectations](#SATE)
+
+How would we test to see if our "treated" group is different from our "untreated" group?
+- If we observed both before and after for each individual, we could **still** use a naive comparison of means **if** the before and after consumption were just about equal.
+
+--
+
+- Is it just about equal in the example?
+
+- What if we didn't get to observe the "before" for each `\(i\)`?
+
+--
+
+### Covariate balance
+All the other things we observe along with the outcome are our *covariates*.
+
+We might hope that we would have "just about equal" values for the (unobserved) before if all those covariates were "just about equal" too. 
+
+---
+class: MSU
+# Selection bias
+
+&lt;img src="MMTbl13.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+
+---
+class: MSU
+# Selection bias
+
+&lt;img src="MMTbl13.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+class: MSU
+# Selection bias
+
+Unfortunately, covariate balance makes a weak case about the balance of the unobserved factors (like the "before" consumption).
+
+A lack of balance does make a strong case *against* balance in the unobserved factors.
+- "Necessary but not sufficient"
+
+We do have tools to let us *control* for differences.
+
+
+---
+class: MSU
+
+# Wrap-up
+
+The main takeaways from today:
+1. Every `\(i\)` has two potential outcomes
+2. We don't get to see both of them
+3. A counterfactual is the "what would have been"
+4. The ATE is a population parameter
+5. It is usually what we're after
+6. We can use the `\(E[\cdots]\)` notation to formalize our estimates
+7. Doing so lets us see where selection bias may occur
+8. Lack of balance in covariates may indicate presence of a selection bias
+9. Balance in covariates does not indicate lack of selection bias
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

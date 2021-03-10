@@ -1,0 +1,296 @@
+---
+title: "Synthetic controls and general panel data methods"
+subtitle: "EC420 MSU Fall 2019"
+author: "Justin Kirkpatrick"
+date: "Last updated `r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    yolo: false
+    css: [default, metropolis, metropolis-fonts, ajk_css]
+    nature: 
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false 
+
+      
+
+---
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(knitr)
+library(kableExtra)
+opts_chunk$set(
+  fig.align="center",fig.height=4, #fig.width=7,# out.width="748px", #out.length="520.75px",
+  dpi=300, #fig.path='Figs/',
+  cache=T,
+  echo=F,
+  engine.path=list(stata="C:/Program Files/Stata16/StataIC-64.exe")#, warning=F, message=F
+  )
+library(tidyverse)
+require(cowplot)
+require(ggpubr)
+require(haven)
+require(Statamarkdown)
+require(plot3D)
+require(stargazer)
+require(quantmod)
+require(wbstats)
+require(lubridate)
+require(scales)
+require(broom)
+
+options("getSymbols.warning4.0"=FALSE)
+# require(see)
+
+```
+
+layout: true
+
+<div class="msu-header"></div> 
+
+
+---
+class: inverseMSU
+name: Overview
+
+# Last class(es)
+
+Difference-in-differences
+- Control for unobserved heterogeneity in $i$ and And for overall time trends in $t$
+- Develop a counterfactual: $E[Y_0 | D=1]$
+- Constructed with *treatment* and *control* groups
+- Regression specification to get "*DiD Estimtor*"
+- **Parallel trends assumption**
+
+
+---
+class: inverseMSU
+# Today
+
+- Past the *parallel trends* assumption
+
+- Synthetic Counterfactual Method (SCM)
+
+---
+class: MSU
+# Parallel Trends
+
+### Recall that DiD's *identifying assumption* is that:
+> In the absence of treatment, the trends in both groups would have been the same.
+
+### And recall that we can't directly test this
+- We can look at pre-treatment trends
+- But we would need to see the actual $E[Y_0|D=1]$ in order to ensure that it follows the same trend as $E[Y_0|D=0]$, the untreated group.
+
+---
+class: MSU
+# Parallel Trends
+
+### We saw examples where that seemed like a pretty safe assumption:
+```{r echo=F, include=T, out.width='70%'}
+knitr::include_graphics('MMfig54.png')
+```
+
+
+---
+class: MSU
+# Parallel Trends
+
+### And some where it didn't necessarily hold
+```{r echo=F, include=T, out.width='70%'}
+knitr::include_graphics('MMfig55.png')
+```
+
+
+---
+class: MSU
+# Synthetic Counterfactual
+
+### What are we really after?
+- We want a good $E[Y_0|D=1]$, the counterfactual for the treated group.
+<br><br>
+### DiD gets us this by making that link between $E[Y_0|D=0]$ and $E[Y_0|D=1]$
+--
+<br><br>
+So what if we are a little more flexible on how that link is made...?
+
+---
+class: MSU
+# Synthetic Counterfactual
+
+### Let's start with a DiD specification, but with $i$ individual fixed effects:
+$$y_{it} = \beta_0 + \phi_i + \beta_2 POST_t + \beta_3 TREAT_i * POST_t + u_{it}$$
+Our assumption here is that, once we condition on the $\phi_i$ - that is, once we let each $i$ have its own intercept, the *trends* are going to be the same.
+
+But what drives those trends...? What moves all $i$ together? And what if there were things that moved, say, 1/2 of the $i$'s?
+
+---
+class: MSU
+# Synthetic Counterfactual
+
+### Let's say we're looking at city-level unemployment rates over different cities across the US
+We want to know the effect of worker safety regulations on unemployment.
+
+### Let's pretend there is one observed thing and *one unobserved thing* that drives the trends:
+- **Observed**: national unemployment rate.
+- **Unobserved**: Price of canned tomatos.
+
+--
+
+### Why *price of canned tomatoes*?
+- Some $i$ have tomato processing facilities in them, and some don't!
+- We don't observe this. 
+- Treatment may be correlated (tomato processing is particularly dangerous for workers?)
+
+
+---
+class: MSU
+# Synthetic Counterfactual
+
+### Would you agree that:
+- If the price of tomatoes is very high, there will likely be more employment in tomato-processing facilities?
+- And thus, unemployment would be lower (better) in those cities with tomato-processing facilities?
+
+--
+
+### And would you agree that:
+- If our treatment is somehow correlated with the presence of tomato-processing facilities, we could be in trouble with our "parallel trends" assumption?
+- Treatment may be endogenous (more worker safety rules when more dangerous employment)
+- The effect may just be confounded by changes in tomato prices
+
+---
+class: MSU
+# Synthetic Counterfacutal
+
+### What would "tomato prices" do as a confounder?
+- If tomato prices go up, **some** $i$'s (the ones with unobserved tomato processing facilities) will have lower unemployment
+- So the *parallel trends* assumption is broken:
+  - In the absence of treatment, a tomato-processing city would **not** follow the same trend as an untreated non-tomato-processing city.
+  
+---
+class: MSU
+# Synthetic Counterfactual
+
+### A "factor loading" model:
+- Let $\lambda^{tomato}_{i} = 1(\text{has tomato facility})$
+- Let $p^{tomato}_t$ be the national price of tomatos. 
+
+$$y_{it} = \beta_0 + \beta_1(\lambda^{tomato}_i * p^{tomato}_t) + \beta_2 D_{it} + \phi_i + \delta_t + u_{it}$$
+
+This is just a model of unemployment $y$ as a function of $i$ specific traits, $t$ specific trends in national unemployment rates, and *the effect of tomato prices on unemployment in tomato-processing cities*. 
+
+If $\lambda^{tomato}_i=0$, then price of tomatos has no effect. If $\lambda^{tomato}_i=1$, then the price of tomatos does have an effect $(\beta_1)$.
+
+---
+class: MSU
+# Synthetic Counterfactual
+
+### A "factor loading" model:
+$$y_{it} = \beta_0 + \beta_1(\lambda^{tomato}_i * p^{tomato}_t) + \beta_2 D_{it} + \phi_i + \delta_t + u_{it}$$
+
+Parallel trends will not hold between a $\lambda^{tomato}_i = 1$ city and a $\lambda^{tomato}_i=0$ city.
+
+### If we observed $\lambda^{tomato}_i$, we'd be fine
+But...we don't.
+
+---
+class: MSU
+# Synthetic Counterfactual
+
+### The Synthetic Counterfactual does its best to account for these unobserved factors
+- Even without observing tomato processing facilities or the price of tomatos, we **would** expect that pre-treatment unemployment in tomato processing cities **would look like other tomato processing cities**.
+
+- That is, since the tomato processing cities are subject to the same price of tomatos, then all of them will be a little higher on unemployment when tomato prices are low.
+
+- The Synthetic Counterfactual Method looks for similarity in the pre-treatment trend and develops the counterfactual for $i$ using all $j$'s that have similar pre-treatment "paths".
+
+---
+class: MSU
+# Synthetic Counterfactual
+
+```{r SynthSetup, echo=F, include=T, out.width='95%'}
+TT = 1:10
+FEi = c(1,2,4,5,6,10)/100
+FEt = rpois(length(TT), 4)/100
+LAM = c(0,1,0,1,0,1)
+TREAT = c(1,1,0,1,0,0)
+NN = 1:length(FEi)
+PT = rnorm(length(TT), mean=2, sd=1)
+b0 = .064
+b1 = -.02
+b2 = .04
+uu = rnorm(length(TT)*length(NN), mean=0, sd=.01)
+tau = 6
+
+
+dfs = as_tibble(expand.grid(TIME = TT,IND = NN, stringsAsFactors=F)) %>%
+  dplyr::mutate(FEi = rep(FEi, each=length(TT)),
+                LAM = rep(LAM, each=length(TT)),
+                TREAT = rep(TREAT, each=length(TT)),
+                PT = rep(PT, length(NN)),
+                FEt = rep(FEt, length(NN)),
+                uu = uu) %>%
+  dplyr::mutate(unemploy = b0 + b1*LAM*PT + b2*TREAT*(TIME>=tau) + .03*LAM + uu)
+
+ggplot(dfs, aes(x=TIME, y=unemploy, col=as.factor(IND))) + geom_path(aes(lty = as.factor(LAM)), lwd=1.25) + scale_color_viridis_d() + theme_bw() + geom_vline(xintercept=tau, lwd=2) + labs(subtitle = paste0('Treated units are: ',paste0(which(TREAT==1), collapse=', ')))
+  
+  
+
+```
+
+---
+class: MSU
+# Synthetic Counterfactual
+
+### The intuition is that parallel trends assumption is best met by choosing a control pool that...follows parallel trends!
+
+--
+
+All the SCM does is find the controls that
+- Are not treated
+- But have similar pre-treatment trends
+
+Since it's  straightforward to have parallel trends for **one** treatment unit and some selection of potential controls, the SCM only handles one single treatment unit
+- Great for comparative policy analysis
+- Some methods for combining results from many SCM's
+
+---
+class: MSU
+# Synthetic Control
+
+### Implementation
+- Usually with a pre-packaged routine in Stata (*synth*)
+- Uses panel data 
+User specifies:
+- **One** treatment unit
+- **Many** potential control units (untreated)
+- A treatment start time
+
+---
+class: MSU
+# Synthetic Control
+
+### Implementation
+- Stata then makes a guess at $w$, weights on each of the control units
+  - Let's say the guess is that the weights are $(.5, .5, 0, \cdots, 0)$
+  - That is, the first two untreated $i$'s are weighted at .5 and .5, the rest are 0.
+  
+- The pre-treatment "synthetic" outcome is:
+  - $y^{synth}_{t} = .5 \times y_{1,t} + .5 \times y_{2,t} + 0 \times y_{3,t} + \cdots$
+
+- The distance between $y^{synth}_t$ and $y^{actual}_t$ is checked. Much like OLS, synth sums the squared difference:
+  - $(y^{synth}_t - y^{actual}_t)^2 + (y^{synth}_{t+1} - y^{actual}_{t+1})^2 + \cdots)$
+  
+- Stata *guesses* at the weights over and over again until the smalled squared sum of errors is found.
+  - OK, there is a method where it's not just random guesses, but that's the gist of it
+  
+- Observed covariates can be included as well, and get their own weights.
+
+---
+class: MSU
+# Synthetic Control
+
+Let's pull up the Kirkpatrick and Bennear paper, as well as the Abadie paper that we didn't end up reading...
+
+

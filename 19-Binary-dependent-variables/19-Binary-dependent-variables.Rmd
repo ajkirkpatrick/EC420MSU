@@ -1,0 +1,461 @@
+---
+title: "Binary Dependent Variables (Logit Models)"
+subtitle: "EC420 MSU"
+author: "Justin Kirkpatrick"
+date: "Last updated `r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    yolo: false
+    css: [default, metropolis, metropolis-fonts, ajk_css]
+    nature: 
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false 
+
+---
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(knitr)
+library(kableExtra)
+library(magick)
+library(here)
+opts_chunk$set(
+  fig.align="center",fig.height=4, #fig.width=7,# out.width="748px", #out.length="520.75px",
+  dpi=300, #fig.path='Figs/',
+  cache=T,
+  echo=F,
+  engine.path=list(stata="C:/Program Files/Stata16/StataIC-64.exe")#, warning=F, message=F
+  )
+library(tidyverse)
+require(cowplot)
+require(ggpubr)
+require(haven)
+require(Statamarkdown)
+require(plot3D)
+require(stargazer)
+require(quantmod)
+require(wbstats)
+require(lubridate)
+require(scales)
+require(broom)
+
+options("getSymbols.warning4.0"=FALSE)
+# require(see)
+
+```
+
+layout: true
+
+<div class="msu-header"></div> 
+
+
+
+---
+class: MSU
+# This Class
+
+### Binary dependent variables
+All values are either $1$ or $0$
+- "True" = 1, "False" = 0
+
+Pretty useful for probabilities
+
+Linear Probability Model
+
+Probit
+
+Logit
+
+Properties of Probit/Logit
+- Unbiased?
+- Consistent?
+
+---
+class: heading-slide
+
+Binary dependent variables
+
+---
+class: MSU
+# Binary DV
+
+### A **binary dependent variable (DV)** is the term for data where the $Y$ (the dependent variable) only takes the value $1$ or $0$.
+
+This is most often the case when the DV is "yes/no" or "true/false". For example:
+- "Yes, action is taken" = 1
+- "No, action not taken" = 0.
+
+```{r LPMex, echo=F, include=T}
+lpmdf = tibble(Attend_College = c(1,0,0,0,1,0),
+               Family_Income = c(130, 100, 45, 34, 100, 200),
+               # Parental_Educ = c('College','HS','College','HS','HS','College'),
+               Distance = c(30,150,200,20,10,120))
+
+lpm = lm(Attend_College ~ Family_Income  + Distance, lpmdf)
+
+knitr::kable(lpmdf, 'markdown', align='c')
+```
+
+
+
+---
+class: MSU
+# Binary DV
+
+### Lots of things we're interested in have binary *outcomes*
+- Attend college
+- Admitted to hospital
+- Purchase electric car
+
+### Frequently we aggregate *over individuals* to a continuous number
+- Hospital admission rate
+  - Add up all the people who do go to hospital, divide by total number of people
+- Market share of electric car purchases
+  - Add up all the electric cars sold, divide by total number of cars sold
+  
+Binary dependent variables let us model the individual decision rather than forcing us to aggregate.
+
+---
+class: MSU
+# Binary DV
+
+### Today, three models for binary dependent variables
+- Linear Probability Model
+- Probit Model
+- Logit Model
+
+All three will handle having binary dependent variables.
+
+---
+class: MSU
+# Binary DV
+
+### Question:
+
+### If an outcome $Y$ is a binary random variable, then what is the $E[Y|X]$?
+
+---
+class: heading-slide
+
+Linear Probability Model
+
+---
+class: MSU
+# LPM 
+
+### The Linear Probability Model
+$$Pr(y = 1|x) = \beta_0 + \beta_1 x_1 + \cdots + u$$
+
+Where $y\in \{0,1\}$ ("y is in 0,1")
+
+### Because $E[y|x]=Pr(y=1|x)$ when $y$ is binary, we can estimate this by OLS
+- $y = \beta_0 + \beta_1 x_1 + \cdots + u$
+- $x$ changes the expected value of $y$, as usual
+- $\beta_1$ can thus be interpreted as the marginal effect on $Pr(y=1)$
+
+---
+class: MSU
+# LPM
+
+### Interpretation of LPM
+Since probabilities are expressed mathematically as numbers between $0$ and $1$, but we tend to use % for probabilities, we just multiply by $100$
+```{r LPMex2, echo=F, include=T}
+knitr::kable(broom::tidy(lpm), digits = 3)
+```
+
+- A 1k/yr increase in family income is associated with a $.001 \times 100 = .1$ percentage-point increase in the probability of attending college, ceteris paribus.
+- A 1-mile increase in the distance to the nearest 4-year school is associated with a .4 percentage-point increase in the probability of attending college, ceteris paribus.
+
+---
+class: MSU
+# LPM
+
+### The good news:
+Since we are able to use OLS, the OLS estimates of $\mathbf{\beta}$ are:
+- Unbiased
+- Consistent
+- Really easy to get
+
+### Some bad news, though...
+
+---
+class: MSU
+# LPM
+
+### The LPM can predict a negative probability. Note the negative coef. on $distance$
+
+```{r LPMex3, echo=F, include=T, out.width='90%'}
+plot(lpmdf$Distance, lpmdf$Attend_College, xlim=c(0,200), ylim = c(-.2, 1), 
+     pch=18, col='blue', cex=2,
+     xlab = 'Distance (mi)', ylab = 'Attend College', main='Predicted Probability of Attending College', sub = 'Parental income = 20k')
+abline(a = lpm$coefficients[1]+lpm$coefficients[2]*20,
+       b = lpm$coefficients[3], lwd=2)
+abline(h = 0, col='red', lwd=1.5)
+```
+
+---
+class: MSU
+# LPM
+
+### What do we do with a negative probability?
+- Reset it to zero?
+  - Probably not a good solution.
+- Is there really a zero probability of attending college for someone who lives 175 miles away?
+
+
+---
+class: MSU
+# LPM
+
+### Next problem: heteroskedastic errors.
+The errors $u$ (and the residuals, $\hat{u}$) will have very different variances depending on $x$
+- Becuase they will always be $1-Pr(y|x)$ or $0 - Pr(y|x)$
+
+Fun fact: the variance of a binary variable is $Pr(y=1|x)(1-Pr(y=1|x))$
+- So, if $Pr(y=1|x)=.2$, then the variance is $.2(.8)=1.6$
+- If $Pr(y=1|x')=.3$, then the variance is $.3(.7)=2.1$
+
+So we can never say that a LPM meets the homoeskedasticity assumption.
+
+### Solution: use `HC1` errors
+- And only use LPM when probabilities are far from $0$ and $1$.
+
+---
+class: MSU
+# LPM
+
+The LPM is useful.
+- Easy to interpret
+- Can use fixed effects
+- Time series
+- Panel data, even
+
+But it has problems.
+- Negative probabilities
+- Heteroskedastic errors almost always
+  - But our usual fix applies to this
+
+---
+class: heading-slide
+
+Probit and Logit Models
+---
+class: MSU
+# Probit and Logit
+
+### If we use a very, very general form of a regression, we can avoid negative probabilities:
+
+$$Pr(y=1|x) = G(\beta_0 + \beta_1 x_1 + \cdots)$$
+
+$G$ is, for now, just a function.
+- In a LPM, it would be the identity function - it would take $\beta_0 + \cdots$ and return $\beta_0 + \cdots$.
+- But what if the function were constructed so that it always returned between $0$ and $1$?
+
+---
+class: MSU
+# Probit and Logit
+
+### For instance:
+$$G(\beta_0 + \beta_1 x_1 + \cdots) = \frac{e^{\beta_0 + \beta_1 x_1 + \cdots}}{1+ e^{\beta_0 + \beta_1 x_1 + \cdots}}$$
+
+If I give you some $\mathbf{\beta}$ and some values for $x$, then you could plug into this function and get the result, right?
+
+- What if $\mathbf{\beta x}$ is very very large?
+- What if $\mathbf{\beta x}$ is very very small (negative)?
+  - Remember the properties of the exponential. $e^{-\infty} > 0$
+  
+### This $G$ is the logistic function, $\Lambda(\mathbf{x \beta})$
+
+(Note, I'm using the vector bold $\mathbf{x \beta}) = \beta_0 + \beta_1 x_1 + \cdots$) from here on out)
+---
+class: MSU
+# Probit and Logit
+
+### A probability distribution is always between $0$ and $1$
+- So what if we use the normal CDF, $\Phi$?
+- For any value of $\mathbf{x \beta}$, we get a number between zero and one
+
+$$G(\mathbf{x \beta}) = \Phi(\mathbf{x \beta}) = \int_{-\infty}^{\mathbf{x \beta}} \phi(v) dv$$
+
+This is just the standard normal CDF:
+```{r SN, echo=F, include=T, out.width='40%'}
+curve(pnorm, -4, 4, ylab = "Prob. X<x", xlab = 'x')
+```
+### This leads to the **Probit** model.
+---
+class: MSU
+# Logit and Probit
+
+### Ok, so they have nice features, how do we make a model from them?
+
+--
+
+### The Latent Variable Model
+
+---
+class: MSU
+# Logit and Probit
+
+### The Latent Variable Model. 
+
+### Let $y^*$ be **unobserved**
+$$y^* = \mathbf{x \beta} + e$$
+and
+$$y=1(y^*>0)$$
+That's our indicator function. If unobserved $y^*>0$ then our observed $y=1$. If not, then we observe $y=0$.
+- We don't see $y^*$
+- Even if we knew $\mathbf{x \beta}$, $e$ would still mean we wouldn't know the outcome perfectly.
+
+---
+class: MSU
+# Logit and Probit
+
+### Using the Latent Variable Model
+While we don't observe $y^*$, we do see $y$
+
+$y$ surely tells us *something* about $y^*$, right?
+
+Even if we knew how $\mathbf{x}$ affected $y^*$, we would still have a random bit left over, $e$.
+
+---
+class: MSU
+# Logit and Probit
+
+### Latent Variable Model
+- If we assume $e$ is independent of $\mathbf{x}$ and maintain that $y = 1(y^*>0)$
+- And we assume that $e$ is distributed *standard normal* (not unusual, right?)
+- Then we can say that:
+$$Pr(y==1|x) = Pr(y^* > 0|x) = Pr(\mathbf{x \beta} + e > 0)$$
+
+The first equality is just from our definition of $y$ and $y^*$.
+
+The second is from the definition of $y^*$.
+
+--
+
+Pretend for a moment that we know $\mathbf{\beta}$
+
+---
+class: MSU
+# Logit and Probit
+
+### Latent Variable Model
+But $\mathbf{x}$ is our data (as is $y$), and only $e$ is random
+$$Pr(\mathbf{x \beta}+e>0) = Pr(e > -\mathbf{x \beta}) = 1-Pr(e< -\mathbf{x \beta}) = 1-\Phi(-\mathbf{x \beta})$$
+And because $\Phi$ is symmetric, 
+$$1-\Phi(-\mathbf{x \beta}) = \Phi(\mathbf{x \beta})$$
+<br>
+So, for any $\mathbf{x \beta}$, we just have to take the standard normal CDF of that value and we get the probability!
+
+Of course, that's *if* we know $\beta$. We'll get to that.
+
+### This is the **probit**
+
+---
+class: MSU
+# Logit and Probit
+
+### What if $e$ is not standard normal $e \sim N(0,1)$?
+If we assume that $e$ is normal with some constant variance, $\sigma^2$, then we can rescale everything:
+$$y^* = \frac{1}{\sigma}\left(\beta_0 + \beta_1 x + \cdots \right) + \frac{1}{\sigma}e$$
+This results in the same $Pr(y==1)$ because rescaling doesn't change when $y^*>0$. 
+- If $y^*>0$, then $\frac{1}{2}y^*>0$ as well.
+
+**Unfortunately**, this means that unless we know $\sigma^2$, we don't know exactly what the marginal effect of $x_1$ is on $y^*$, because we only have $\tilde{\beta_1} = \frac{\beta_1}{\sigma}$. 
+
+---
+class: MSU
+# Logit and Probit
+
+### Interpreting coefficients
+Even if we did know $\sigma$ (and thus our estimated $\tilde{beta_1}$ could be converted to the actual $\beta_1$), how would we interpret a change in the latent variable $y^*$?
+
+### We won't be able to interpret directly:
+- This is non-linear, so the marginal effect will depend on the $\mathbf{x}$
+$$\frac{\partial Pr(y=1|x)}{\partial x_j} = \frac{\partial G(\mathbf{x \beta})}{\partial x_j} = g(\mathbf{x \beta})\beta_j$$
+Since $G$ is $\Phi$, the standard normal CDF, then $g$ is $\phi$ the standard normal pdf.
+
+### This is difficult to interpret, but we can do two things:
+- We can predict probabilities for any value of $\mathbf{x}$
+- The **sign** and **significance** of $\mathbf{\beta}$ is very useful
+
+---
+class: MSU
+# Logit and Probit
+
+### The Logit Model is very similar:
+We just substitute in $\Lambda$ for $\Phi$ - it stil returns a probability from $0$ to $1$.
+
+We just have to assume that the error, $e$ is distributed *logistic*.
+
+The logistic distribution looks pretty much the same as $\Phi$ once it's rescaled.
+
+### Probit vs. Logit
+- Probit assumes normal errors, which economists like
+- Logit has some nice properties that lead to more complicated models
+- Given an $\mathbf{x \beta}$, logit has very easy to compute probabilities, while $\Phi$ is actually pretty complicated.
+  - Logit just uses that formula for "closed form probabilities"; $\Phi$ requires integration.
+---
+class: MSU
+# Logit and Probit
+
+### How do we get $\mathbf{\beta}$?
+Since *logit* lets us compute the probability predicted by any $\mathbf{x \beta}$, let's talk about estimating a logit model
+
+
+### Maximum Likelihood Estimation (MLE)
+- MLE starts with an assumption of the distribution of the random component
+  - In logit and probit, this is the $e$
+- With observed $\mathbf{x}_i$ and a guess at $\beta$, we can compute $\widehat{Pr(y)} = \Lambda(\mathbf{x \beta})$
+  - For instance, if $x=.25$ and our guess at $\beta=2$, then:
+
+$$\widehat{Pr(.25 \times 2)} = \frac{e^{.5}}{1+e^{.5}} = \frac{1.64}{2.64} = .62$$
+
+### Conceptually, we want to choose the $\beta$ so that this probability is as close to $1$ for observations where $y=1$, and as close to $0$ as possible for observations where $y=0$.
+
+---
+class: MSU
+# Logit and Probit
+
+### Maximum Likelihood Estimation
+To find the $\beta$ that gets us as close as possible to the "right" probabilities, we will maximize:
+$$[\Lambda(\mathbf{x_i \beta})]^{y_i} [1 - \Lambda(\mathbf{x_i \beta})]^{(1-y_i)}$$
+
+### Let's talk thru this
+- What if $\Lambda(\mathbf{x_i \beta})$ is very close to 1 when $y_i = 1$?
+- What if $\Lambda(\mathbf{x_i \beta})$ is very close to 0 when $y_i = 0$?
+
+### MLE takes this and maximizes it!
+
+---
+class: MSU
+# Logit and Probit
+
+### Some drawbacks
+- Hard to interpret coefficients
+- Marginal effects depend on $x$ (unlike LPM)
+- Computationally difficult to estimate on large $N$
+
+### Is it unbiased and consistent?
+- Yes! MLE is consistent, asymptotically normal
+- Except...
+  - **Fixed effects** in logit may render the estimate inconsistent (sadly)
+- R will give valid $se$ and $t$-statistics with p-values
+
+
+---
+class: MSU
+# Logit and Probit
+
+```{r Logit1, echoF, include=T}
+lpmdf2 = rbind(lpmdf, c(1, 40, 50))
+logit.model = glm(Attend_College ~ Family_Income  + Distance, lpmdf2, family='binomial')
+knitr::kable(tidy(logit.model), digits=2)
+```
+
+
+
+
+
+
