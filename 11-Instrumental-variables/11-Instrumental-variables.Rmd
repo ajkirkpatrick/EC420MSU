@@ -7,7 +7,7 @@ output:
   xaringan::moon_reader:
     lib_dir: libs
     yolo: false
-    css: [default, metropolis, metropolis-fonts, ajk_css]
+    css: [default, metropolis, metropolis-fonts, "EC420_S21.css"]
     nature: 
       highlightStyle: github
       highlightLines: true
@@ -21,11 +21,13 @@ options(htmltools.dir.version = FALSE)
 library(knitr)
 library(kableExtra)
 opts_chunk$set(
-  fig.align="center",fig.height=4, #fig.width=7,# out.width="748px", #out.length="520.75px",
-  dpi=300, #fig.path='Figs/',
-  cache=T,
-  echo=F,
-  engine.path=list(stata="C:/Program Files/Stata16/StataIC-64.exe")#, warning=F, message=F
+   fig.path='figs/',
+  out.width= '80%',
+  fig.align = 'center',
+  warning = F,
+  message = F,
+  error=F,
+  dpi = 300
   )
 library(tidyverse)
 require(cowplot)
@@ -49,8 +51,47 @@ layout: true
 <div class="msu-header"></div> 
 
 
+<div style = "position:fixed; visibility: hidden">
+$$\require{color}\definecolor{yellow}{rgb}{1, 0.8, 0.16078431372549}$$
+$$\require{color}\definecolor{orange}{rgb}{0.96078431372549, 0.525490196078431, 0.203921568627451}$$
+$$\require{color}\definecolor{MSUgreen}{rgb}{0.0784313725490196, 0.52156862745098, 0.231372549019608}$$
+$$\require{color}\definecolor{DUKEblue}{rgb}{0.00392156862745098, 0.129411764705882, 0.411764705882353}$$
+</div>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  TeX: {
+    Macros: {
+      yellow: ["{\\color{yellow}{#1}}", 1],
+      orange: ["{\\color{orange}{#1}}", 1],
+      MSUgreen: ["{\\color{MSUgreen}{#1}}", 1],
+      DUKEblue: ["{\\color{DUKEblue}{#1}}", 1]
+    },
+    loader: {load: ['[tex]/color']},
+    tex: {packages: {'[+]': ['color']}}
+  }
+});
+</script>
+
+<style>
+.yellow {color: #FFCC29;}
+.orange {color: #F58634;}
+.MSUgreen {color: #14853B;}
+.DUKEblue {color: #012169;}
+</style>
+
+
+```{r flair_color, echo=FALSE}
+library(flair)
+yellow <- "#FFCC29"
+orange <- "#F58634"
+MSUgreen <- "#14853B"
+DUKEblue <- "#012169"
+```
+
+
 ---
-class: inverseMSU
+class: MSU
 name: Overview
 
 # Today
@@ -68,7 +109,7 @@ name: Overview
   - The $\beta$ on $D$ is our parameter of interest
   
 ---
-class: inverseMSU
+class: MSU
 # Today
 
 ### Where were at:
@@ -238,11 +279,27 @@ $$employment_{it} = \beta_0 + \beta_1 minwage_{it} + \Phi_i + \Gamma_t + u$$
 
 $\Phi_i$ is a shorthand way of writing "a fixed effect for every county $i$". Similar for $\Gamma_t$.
 
-Our model tells us that $employment_{it}$ will be lower in months $t$ and counties $i$ where $minwage_{it}$ is higher.
+Our model tells us that $employment_{it}$ will be lower (if $\beta_1<0$ ) in months $t$ and counties $i$ where $minwage_{it}$ is higher.
 
 This means the model tells us something about $\frac{\partial{employment}}{\partial{minwage}} = \beta_1$.
 
 ** $\beta_1$ is our parameter of interest.**
+
+---
+class: MSU
+# A quick aside
+
+### The equation
+$$employment_{it} = \beta_0 + \beta_1 minwage_{it} + \Phi_i + \Gamma_t + u$$
+has two-way fixed effects. In R code:
+
+````
+myModel <- lm(employment ~ minwage + as.factor(individual) + as.factor(time), data = myData)
+coeftest(myModel, vcov = vcovHC(myModel, 'HC1')) # for robust se
+````
+
+Just to make sure the notation $\Phi_i$ and $\gamma_t$ doesn't take you by surprise. It looks a lot more familiar in R code.
+
 
 ---
 class: MSU
@@ -312,7 +369,7 @@ class: MSU
 $$employment_{it} = \beta_0 + \beta_1 minwage_{it} + \Phi_i + \Gamma_t + u$$
 
 - We might think minimum wage is not randomly assigned (thus, potential for selection bias).
-- Maybe we think that counties with more tech companies are more likely to increase the minimum wage (higher average wages, income inequality)
+- Maybe we think that counties with growing tech companies are more likely to increase the minimum wage (higher average wages, income inequality)
 - They are also more likely to have higher employment anyways
   - $(Y_{0i}, Y_{1i}) \not\perp D$ and $Y_{0i}|D=1 > Y_{0i}|D=0$
 
@@ -321,7 +378,6 @@ So what's an econometrician to do?
 - Control for $tech_{it}$, the share of employees in county $i$ at time $t$ in tech.
 
 $$employment_{it} = \beta_0 + \beta_1 minwage_{it} + \beta_2 tech_{it} + \Phi_i + \Gamma_t + u$$
-
 
 
 ---
@@ -342,14 +398,14 @@ See W3.7(e) and 7.6
 ----
 
 Number 3 is always true when treatment is randomly assigned, but random assignment almost never holds in economics.
-- This is our new focus - how to get as-good-as-random assignment so that we have a causal interpretation of the coefficient of interest.
+- This is our new focus - how to get **as-good-as-random assignment** so that we have a causal interpretation of the coefficient of interest.
 
 ---
 class: MSU
 # Causal interpretation
 
 ### What about our minimum wage. Was that "causal"?
-$$employment_{it} = \beta_0 + \beta_1 minwage_{it} + \beta_2 techworkers_{it} + \Phi_i + \Gamma_t + u$$
+$$employment_{it} = \beta_0 + \beta_1 minwage_{it} + \beta_2 tech_{it} + \Phi_i + \Gamma_t + u$$
 
 - Why else would a county $i$ would "select into" a higher minimum wage?
 - What "controls" do we have to address those?
@@ -382,11 +438,13 @@ What if selection into treatment is affected by something *unobserved*?
 - This will control for *anything* that is always present in a county $i$
   - Maybe it's a county with a great University like MSU - they tend to have higher employment.
   - $\Phi_{Ingham}$ will account for this, as long as it's always true over every time period.
+  - Would $\Phi_i$ account for a *growing* tech presence in a county?
 - Remember our two-way fixed effects example?
 
 When there are unobserved things that
 1. affect $y$, and
-2. may drive selection, we say we have **selection on unobservables**
+2. may drive selection, we say we have **selection on unobservables**, which implies selection bias.
+
 
 ---
 class: MSU
@@ -606,7 +664,7 @@ class: MSU
 $$\frac{E[Y|Z=1]-E[Y|Z=0]}{E[D|Z=1] - E[D|Z=0]}$$
 Is the $LATE$ - the **local average treatment effect**
 
-- It is the $ATE$ (hooray!) for the *compliers*, the people who can be affected by the instrument
+- It is the $ATE$ (hooray!) for the *compliers*, .orange[the people who can be affected by the instrument]
 
 - It has a causal interpretation.
 
@@ -729,7 +787,7 @@ Anyone worried that $exper$ is negative?
 class: MSU
 # Continuous interactions
 
-Remember to include the interaction term. On the previous slide, if you have 12 years of education, then the marginal effect of a 1-year increase in experience is 
+Remember to include the interaction term. On the previous slide, if you have 12 years of education, then the .orange[marginal effect] of a 1-year increase in experience is 
 
 $$\beta_{exper} + \beta_{educ:exper} \times x_{educ}$$
 
