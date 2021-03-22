@@ -7,7 +7,7 @@ output:
   xaringan::moon_reader:
     lib_dir: libs
     yolo: false
-    css: [default, metropolis, metropolis-fonts, ajk_css]
+    css: [default, metropolis, metropolis-fonts, "EC420_S21.css"]
     nature: 
       highlightStyle: github
       highlightLines: true
@@ -21,12 +21,12 @@ options(htmltools.dir.version = FALSE)
 library(knitr)
 library(kableExtra)
 opts_chunk$set(
-  fig.align="center",fig.height=4, #fig.width=7,# out.width="748px", #out.length="520.75px",
-  dpi=300, #fig.path='Figs/',
-  cache=T,
-  echo=F,
-  engine.path=list(stata="C:/Program Files/Stata16/StataIC-64.exe")#, warning=F, message=F
-  )
+   fig.path='figs/',
+  out.width= '80%',
+  fig.align = 'center',
+  warning = F,
+  message = F,
+  error=F)
 library(tidyverse)
 require(cowplot)
 require(ggpubr)
@@ -42,6 +42,8 @@ require(broom)
 
 options("getSymbols.warning4.0"=FALSE)
 # require(see)
+# 
+# 
 
 ```
 
@@ -49,22 +51,58 @@ layout: true
 
 <div class="msu-header"></div> 
 
+<div style = "position:fixed; visibility: hidden">
+$$\require{color}\definecolor{yellow}{rgb}{1, 0.8, 0.16078431372549}$$
+$$\require{color}\definecolor{orange}{rgb}{0.96078431372549, 0.525490196078431, 0.203921568627451}$$
+$$\require{color}\definecolor{MSUgreen}{rgb}{0.0784313725490196, 0.52156862745098, 0.231372549019608}$$
+$$\require{color}\definecolor{DUKEblue}{rgb}{0.00392156862745098, 0.129411764705882, 0.411764705882353}$$
+</div>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  TeX: {
+    Macros: {
+      yellow: ["{\\color{yellow}{#1}}", 1],
+      orange: ["{\\color{orange}{#1}}", 1],
+      MSUgreen: ["{\\color{MSUgreen}{#1}}", 1],
+      DUKEblue: ["{\\color{DUKEblue}{#1}}", 1]
+    },
+    loader: {load: ['[tex]/color']},
+    tex: {packages: {'[+]': ['color']}}
+  }
+});
+</script>
+
+<style>
+.yellow {color: #FFCC29;}
+.orange {color: #F58634;}
+.MSUgreen {color: #14853B;}
+.DUKEblue {color: #012169;}
+</style>
+
+
+```{r flair_color, echo=FALSE}
+library(flair)
+yellow <- "#FFCC29"
+orange <- "#F58634"
+MSUgreen <- "#14853B"
+DUKEblue <- "#012169"
+```
+
 
 ---
-class: inverseMSU
+class: MSU
 name: Overview
 
 # Today
 
-### Recall on Monday we:
-- Covered continuous $\times$ continuous interactions
-
-- "What's in the error"
+### Recall last time we:
+- Discussed "what's in the error"
 
 - Introduced the Instrumental Variable (IV)
   - When our variable of interest, $D$...
   - is correlated with something in the error and thus is biased.
-  - The IV gives us independent (or *exogenous*) variation in $D$.
+  - The IV gives us independent (or *as-good-as-random*) variation in $D$.
   - Which lets us *identify* the effect of $D$ on $Y$
   
 
@@ -101,15 +139,16 @@ $$E[Y_1|D=1] - E[Y_0|D=0]$$
 - The potential outcomes $(Y_{i0}, Y_{i1}) \not\perp D$
   - Both of these mean the same thing / are the same problem
 
+
 ---
-Class: MSU
+class: MSU
 # Concept of IV
 
 ### We introduced the term *endogenous*
 - "Endogenous" means "determined within the system"
 - When treatment may be affected by something within our model, we say it may be "endogenous"
   - When $(Y_{i0}, Y_{i1}) \not\perp D$, then $D$ is endogenous
-  - $Y_{i0}, Y_{i1}$ is *within the system
+  - $D$ is determined in part by $Y_{i0}$ or $Y_{i1}$ - *within the system*
   
   
 ### And the term *exogenous*
@@ -119,6 +158,7 @@ Class: MSU
   
 ---
 class: MSU
+# Concept of IV
 
 ### Conditionally exogenous is fine:
 - $D$ could be conditionally exogenous, conditional on some controls $X$
@@ -132,6 +172,9 @@ Any $x$ can be endogenous or exogenous. This isn't limited to $D$. Whether or no
 ---
 class: MSU
 # Concept of IV
+
+
+### Reminder:
 
 ### $E[Y | D=1] - E[Y | D=0]$ is the same as $\beta_1$ in:
 $$y = \beta_0 + \beta_1 D + u$$
@@ -150,7 +193,7 @@ class: MSU
 ### Then, to get an unbiased estimate of $\beta_1$ we need an instrument, $Z$ that:
 - Determines or affects $D$
 - Is "as good as (conditionally) randomly assigned" (is conditionally exogenous)
-- But does not correlate with $u$ or only affects $y$ through $D$ (same thing)
+- But does not correlate with $u$ (it only affects $y$ through $D$ -  same thing)
   - When its uncorrelated, then $E[Y_0 | Z=1] - E[Y_0 | Z=0]$ is $0$, and no selection bias
     - Except this just tells us about the potential outcomes over $Z$, not $D$, our variable of interest.
 
@@ -197,10 +240,12 @@ Is just different notation for:
 $$TestScore = \phi_0 + \phi_1 Lottery + v$$
 
 And:
+
 $$\begin{eqnarray*}
 \beta_1 &=& E[TestScore|Lottery==1] - E[TestScore|Lottery==0] \\
 &=& E[y|Z==1] - E[y|Z==0]
 \end{eqnarray*}$$
+
 When $Z$ is as good as randomly assigned, which we'll get to shortly.
 
 ---
@@ -321,7 +366,7 @@ class: MSU
 
 ### First Stage: regress $D$ on $Z, X$:
 $$D = \gamma_0 + \gamma_1 Z + \gamma_2 x_1 + \cdots + w$$
-Since $w$ is uncorrelated with things correlated with $Z$, $\phi_1$ is unbiased.
+Since $w$ is uncorrelated with things correlated with $Z$, $\gamma_1$ is unbiased.
 
 ---
 class: MSU
@@ -331,9 +376,9 @@ class: MSU
 Take $\hat{\phi}$, your estimates and get the predicted value of $D$, $\hat{D}$
 $$\hat{D} = \hat{\gamma}_0 + \hat{\gamma}_1 Z + \hat{\gamma}_2 x_1 + \cdots$$
 
-### This has a "partialling out" flavor
-- $w$ contains all the variation in $D$ that does not explained by $Z$.
-- And likewise $\hat{D}$ contains all the variation in $D$ that **is** explained by $Z$ ($w$ is not in $\hat{D}$)
+### This has a "partialling out" .orange[flavor]
+- $w$ contains all the variation in $D$ that is not explained by $Z$.
+- And .orange[likewise $\hat{D}$ contains all the variation in $D$ that **is** explained by $Z$] ($w$ is not in $\hat{D}$)
 
 ### Remember
 - IMPORTANT: our problem in the first place was that $D$ was correlated with something unobserved in the error.
@@ -350,11 +395,11 @@ class: MSU
 
 ### For our second stage:
 $$Y = \beta_0 + \beta_1 \hat{D} + \beta_2 x_2 + \cdots + u$$
-And the estimate of $\beta_1$ here is our IV estimate: $\hat{\beta}_1^{IV}$. That is our coefficient of inerest!
+And the estimate of $\beta_1$ here is our IV estimate: $\hat{\beta}_1^{IV}$. That is our coefficient of interest!
 
 ### $\beta_1$ is unbiased!
 
-We estimated $\beta_1$ using *only variation in $D$ associated with $Z$, and $Z$ is (assumed to be) uncorrelated with $u$, solving our initial problem.
+We estimated $\beta_1$ using *only* variation in $D$ associated with $Z$, and $Z$ is (assumed to be) uncorrelated with $u$, solving our initial problem.
 
 
 
@@ -387,7 +432,8 @@ class: MSU
 # Estimating IV with 2SLS
 
 ### A couple notes:
-- The instruments do not appear in the second stage ( $\hat{y}_2$ and $\hat{y}_3$ are perfectly colinear with $Z$).
+- The instruments never appear in the second stage 
+  - Because $\hat{y}_2$ and $\hat{y}_3$ are perfectly colinear with $Z$
 - The exogenous statistical controls, $x_1,x_2$ appear in both stages. 
   - In fact, if they are used in the first, then left out of the second, the result can be biased.
   
@@ -405,10 +451,15 @@ We say we are *overidentified* when this is the case. We can test this (Hausman 
 Overidentification is not necessarily a bad thing, despite the name.
 
 ---
-class: MSU
-# IV Requirements
+class: heading-slide
 
-### First, $Z$ must have a causal effect on $D$
+Testing IV assumptions
+
+---
+class: MSU
+# Testing IV Assumptions
+
+#### First, $Z$ must have a causal effect on $D$
 The instrument, $Z$, has to have a casual effect on the variable of interest, $D$.
 - In our example, this means $Z$ has to *change enrollment* (in expectation)
 - This is the *relevant first stage* requirement or condition
@@ -421,9 +472,9 @@ The instrument, $Z$, has to have a casual effect on the variable of interest, $D
 
 ---
 class: MSU
-# IV Requirements
+# Testing IV Assumptions
 
-### Relevant First Stage test
+#### Relevant First Stage test
 - In a single variable regression (one instrument), then we can just test if $\gamma_1=0$.
 - If we have two instruments or more, then we use the $F$ test for:
   - $D = \gamma_0 + \gamma_1 Z_1 + \gamma_2 Z_2 + w$.
@@ -432,7 +483,7 @@ class: MSU
 
 ---
 class: MSU
-# IV Requirements
+# Testing IV Assumptions
 
 
 #### Second, $Z$ must be as good as randomly assigned
@@ -462,7 +513,7 @@ If we have multiple instruments, we can sort of test this, though...
 class: MSU
 # IV Requirements
 
-#### But, if we have many instruments available (more than we have endogenous variables), we can choose which one is best
+#### If we have many instruments available (more than we have endogenous variables), we can choose which one is best
 We do this by comparing the $\beta^{IV}$ estimated with one instrument, then the other. They *should* give the same result if they both meet the requirements, right? If they're different (statistically speaking), then we have a problem. One (or both) doesn't meet the *exclusion restriction*.
 
 Don't assume failing-to-reject this test means the instruments meet the *exclusion restriction*.
@@ -501,7 +552,7 @@ class: MSU
 
 The whole point of this was to do inference on an *unbiased* estimate of $\hat{\beta}$, which is $\hat{\beta}^{IV}$.
 
-But we used two stages, so what is the $se(\hat{\beta^{IV})$? We can't use just the 2nd stage, right?
+But we used two stages, so what is the $se(\hat{\beta^{IV}})$ ? We can't use just the 2nd stage, right?
 - (No, we can't)
 
 ### First, we assume:
@@ -553,7 +604,7 @@ class: MSU
   
 Note that this has more than one instrument (Z1, Z2)
 
-Note that X1 *instruments for itself*. R will instrument everything to the left of the |
+Note that X1 *instruments for itself*. R will instrument everything to the left of the "|" with everything to the right of the "|"
 
 
 ---
@@ -567,3 +618,19 @@ I've added *year* as an exogenous variable. Time is always exogenous. All instru
 
 ### We can still use our robust standard errors
 .pseudocode[coeftest(IVmodel, vcov = vcovHC(IVmodel, 'HC1')]
+
+
+
+```{r outputChromePrint, include=F, eval=F}
+
+require(pagedown)
+currentfile = gsub(pattern='\\.Rmd', '', basename(rstudioapi::getSourceEditorContext()$path))
+inputpath = paste0('https://ajkirkpatrick.github.io/EC420MSU/',currentfile, '/', paste0(currentfile, '.html'))
+browseURL(inputpath)
+pagedown::chrome_print(input = inputpath,
+                   output = file.path( paste0(currentfile, '.pdf')),
+                   #wait = 3,
+                   timeout = 300,
+                   format = 'pdf')
+
+```
