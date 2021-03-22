@@ -51,7 +51,7 @@ layout: true
 
 
 ---
-class: MSUMSU
+class: MSU
 name: Overview
 
 # Last time
