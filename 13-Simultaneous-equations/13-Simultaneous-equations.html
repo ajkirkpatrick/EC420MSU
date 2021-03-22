@@ -378,19 +378,19 @@ class: MSU
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -9.2775 -1.5422  0.0323  1.5469  7.5325 
+## -7.5952 -1.4754  0.0175  1.5563  7.2024 
 ## 
 ## Coefficients:
 ##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)  0.12854    0.21016   0.612    0.541    
-## z1           2.14986    0.06087  35.321   &lt;2e-16 ***
-## z2           0.11406    0.04589   2.486    0.013 *  
+## (Intercept) -0.02559    0.20373  -0.126 0.900037    
+## z1           2.13774    0.06176  34.616  &lt; 2e-16 ***
+## z2           0.14994    0.04434   3.382 0.000734 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 2.243 on 1997 degrees of freedom
-## Multiple R-squared:  0.3848,	Adjusted R-squared:  0.3841 
-## F-statistic: 624.4 on 2 and 1997 DF,  p-value: &lt; 2.2e-16
+## Residual standard error: 2.224 on 1997 degrees of freedom
+## Multiple R-squared:  0.3777,	Adjusted R-squared:  0.3771 
+## F-statistic:   606 on 2 and 1997 DF,  p-value: &lt; 2.2e-16
 ```
 ---
 class: MSU 
@@ -405,20 +405,20 @@ class: MSU
 ## lm(formula = y1 ~ y2hat + z1, data = df1)
 ## 
 ## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -2.95773 -0.68250 -0.00565  0.65057  3.12552 
+##     Min      1Q  Median      3Q     Max 
+## -3.1401 -0.6468 -0.0100  0.6112  4.2041 
 ## 
 ## Coefficients:
 ##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)  -0.2038     0.1075  -1.895   0.0582 .  
-## y2hat         1.6639     0.1711   9.723   &lt;2e-16 ***
-## z1           -3.9568     0.3678 -10.757   &lt;2e-16 ***
+## (Intercept) -0.02378    0.08582  -0.277    0.782    
+## y2hat        1.26227    0.12812   9.852   &lt;2e-16 ***
+## z1          -3.03395    0.27544 -11.015   &lt;2e-16 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 0.954 on 1997 degrees of freedom
-## Multiple R-squared:  0.1384,	Adjusted R-squared:  0.1376 
-## F-statistic: 160.4 on 2 and 1997 DF,  p-value: &lt; 2.2e-16
+## Residual standard error: 0.9636 on 1997 degrees of freedom
+## Multiple R-squared:  0.1121,	Adjusted R-squared:  0.1112 
+## F-statistic:   126 on 2 and 1997 DF,  p-value: &lt; 2.2e-16
 ```
 
 
@@ -427,7 +427,7 @@ class: MSU
 # Simultaneity
 
 ### The second-stage coefficient
-We get a pretty accurate estimate for `\(\alpha_1=1.66\)` from the second-stage having used `\(z_2\)` to instrument for `\(y_2\)`.
+We get a pretty accurate estimate for `\(\alpha_1=1.26\)` from the second-stage having used `\(z_2\)` to instrument for `\(y_2\)`.
 
 ---
 class: MSU
