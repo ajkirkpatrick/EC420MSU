@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Simultaneous Equations</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Justin Kirkpatrick" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="EC420_S21.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Simultaneous Equations
+## EC420 MSU
+### Justin Kirkpatrick
+### Last updated March 22, 2021
+
+---
+
+
+
+layout: true
+
+&lt;div class="msu-header"&gt;&lt;/div&gt; 
+
+
+---
+class: MSUMSU
+name: Overview
+
+# Last time
+
+Endogeneity in regression
+- `\(u\)` correlated with an explanatory variable, `\(x_1\)`
+
+Instrumental Variables
+- A good instrument has:
+  - Variation in `\(x_1\)` not correlated with `\(u\)`
+  - *Relevant first stage*, *independence assumption*, and *exclusion restriction*
+- Allowed us to *identify* the coefficient of interest `\(\beta_1 x_1\)`
+  
+Estimated with 2SLS
+- There are other methods (GMM)
+  - But we won't cover them here
+  
+---
+class: MSU
+# Today
+
+- More endogeneity!
+
+- *Simultaneous* equations
+
+- Structural equations
+  - Reduced form equations
+
+- When can we identify?
+
+- How do we estimate
+  - 2SLS
+  
+- In panel data
+  - First difference
+  - Fixed effects
+  
+  
+---
+class: MSU
+# Recall
+
+#### We think of the variables in our data as being either "endogenous" or "exogenous"
+This tells us whether or not we should be worried about correlation with `\(u\)`.
+
+### Exogenous
+*Exogenous* means "determined outside the system".
+- Things like *rainfall* in ag production and *winning the KIPP lottery* are *exogenous*
+  - There is usually nothing *inside* the system that helps determine them.
+--
+
+  - Although...we could think of times that even rainfall is endogenous.
+  - Any ideas about how *rainfall* could be endogenous?
+  - What about a model that includes the selection of land for farming?
+  - How could we fix this?
+
+---
+class: MSU
+# Recall
+
+### Endogenous
+*Endogenous* means "determined within the system"
+- Things like "education" in a wage equation and "moving my child to an (open-enrollment) charter school" are *endogenous*
+
+We have had a few cases like this.
+- First, when `\(x_1\)` and `\(x_2\)` are correlated
+  - Not a problem when `\(x_1\)` and `\(x_2\)` are observable - we just include both in the regression or we "partial out".
+- Next, when the variable of interest, `\(x_1\)` is correlated with an unobservable in `\(u\)`
+  - For this we, need an instrument
+
+---
+class: MSU
+# Recall
+
+### Endogeneous continuted...
+For instance:
+- When `\((Y_{0i},Y_{1i})\)` are different for some people, and *those* people choose the treatment based on that difference
+  - Zuckerberg's `\(Y_{0i}\)` (wages) for dropping out of Harvard was extraordinarily high. His choice was *endogenous*.
+  - If we included him and people like him in a regression of `\(wages = \beta_0 + \beta_1 1(drop-out-of-college) + u\)`, we'd most certainly get the result that everyone should drop out of college!
+--
+
+- Any idea of how to solve the endogeneity problem in the Zuckerberg example?
+
+
+---
+class: MSU
+# Simultaneity
+
+In the "Zuckerberg-dropped-out-of-college" example, we have an omitted variable in the error (the *special, unique circumstance of having just invented facebook*) which is related to an explanatory variable, `\(1(drop-out-of-college)\)`
+- The endogeneity is between an omitted variable and the variable of interest.
+  - These are both on the right hand side
+  - These are both explanatory variables
+
+---
+class: MSU
+# Simultaneity 
+
+## Simultaneity 
+Simultaneity occurs when the *dependent variable*, the `\(y\)`, the left-hand-side, is determined jointly with one or more right-hand-side variables.
+- Of course, it's always the case that the dependent variable `\(y\)` is *determined* by one or more right hand side explanatory variables.
+- `\(y = \beta_0 + \beta_1 x_1 + u\)` shows this.
+- But *simultaneity* is unique in that `\(x_1\)` itself is *jointly determined* with `\(y\)`.
+
+
+---
+class: MSU
+# Simultaneity
+
+### An example of a county-level labor supply function
+`$$h_s = \alpha_1 w + \beta_1 z_1 + u_1$$`
+.pull-left[
+- `\(h_s\)` is the hours supplied each week by workers in the county
+
+- `\(w\)` is the wage
+]
+
+.pull-right[
+- `\(z_1\)` is anything that affects hours supplied
+
+- `\(u_1\)` is the error term for hours supplied
+]
+
+#### This equation stands on its own
+- It has a causal interpretation (if `\(\alpha_1\)` can be estimated without bias)
+- It is derived from economic theory (higher wages cause people to substitute out of leisure and into labor)
+
+`\(\Rightarrow\)` **So we call this a structural equation**
+
+---
+class: MSU
+# Simultaneity
+
+`$$h_s = \alpha_1 w + \beta_1 z_1 + u_1$$`
+
+### It suffers from simultaneity because:
+- A county's `\(w\)` will be determined, in part, by `\(h_s\)`, the supply.
+- Wage is determined jointly by the interaction of `\(h_s\)`, `\(w\)`, and `\(h_d\)`, the hours demanded.
+- Thus, **simultaneity**.
+
+---
+class: MSU
+# Simultaneity
+
+### The "link" between `\(h_s\)` and `\(h_d\)` is the equilibrium
+- `\(h_s=h_d=h\)`. Since this happens in every county, we use `\(h_i\)`.
+- We only observe this equilibrium, but we might want to know about the values of `\(\alpha_1\)` and `\(\alpha_2\)`
+
+### So we can take our two equations:
+`$$h_s = \alpha_1 w + \beta_1 z_1 + u_1$$`
+`$$h_d = \alpha_2 w + \beta_2 z_2 + u_2$$`
+
+
+### And impose the equilibrium condition: for every `\(i\)`, `\(h_s = h_d = h_i\)`
+`$$h_i = \alpha_1 w_i + \beta_1 z_{1i} + u_{1i}$$`
+
+`$$h_i = \alpha_2 w_i + \beta_2 z_{2i} + u_{2i}$$`
+
+
+---
+class: MSU
+# Simultaneity
+
+### In this simultaneous system of equations:
+`$$h_i = \alpha_1 w_i + \beta_1 z_{1i} + u_{1i}$$`
+
+`$$h_i = \alpha_2 w_i + \beta_2 z_{2i} + u_{2i}$$`
+
+`\(h_i\)` and `\(w_i\)` are the endogenous variables. Why?
+
+### Because, given `\(z_{1i},z_{2i},u_{1i},u_{2i}\)`, then `\(h_i\)` and `\(w_i\)` are completely determined
+- with a few assumptions about `\(\alpha_1\)` and `\(\alpha_2\)`
+
+### The dependent variable and one or more explanatory variables are jointly determined within the system.
+
+---
+class: MSU
+# Simultaneity
+
+### This happens often in economics
+We have many parties interacting with each other, and equilibriums are the outcomes of those interactions.
+
+Think of *marginal analysis* - how we think of a seller setting a price in a market. It's a lot of expectations about interactions.
+
+
+---
+class: MSU
+# Simultaneity
+
+### Back to the simultaneous system of equations:
+`$$h_i = \alpha_1 w_i + \beta_1 z_{1i} + u_{1i}$$`
+
+`$$h_i = \alpha_2 w_i + \beta_2 z_{2i} + u_{2i}$$`
+
+### Note that the `\(z_{1i}\)` and `\(z_{2i}\)` are different variables, while `\(w_i\)` is the same in both equations.
+- `\(u_{1i}\)` and `\(u_{2i}\)` are different as well. And uncorrelated with each other.
+- We refer to the `\(u_{1i}\)` and `\(u_{21}\)` as the *structural errors*.
+
+---
+class: MSU
+# Simultaneity
+
+### Example W 16.1
+`$$murdpc = \alpha_1 polpc + \beta_{10} + \beta_{11} incpc + u_1$$`
+`$$polpc = \alpha_2 murdpc + \beta_{20} + other$$`
+
+.pull-left[
+- `\(murdpc\)` is murders per capita
+- `\(incpc\)` is income per capita, which shifts murder rates
+- `\(\beta_{10}\)` is the intercept for equation 1
+]
+
+.pull-right[
+- `\(polpc\)` is police per capita
+- `\(\beta_{20}\)` is the intercept for equation 2
+]
+
+### Is this simultaneous?
+- Yes. Just as hours supplied, hours demanded, and wage are jointly determined, `\(murdpc\)` and `\(polpc\)` are jointly determined.
+- The city chooses `\(polpc\)` based, in part, on `\(murdpc\)`, while murderers choose `\(murdpc\)` based, in part, on `\(polpc\)`.
+- Even though we're interested in `\(\alpha_1\)`, we need to understand the second equation to avoid bias.
+
+---
+class: MSU
+name: simeq
+# Simultaneity
+
+### Simultaneity bias
+We can formally show the bias in simultaneous equations. Remember, bias occurs when an explanatory variable is correlated with `\(u\)` (and thus `\(E[u|x]\neq 0\)`)
+
+`$$y_1 = \alpha_1 y_2 + \beta_1 z_1 + u_1$$`
+
+`$$y_2 = \alpha_2 y_1 + \beta_2 z_2 + u_2$$`
+`\(y_1,y_2\)` could be `\(murdpc\)` and `\(polpc\)`.
+
+### But estimating this first equation by OLS would result in a biased `\(\alpha_1\)`. So we can't do it. 
+- Specifically, we are in trouble on the first if `\(y_2\)` is correlated with `\(u_1\)`; 
+- And if `\(y_1\)` is correlated with `\(u_2\)` for the second.
+- Let's see why this is true...
+
+---
+class: MSU
+# Simultaneity
+
+### To see bias, substitute the first equation into the second
+`$$y_2 = \alpha_2 \underbrace{\color{red}{(\alpha_1 y_2 + \beta_1 z_1 + u_1)}}_{y_1} + \beta_2 z_2 + u_2$$`
+`$$(1-\alpha_2 \alpha_1)y_2 = \alpha_2\beta_1 z_1 + \beta_2 z_2 + \underbrace{\alpha_2 u_1 + u_2}_{uh-oh}$$`
+
+---
+class: MSU
+# Simultaneity
+
+Divide both sides by `\((1-\alpha_2 \alpha_1)\)`:
+`$$y_2 = \frac{\alpha_2 \beta_1}{(1-\alpha_2 \alpha_1)} z_1 + \frac{\beta_2}{(1-\alpha_2 \alpha_1)}z_2 +  \underbrace{ \frac{\alpha_2}{(1-\alpha_2 \alpha_1)} u_1 +\frac{1}{(1-\alpha_2 \alpha_1)}u_2}_{v_2}$$`
+
+`$$y_2 = \pi_{21} z_1 + \pi_{22} z_2 + v_2$$`
+### This is called the *reduced form* equation.
+- We *can* estimate `\(\pi_{21}\)` and `\(\pi_{22}\)`, but the coefficients lose their structural interpretation. 
+- Our estimation of `\(\pi_{21}\)` and `\(\pi_{22}\)` is unbiased - `\(z\)`'s are exogenous, and `\(u_1\)` itself is uncorrelated wtih `\(y_2\)`.
+
+
+---
+class: MSU
+# Simultaneity
+
+### Back to checking to see if we have bias in:
+`$$y_1 = \alpha_1 y_2 + \beta_1 z_1 + u_1$$`
+Remember, we are in trouble if `\(y_2\)` is correlated with `\(u_1\)`, right?
+
+Well, we know:
+`$$y_2 = \pi_{21} z_1 + \pi_{22} z_2 + v_2$$`
+
+and `\(v_2\)`, the reduced form error:
+
+`$$v_2 = \frac{\alpha_2}{(1-\alpha_2 \alpha_1)} u_1 +\frac{1}{(1-\alpha_2 \alpha_1)}u_2$$`
+
+Since `\(v_2\)` has `\(u_1\)` in it, and since `\(y_2\)` has `\(v_2\)` in it, then `\(y_2\)` **is correlated with** `\(u_1\)`, and OLS of `\(y_1 = \alpha_1 y_2 + \beta_1 z_1 + u_1\)` is biased.
+
+### This is simultanaeity bias
+
+---
+class: MSU
+# Simultaneity
+
+### When can we identify `\(\alpha_1\)` and `\(\alpha_2\)`?
+- Our problem here is endogeneity, so we need an instrument. 
+- Something that shifts `\(y_2\)` but is not correlated with `\(u_1\)` (exclusion restriction)
+- Do we have something in `\(y_2\)`?
+
+`$$y_2 = \alpha_2 y_1 + \beta_2 z_2 + u_2$$`
+Yes. We have `\(z_2\)`, which is exogenous by definition.
+
+It can shift `\(y_2\)`, and is not correlated with `\(u_1\)`. It does not shift `\(y_1\)` except through `\(y_2\)` because it is not in the equation for `\(y_1\)`.
+
+---
+class: MSU
+# Simultaneity
+
+### Similarly, we can use `\(z_1\)` to shift `\(y_1\)`.
+And both equations can be identified because we have *one exogenous shifter for each endogenous variable in each equation*.
+
+### The Rank Condition
+In a two-equation system, we can only identify an equation with an endogenous variable if the *other* equation has one or more exogenous variable that does not enter the first equation.
+- The instrument must have a non-zero population coefficient
+
+---
+class: MSU
+# Simultaneity
+
+### Our two equation system, again (with the problems in .red[red] and .blue[blue]:
+`$$y_1 = \alpha_1 \color{red}{y_2} + \beta_1 z_1 + \color{red}{u_1}$$`
+
+`$$y_2 = \alpha_2 \color{blue}{y_1} + \beta_2 z_2 + \color{blue}{u_2}$$`
+---
+class: MSU
+# Simultaneity
+
+### A visual example:
+&lt;img src="figs/Sim1-1.png" width="85%" style="display: block; margin: auto;" /&gt;
+
+---
+class: MSU
+# Simultaneity
+
+### Since the problem is that `\(y_2\)` is correlated with `\(u_1\)`, what if we observed `\(u_1\)`?
+&lt;img src="figs/Sim2-1.png" width="85%" style="display: block; margin: auto;" /&gt;
+Of course, we can't control for `\(u_1\)` since it is unobserved.
+
+---
+class: MSU
+# Simultaneity
+
+&lt;img src="figs/Sim3-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+The colored groupings are `\(\hat{y}_2\)`. Each grouping is a different `\(z_1\)`. As `\(z_2\)` increases, `\(y_2\)` increases within each grouping. As `\(y_2\)` increases, in each grouping, `\(y_1\)` *increases*.
+
+---
+class: MSU
+# Simultaneity
+
+### First stage
+`$$y_2 = \pi_{21} z_1 + \pi_{22} + v_2$$`
+
+```
+## 
+## Call:
+## lm(formula = y2 ~ z1 + z2, data = df1)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -9.2775 -1.5422  0.0323  1.5469  7.5325 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  0.12854    0.21016   0.612    0.541    
+## z1           2.14986    0.06087  35.321   &lt;2e-16 ***
+## z2           0.11406    0.04589   2.486    0.013 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 2.243 on 1997 degrees of freedom
+## Multiple R-squared:  0.3848,	Adjusted R-squared:  0.3841 
+## F-statistic: 624.4 on 2 and 1997 DF,  p-value: &lt; 2.2e-16
+```
+---
+class: MSU 
+# Simultaneity
+
+### Second stage
+`$$y_1 = \alpha_2 \hat{y}_2 + \beta_1 z_1 + u$$`
+
+```
+## 
+## Call:
+## lm(formula = y1 ~ y2hat + z1, data = df1)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -2.95773 -0.68250 -0.00565  0.65057  3.12552 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  -0.2038     0.1075  -1.895   0.0582 .  
+## y2hat         1.6639     0.1711   9.723   &lt;2e-16 ***
+## z1           -3.9568     0.3678 -10.757   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.954 on 1997 degrees of freedom
+## Multiple R-squared:  0.1384,	Adjusted R-squared:  0.1376 
+## F-statistic: 160.4 on 2 and 1997 DF,  p-value: &lt; 2.2e-16
+```
+
+
+---
+class: MSU
+# Simultaneity
+
+### The second-stage coefficient
+We get a pretty accurate estimate for `\(\alpha_1=1.66\)` from the second-stage having used `\(z_2\)` to instrument for `\(y_2\)`.
+
+---
+class: MSU
+# Simultanaeity in panels
+
+### In a panel data setting we'd have a *fixed effect* for each `\(i\)`:
+`$$y_{it1} = \alpha_1 y_{it2} + \mathbf{z_{it1} \beta_1} + a_{i1} + u_{it1}$$`
+`$$y_{it2} = \alpha_2 y_{it1} + \mathbf{z_{it2} \beta_2} + a_{i2} + u_{it2}$$`
+
+`\(a_{i1}\)` is unobserved and potentially correlated with `\(z_{it1}\)`. This presents interesting problems unique to panels.
+
+---
+class: MSU
+# Simultaneity in panels
+
+
+### First Differencing
+One way of handling an unobserved fixed effect in panel data (different from what we've learned on fixed effects) is *first differencing*.
+
+`$$y_{it1}-y_{i(t-1)1} = \alpha_1 (y_{it2}-y_{i(t-1)2}) + \beta_1 (z_{it1}-z_{i(t-1)1}) + a_{i1} - a_{i1} + u_{it1}-u_{i(t-1)1}$$`
+
+Which can be written using the `\(\Delta\)` notation:
+
+`$$\Delta y_{it1} = \alpha_1 \Delta y_{it2} + \beta_1 \Delta z_{it1} + \Delta u_{it1}$$`
+This removes the `\(a_{i1}\)`, and makes it clear that we need an instrument whose *change* is
+- Exogenous
+- Affects only `\(\Delta y_{it2}\)` without affecting `\(\Delta y_{it1}\)` (uncorrelated with `\(\Delta u_{it1}\)`).
+- And *it has to vary within each* `\(i\)`
+
+---
+class: MSU
+# Simultaneity in panels
+
+### Using fixed effects
+A similar result happens if we include the fixed effect. The fixed effect instruments for itself, and is included as an exogenous variable.
+
+#### First stage
+`$$y_{it2} = \pi_{21} z_1 + \pi_{22} z_2 + \gamma^{1}_i + v_2$$`
+#### Second stage
+`$$y_{it1} = \alpha_1 \hat{y}_{it2} + \beta_1 z_1 + \gamma^{2}_i + u_1$$`
+
+`\(\gamma^1_i\)` is the fixed effect for each `\(i\)` in the first stage. 
+
+`\(\gamma^2_i\)` is the fixed effect for each `\(i\)` in the second stage (not a squared term).
+
+---
+class: MSU
+# Next week
+
+### Difference in Differences
+**Read MM Ch. 5**
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
