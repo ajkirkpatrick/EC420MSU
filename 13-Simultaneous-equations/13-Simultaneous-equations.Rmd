@@ -52,8 +52,6 @@ layout: true
 
 ---
 class: MSU
-name: Overview
-
 # Last time
 
 Endogeneity in regression
@@ -369,7 +367,7 @@ class: MSU
 # Simultaneity
 
 ### A visual example:
-```{r Sim1, echo=F, include=T, out.width='85%'}
+```{r Sim1, echo=F, include=T, out.width='55%'}
 NN = 2000
 a1 = 1.25
 b1 = -3
@@ -403,7 +401,7 @@ class: MSU
 # Simultaneity
 
 ### Since the problem is that $y_2$ is correlated with $u_1$, what if we observed $u_1$?
-```{r Sim2, echo=F, include=T, out.width='85%'}
+```{r Sim2, echo=F, include=T, out.width='55%'}
 ggplot(data = df1, 
        aes(x = y2, y = y1, col=as.factor(u1cut))) + 
   geom_point() +
@@ -417,7 +415,7 @@ Of course, we can't control for $u_1$ since it is unobserved.
 class: MSU
 # Simultaneity
 
-```{r Sim3, echo=F, include=T, out.with='85%'}
+```{r Sim3, echo=F, include=T, out.width='55%'}
 df1 = df1 %>%
   dplyr::mutate(y2hat = predict(lm(y2 ~ z1 + z2, df1)))
 

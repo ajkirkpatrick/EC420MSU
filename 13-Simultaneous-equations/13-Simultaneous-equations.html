@@ -16,7 +16,7 @@ class: center, middle, inverse, title-slide
 # Simultaneous Equations
 ## EC420 MSU
 ### Justin Kirkpatrick
-### Last updated March 22, 2021
+### Last updated March 25, 2021
 
 ---
 
@@ -29,8 +29,6 @@ layout: true
 
 ---
 class: MSU
-name: Overview
-
 # Last time
 
 Endogeneity in regression
@@ -346,21 +344,21 @@ class: MSU
 # Simultaneity
 
 ### A visual example:
-&lt;img src="figs/Sim1-1.png" width="85%" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/Sim1-1.png" width="55%" style="display: block; margin: auto;" /&gt;
 
 ---
 class: MSU
 # Simultaneity
 
 ### Since the problem is that `\(y_2\)` is correlated with `\(u_1\)`, what if we observed `\(u_1\)`?
-&lt;img src="figs/Sim2-1.png" width="85%" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/Sim2-1.png" width="55%" style="display: block; margin: auto;" /&gt;
 Of course, we can't control for `\(u_1\)` since it is unobserved.
 
 ---
 class: MSU
 # Simultaneity
 
-&lt;img src="figs/Sim3-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/Sim3-1.png" width="55%" style="display: block; margin: auto;" /&gt;
 
 The colored groupings are `\(\hat{y}_2\)`. Each grouping is a different `\(z_1\)`. As `\(z_2\)` increases, `\(y_2\)` increases within each grouping. As `\(y_2\)` increases, in each grouping, `\(y_1\)` *increases*.
 
@@ -378,19 +376,19 @@ class: MSU
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -7.8869 -1.5820  0.0235  1.5845  8.5452 
+## -6.7377 -1.5241 -0.0136  1.5310  8.0259 
 ## 
 ## Coefficients:
 ##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept) -0.08727    0.20801  -0.420 0.674859    
-## z1           2.15715    0.06360  33.916  &lt; 2e-16 ***
-## z2           0.16437    0.04625   3.554 0.000389 ***
+## (Intercept) -0.26205    0.20090  -1.304    0.192    
+## z1           2.16010    0.06048  35.713  &lt; 2e-16 ***
+## z2           0.20527    0.04445   4.618 4.13e-06 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 2.319 on 1997 degrees of freedom
-## Multiple R-squared:  0.3693,	Adjusted R-squared:  0.3687 
-## F-statistic: 584.6 on 2 and 1997 DF,  p-value: &lt; 2.2e-16
+## Residual standard error: 2.216 on 1997 degrees of freedom
+## Multiple R-squared:  0.3953,	Adjusted R-squared:  0.3947 
+## F-statistic: 652.7 on 2 and 1997 DF,  p-value: &lt; 2.2e-16
 ```
 ---
 class: MSU 
@@ -406,19 +404,19 @@ class: MSU
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -3.3280 -0.6055 -0.0091  0.6308  2.9532 
+## -3.4914 -0.6170  0.0190  0.6562  2.9828 
 ## 
 ## Coefficients:
 ##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)  0.11536    0.07768   1.485    0.138    
-## y2hat        0.93625    0.11498   8.143 6.71e-16 ***
-## z1          -2.34004    0.24998  -9.361  &lt; 2e-16 ***
+## (Intercept)  0.29291    0.06998   4.185 2.97e-05 ***
+## y2hat        0.87007    0.09334   9.321  &lt; 2e-16 ***
+## z1          -2.25433    0.20393 -11.055  &lt; 2e-16 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 0.9475 on 1997 degrees of freedom
-## Multiple R-squared:  0.09668,	Adjusted R-squared:  0.09577 
-## F-statistic: 106.9 on 2 and 1997 DF,  p-value: &lt; 2.2e-16
+## Residual standard error: 0.9553 on 1997 degrees of freedom
+## Multiple R-squared:  0.1258,	Adjusted R-squared:  0.1249 
+## F-statistic: 143.7 on 2 and 1997 DF,  p-value: &lt; 2.2e-16
 ```
 
 
@@ -427,7 +425,7 @@ class: MSU
 # Simultaneity
 
 ### The second-stage coefficient
-We get a pretty accurate estimate for `\(\alpha_1=0.94\)` from the second-stage having used `\(z_2\)` to instrument for `\(y_2\)`.
+We get a pretty accurate estimate for `\(\alpha_1=0.87\)` from the second-stage having used `\(z_2\)` to instrument for `\(y_2\)`.
 
 ---
 class: MSU
