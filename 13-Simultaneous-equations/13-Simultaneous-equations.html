@@ -376,19 +376,19 @@ class: MSU
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -6.7377 -1.5241 -0.0136  1.5310  8.0259 
+## -9.8291 -1.4911  0.0079  1.5085  7.5564 
 ## 
 ## Coefficients:
 ##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept) -0.26205    0.20090  -1.304    0.192    
-## z1           2.16010    0.06048  35.713  &lt; 2e-16 ***
-## z2           0.20527    0.04445   4.618 4.13e-06 ***
+## (Intercept) -0.17930    0.20704  -0.866    0.387    
+## z1           2.10277    0.06245  33.670  &lt; 2e-16 ***
+## z2           0.20861    0.04518   4.617 4.14e-06 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 2.216 on 1997 degrees of freedom
-## Multiple R-squared:  0.3953,	Adjusted R-squared:  0.3947 
-## F-statistic: 652.7 on 2 and 1997 DF,  p-value: &lt; 2.2e-16
+## Residual standard error: 2.267 on 1997 degrees of freedom
+## Multiple R-squared:  0.3665,	Adjusted R-squared:  0.3659 
+## F-statistic: 577.7 on 2 and 1997 DF,  p-value: &lt; 2.2e-16
 ```
 ---
 class: MSU 
@@ -404,19 +404,19 @@ class: MSU
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -3.4914 -0.6170  0.0190  0.6562  2.9828 
+## -2.9468 -0.6448  0.0285  0.6481  3.2265 
 ## 
 ## Coefficients:
 ##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)  0.29291    0.06998   4.185 2.97e-05 ***
-## y2hat        0.87007    0.09334   9.321  &lt; 2e-16 ***
-## z1          -2.25433    0.20393 -11.055  &lt; 2e-16 ***
+## (Intercept)  0.20925    0.07523   2.781  0.00546 ** 
+## y2hat        0.82111    0.09089   9.034  &lt; 2e-16 ***
+## z1          -2.07384    0.19293 -10.749  &lt; 2e-16 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 0.9553 on 1997 degrees of freedom
-## Multiple R-squared:  0.1258,	Adjusted R-squared:  0.1249 
-## F-statistic: 143.7 on 2 and 1997 DF,  p-value: &lt; 2.2e-16
+## Residual standard error: 0.9513 on 1997 degrees of freedom
+## Multiple R-squared:  0.114,	Adjusted R-squared:  0.1131 
+## F-statistic: 128.5 on 2 and 1997 DF,  p-value: &lt; 2.2e-16
 ```
 
 
@@ -425,7 +425,7 @@ class: MSU
 # Simultaneity
 
 ### The second-stage coefficient
-We get a pretty accurate estimate for `\(\alpha_1=0.87\)` from the second-stage having used `\(z_2\)` to instrument for `\(y_2\)`.
+We get a pretty accurate estimate for `\(\alpha_1=0.82\)` from the second-stage having used `\(z_2\)` to instrument for `\(y_2\)`.
 
 ---
 class: MSU
@@ -472,7 +472,7 @@ A similar result happens if we include the fixed effect. The fixed effect instru
 `\(\gamma^2_i\)` is the fixed effect for each `\(i\)` in the second stage (not a squared term).
 
 ---
-class: MSU
+class: MSU 
 # Next week
 
 ### Difference in Differences

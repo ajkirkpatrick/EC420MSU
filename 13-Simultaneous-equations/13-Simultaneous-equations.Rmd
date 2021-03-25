@@ -501,7 +501,7 @@ $\gamma^1_i$ is the fixed effect for each $i$ in the first stage.
 $\gamma^2_i$ is the fixed effect for each $i$ in the second stage (not a squared term).
 
 ---
-class: MSU
+class: MSU 
 # Next week
 
 ### Difference in Differences
