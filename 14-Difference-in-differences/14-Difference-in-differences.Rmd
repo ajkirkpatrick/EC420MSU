@@ -588,7 +588,7 @@ knitr::include_graphics('MMfig56.png')
 
 ---
 class: MSU
-# Upcoming
+# Upcoming 
 
 For more examples, see Video 5.1 at
 - https://mattmasten.github.io/bootcamp/
@@ -613,7 +613,7 @@ browseURL(inputpath)
 pagedown::chrome_print(input = inputpath,
                    output = file.path( paste0(currentfile, '.pdf')),
                    #wait = 3,
-                   timeout = 300,
+                   timeout = 300, 
                    format = 'pdf')
 
 ```
