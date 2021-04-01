@@ -595,8 +595,8 @@ General panel methods
 
 Synthetic Controls
 - Reading is a pair of papers that I will post that will be annotated
-- We can ignore some of the technical details
-
+- We can ignore some of the technical details.
+ 
 
 
 
