@@ -418,7 +418,7 @@ browseURL(inputpath)
 pagedown::chrome_print(input = inputpath,
                    output = file.path( paste0(currentfile, '.pdf')),
                    #wait = 3,
-                   timeout = 300,
+                   timeout = 600,
                    format = 'pdf')
 
 ```
