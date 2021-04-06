@@ -21,7 +21,7 @@ options(htmltools.dir.version = FALSE)
 library(knitr)
 library(kableExtra)
 opts_chunk$set(
-  root.dir = '/15-Synthetic-controls-general-panel',
+  #root.dir = '/15-Synthetic-controls-general-panel',
   fig.align="center",fig.height=4, #fig.width=7,# out.width="748px", #out.length="520.75px",
   dpi=300, #fig.path='Figs/',
   cache=T,
@@ -40,6 +40,8 @@ require(wbstats)
 require(lubridate)
 require(scales)
 require(broom)
+require(png)
+require(grid)
 # require(here)
 
 options("getSymbols.warning4.0"=FALSE)
@@ -93,6 +95,11 @@ class: MSU
 ### We saw examples where that seemed like a pretty safe assumption:
 ```{r echo=F, include=T, out.width='70%'}
 knitr::include_graphics('MMfig54.png')
+# 
+
+
+# img <- readPNG("MMfig54.png")
+# grid.raster(img)
 ```
 
 
