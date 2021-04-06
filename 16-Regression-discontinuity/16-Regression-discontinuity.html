@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Regression Discontinuity</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Justin Kirkpatrick" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="EC420_S21.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Regression Discontinuity
+## EC420 MSU
+### Justin Kirkpatrick
+### Last updated April 06, 2021
+
+---
+
+
+
+layout: true
+
+&lt;div class="msu-header"&gt;&lt;/div&gt; 
+
+
+
+
+---
+class: MSU
+name: Overview
+
+# Last class(es)
+
+- Diff-in-diff
+
+  - Made an assumption (parallel trends)
+  
+  - That let us say we know `\(E[Y_0|D=1]\)`
+
+  - Had to use the Parallel Trends assumption
+  
+  - Could estimate as a regression (simple!)
+  
+- Synthetic
+
+  - Concept: pre-treatment match gives us post-treatment counterfactual
+  
+
+
+---
+class: MSU
+
+# Regression Discontinuity
+
+### Let's return to the endogeneity issue:
+`$$\color{blue}{y_{i} = \beta_0 + \beta_1 D_i + \beta_2 x_{i} + u_{i}}$$`
+
+And we have the usual endogeneity problem that: `\(D_i\)` may be correlated with `\(u_i\)`, even once we condition on exogenous `\(x_i\)`.
+
+--
+
+### Let's set up an example
+.pull-left[
+- `\(y_i\)` is semesters of college attended
+- `\(D_i\)` is "getting a scholarship"
+]
+
+.pull-right[
+
+- `\(x_i\)` is parental income
+- `\(u_i\)` is potentially endogenous error
+]
+
+We might think that *ability*
+  1. Affects semesters of college attended
+  2. Unobserved (and thus in `\(u_i\)`)
+  3. Correlated with getting a scholarship
+
+--
+
+`$$\Rightarrow (Y_{i0},Y_{i1}) \not\perp D_i | x_i$$`
+
+
+---
+class: MSU
+# Regression Discontinuity
+
+### Let's return to the endogeneity issue:
+`$$\color{blue}{y_{i} = \beta_0 + \beta_1 D_i + \beta_2 x_{i} + u_{i}}$$`
+
+### What if we had a scholarship that was awarded to all students with a 1200 SAT score or above?
+- `\(D_i = 1(SAT_i &gt; 1200)\)`
+
+### Does this solve our endogeneity problem?
+- Is `\(SAT_i\)`, the student's SAT score, exogenous?
+--
+
+- What do we learn about scholarships in general from understanding the effect of *this* particular scholarship? We'll return to this in a little bit.
+
+---
+class: MSU
+# Regression Discontinuity
+
+### Does this solve our endogeneity problem?
+- Is `\(SAT_i\)`, the student's SAT score, exogenous?
+
+### What if I compared a student with an 800 to a student with a 1600 (and with the exact same `\(x_i\)`)
+
+- Would you be concerned about that unobserved *ability* in `\(u_i\)`?
+
+--
+
+### What about comparing a 900 student to a 1500 student?
+
+--
+
+### What about comparing a 1000 student to a 1400 student?
+
+--
+
+### What about comparing a 1100 student to a 1300 student?
+
+---
+class: MSU
+# Regression Discontinuity
+
+### What about comparing a 1190 student to a 1210 student?
+
+--
+
+### What about comparing a 1199 student to a 1201 student?
+
+---
+class: MSU
+# Regression Discontinuity
+
+&lt;br&gt;&lt;br&gt;
+The intuition behind RD is as follows:
+### If we compare students within a *small enough window* around a threshold, then treatment `\(D_i\)` is **as good as randomly assigned**
+
+--
+
+And *as good as randomly assigned* lets us treat the treatment as **exogenous**
+
+The *unobserved* endogenous problem in `\(u_i\)` is no longer a problem.
+
+
+---
+class: MSU
+# Regression Discontinuity
+
+### What do we need for an RD?
+I. A **threshold**
+  - And it has to be exogenous
+  - Usually from a policy
+  - Arbitrary policies are...great!
+
+&lt;img src="RD_Federalism.jpg" width="60%" style="display: block; margin: auto;" /&gt;
+
+---
+class: MSU
+# Regression Discontinuity
+
+### What do we need for an RD?
+II. A **running variable**
+  - We need some variable that crosses the threshold
+    - It cannot be binary
+  - It has to be *observed*
+  - It has to determine the treatment of interest `\(^\dagger\)`
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+&gt; "Although treatment isn't randomly assigned, we know where it comes from"
+
+.pull-right[ 
+`\(-\)` Mastering Metrics, Ch. 4]
+
+.footnote[ 
+`\(^\dagger\)` A *fuzzy* RD relaxes this assumption]
+---
+class: MSU
+# Regression Discontinuity
+
+### The **running variable** in our example is SAT score
+- Crosses the threshold
+- Non-binary
+- Observed
+- Determines scholarship (treatment) discontinuously
+  - A "jump"
+
+---
+class: MSU
+# Regression Discontinuity
+
+### What do we need for an RD?
+III. A **window**
+  - We need somewhere to "draw the line"
+  - In our SAT example, some of us would have been OK with 1150 and 1250. 
+    - Some would want 1190 to 1210
+    - Some would say 1195 to 1205
+
+
+
+---
+class: MSU
+# Regression Discontinuity
+
+### A **threshold**
+- Set exogenously
+
+### A **running variable**
+- Determines treatment
+- Continuous
+- Observable
+
+### A **window**
+- How close is close enough
+
+### The identifying assumption:
+.large[Within a small enough **window**, the treatment (as determined by the **running variable** and the **threshold**) is as good as randomly assigned]
+
+---
+class: MSU
+# Regression Discontinuity
+
+### Specification of an RD
+- Let's call the running variable `\(x_r\)`
+- Let's call the threshold `\(\tau\)`
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+--
+
+### Our RD equation would be:
+`$$y_i = \beta_0 + \beta_1 D_i + \beta_2 x_{i,r} + \beta_3 x_{exogenous} + u_i$$`
+
+.pull-left[
+- `\(y_i\)` is outcome
+- `\(D_i=1(x_{i,r} &gt; \tau)\)`
+- `\(\tau\)` is the threshold
+]
+
+.pull-right[
+- `\(x_{i,r}\)` is the *running variable*
+- `\(x_{i, exogenous}\)` is an exogenous covariate (a control)
+- `\(u_i\)` is the error
+]
+
+
+---
+class: MSU
+# Regression Discontinuity
+
+### Our RD equation would be:
+`$$y_i = \beta_0 + \beta_1 D_i + \beta_2 x_{i,r} + \beta_3 x_{exogenous} + u_i$$`
+
+and
+
+`$$D_i = 1(x_{i,r} &gt; \tau)$$`
+
+&lt;br&gt;
+#### Note that we have a continuous running variable `\(x_{i,r}\)` with a linear coefficient
+- We can still control for the effect of the running variable
+- That's why we need the `\(\tau\)` threshold where treatment "jumps"
+
+#### And we can still control for other things
+- `\(x_{exogenous}\)`
+
+---
+class: MSU
+# Regression Discontinuity
+
+### Our RD equation would be:
+`$$y_i = \beta_0 + \beta_1 D_i + \beta_2 x_{i,r} + \beta_3 x_{exogenous} + u_i$$`
+
+#### But where is the window?
+- We *could* just use a sample within the window
+- Define the window as being (a,b)
+  - R: `myData[myData$xir &gt;=a &amp; myData$xir &lt;=b,]`
+--
+
+- Another option is to use *local linear regresion*, which can be implemented as a *weighted regression*
+
+---
+class: MSU
+# Weighted Regression
+
+### A quick aside to establish weighted regression:
+We know that OLS minimizes the sum of the squared error term `\(u_i\)`
+`$$\sum (y_i - \beta_0 - \beta_1 x_1)^2 = \sum (u_i)^2$$`
+
+### Weighted regression just puts weights on that sum:
+`$$\sum w_i(u_i)^2$$`
+and 
+
+`$$\sum w_i = 1$$`
+
+---
+class: MSU
+# Weighted Regression
+
+### Weights can set the estimation sample
+If we said that `\(w_i=0\)` if `\(i\)` is not "in the window", and constant otherwise, we would just be setting the estimating sample.
+
+### Weights can be continuous
+What if we set `\(w_i\)` to be some function of *how far away from the threshold* an observation `\(x_{i,r}\)` is?
+- If `\(x_{i,r}\)` is far away from `\(\tau\)`, then it gets a low weight
+- If `\(x_{i,r}\)` is practically equal to `\(\tau\)`, then it gets a high weight
+
+`$$\tilde{w_i} = \frac{1}{|x_{i,r}-\tau|}$$`
+
+Of course, we might have to re-scale all the `\(w_i\)`'s to make sure they add to 1:
+
+`$$w_i = \frac{\tilde{w}_i}{\sum_{j=1}^N \tilde{w}_j}$$`
+
+
+---
+class: MSU
+# Weighted Regression
+
+### This "local linear regression" because it puts more weight on those observations where `\(x_{i,r}\)` is very close to `\(\tau\)`
+- You still have to determine the form of the weights
+- We call the function that generates weights the *kernel*
+- Since we are not making an assumption about how the distance away from `\(\tau\)` enters the main regression, this is **non-parametric**.
+
+
+---
+class: MSU
+# Weighted Regression
+
+### Other kernels include:
+.pull-left[
+- Rectangular Kernel
+  - Puts equal weight on all observations between `\(a\)` and `\(b\)`]
+  
+.pull-right[
+- Triangle Kernel
+  - Puts weight on those closer to the center
+]
+
+&lt;img src="16-Regression-discontinuity_files/figure-html/Kernels-1.png" style="display: block; margin: auto;" /&gt;
+---
+class: MSU
+# Regression Discontinuity
+
+Applying weights to OLS is easy:
+
+`myOLS = lm(Y ~ X1 + D + X2, data=myData, weights = 1/abs(myData$X1 - tau))`
+
+
+---
+class: MSU
+# Regression Discontinuity
+
+.font40[this page left intentionally blank]
+
+
+
+
+---
+class: MSU
+# Regression Discontinuity
+
+### Example 1
+Maimonides Rule
+- 12th century rabbinic scholar who determined that 40 students was the max. class size.
+- Anything larger had to be cut into two 20/21-person classes
+- Angrist and Lavy (1999) used threshold to look at effect of class size on student outcomes
+--
+
+  - What is the endogeneity problem between student outcomes and *assignment* of class sizes?
+  - What is the threshold and is it exogenously set?
+  - What is running variable?
+  - Evaluate whether or not we have an as-good-as-random treatment assignment
+  
+---
+class: MSU
+# Regression Discontinuity
+
+### Example 2
+Superfund cleanup
+- All superfund sites have a risk score
+- Congress determines how far down the 
+- Greenstone and Gallagher (2008) and Gamper-Rabindran and Timmins (2011) used threshold to look at effect of cleanup on housing prices
+--
+
+  - What is the endogeneity problem between home values and *assignment* of superfund cleanup?
+  - What is the threshold and is it exogenously set?
+  - What is the running variable?
+  - Evaluate whether or not we have an as-good-as-random treatment assignment
+  
+
+---
+class: MSU
+# Running Variables
+
+`$$\color{blue}{y_{i} = \beta_0 + \beta_1 D_i + \beta_2 x_{i,r} + u_{i}}$$`
+
+&lt;img src="MMfig43a.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+class: MSU
+# Running Variables
+
+`$$\color{green}{y_{i} = \beta_0 + \beta_1 D_i + \beta_2 x_{i,r} + \beta_3 x_{i,r}^2 + \beta_4 x_{i,r}^3 + u_{i}}$$`
+
+&lt;img src="MMfig43b.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+
+---
+class: MSU
+# Running Variables
+
+`$$\color{brown}{y_{i} = \beta_0 + \beta_1 D_i + \beta_2 (x_{i,r}-\tau) + \beta_3 (x_{i,r}-\tau) * D_i + u_{i}}$$`
+Here, we let the *slope* of the coefficient on the running variable change when it crosses the threshold. To the left of the threshold, `\(\frac{dy}{dx_{i,r}}=\beta_2\)`, and to the right, it is `\(\beta_2 + \beta_3\)` (dashed line).
+
+&lt;img src="MMfig44.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+---
+class: MSU
+# Running Variables
+
+&lt;img src="MMfig43c.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+This one is not so good - the dashed line fits a possible non-linear trend.
+- Note that there is an upward trend just before the threshold
+- That trend is more consistent with a polynomial trend, and the linear trend + threshold gives a false effect.
+
+---
+class: MSU
+# RD Diagnostics
+
+### The implicit assumption in our RD "window"
+is that everything else *around* the threshold `\(\tau\)` varies *smoothly*
+- Then, we can control for it parametrically.
+
+### Which means that *other variables* not affected by the treatment should vary smoothly over the threshold
+- After all, if some unrelated variable is "jumping" at the threshold, then we shouldn't have much confidence in that threshold being exogenous
+  - And this would ruin our assumption.
+  
+  
+&gt; (Z)ero effects on outcomes that should be unchanged by treatment raise our confidence in the causal effects we are after
+
+.pull-right[ `\(-\)` Mastering Metrics]
+
+
+  
+---
+class: MSU
+# RD Diagnostics
+
+&lt;img src="MMfig45.PNG" width="80%" style="display: block; margin: auto;" /&gt;
+
+
+---
+class: MSU
+# Fuzzy RD
+
+### What if the threshold doesn't perfectly determine treatment, but the other assumptions hold?
+In this case, we would have:
+- Something exogenous
+- That has an affect on treatment
+- But doesn't affect outcome except through treatment
+
+--
+
+### It's an instrument!
+
+---
+class: MSU
+# Fuzzy RD
+
+Back to our original example, except maybe we don't have perfect awarding of scholarships to SAT&gt;1200
+
+### First Stage:
+`$$\color{red}{SCHOLARSHIP_i = \alpha_0 + \alpha_1 SAT_i + \alpha_2 1(SAT_i&gt;1200) + \alpha_3 x_i + v_i}$$`
+This is just like our .blue[original] equation, but with `\(SCHOLARSHIP_i\)` on the LHS.
+
+---
+class: MSU
+# Fuzzy RD
+
+
+### Second Stage:
+`$$\color{red}{y_i = \beta_0 + \beta_1 \widehat{SCHOLARSHIP}_i + \beta_2 SAT_i + \beta_3 x_i + u_i}$$`
+
+`\(\beta_1\)` is our treatment of interest.
+
+Note that `\(SAT_i\)` is still in the second stage **but** the threshold dummy `\(1(SAT_i&gt;1200)\)` is *not*.
+
+This just follows the IV method, but gets the first-stage exogeneity from the RD specification! The *crossing of the threshold* is the exogenous event.
+
+---
+class: MSU
+# Fuzzy RD
+
+### In practice...
+We rarely get a threshold that is perfectly "sharp".
+- Age of drinking is pretty sharp
+- But many other things don't have a perfect relationship
+
+### So fuzzy is more common in the literature
+- And remember: when you have an instrument that is almost perfectly correlated with the endogenous variable, IV turns into OLS.
+  - If the first stage `\(Z\)` has a perfect prediction of `\(D\)`, then `\(\hat{D}=D=Z\)`
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
