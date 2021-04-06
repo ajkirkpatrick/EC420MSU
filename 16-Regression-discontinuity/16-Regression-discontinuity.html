@@ -396,7 +396,7 @@ class: MSU
 
 `$$\color{blue}{y_{i} = \beta_0 + \beta_1 D_i + \beta_2 x_{i,r} + u_{i}}$$`
 
-&lt;img src="MMfig43a.png" width="80%" style="display: block; margin: auto;" /&gt;
+&lt;img src="16-Regression-discontinuity_files/figure-html/RV1-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 
 ---
 class: MSU
@@ -404,7 +404,7 @@ class: MSU
 
 `$$\color{green}{y_{i} = \beta_0 + \beta_1 D_i + \beta_2 x_{i,r} + \beta_3 x_{i,r}^2 + \beta_4 x_{i,r}^3 + u_{i}}$$`
 
-&lt;img src="MMfig43b.png" width="80%" style="display: block; margin: auto;" /&gt;
+&lt;img src="16-Regression-discontinuity_files/figure-html/RV2-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 
 
 ---
@@ -414,13 +414,13 @@ class: MSU
 `$$\color{brown}{y_{i} = \beta_0 + \beta_1 D_i + \beta_2 (x_{i,r}-\tau) + \beta_3 (x_{i,r}-\tau) * D_i + u_{i}}$$`
 Here, we let the *slope* of the coefficient on the running variable change when it crosses the threshold. To the left of the threshold, `\(\frac{dy}{dx_{i,r}}=\beta_2\)`, and to the right, it is `\(\beta_2 + \beta_3\)` (dashed line).
 
-&lt;img src="MMfig44.png" width="60%" style="display: block; margin: auto;" /&gt;
+&lt;img src="16-Regression-discontinuity_files/figure-html/RV3x-1.png" width="60%" style="display: block; margin: auto;" /&gt;
 
 ---
 class: MSU
 # Running Variables
 
-&lt;img src="MMfig43c.png" width="80%" style="display: block; margin: auto;" /&gt;
+&lt;img src="16-Regression-discontinuity_files/figure-html/RV3-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 
 This one is not so good - the dashed line fits a possible non-linear trend.
 - Note that there is an upward trend just before the threshold
@@ -449,7 +449,7 @@ is that everything else *around* the threshold `\(\tau\)` varies *smoothly*
 class: MSU
 # RD Diagnostics
 
-&lt;img src="MMfig45.PNG" width="80%" style="display: block; margin: auto;" /&gt;
+&lt;img src="16-Regression-discontinuity_files/figure-html/RV4-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 
 
 ---

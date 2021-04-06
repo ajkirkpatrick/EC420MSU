@@ -38,7 +38,9 @@ require(wbstats)
 require(lubridate)
 require(scales)
 require(broom)
-require(PNG)
+require(png)
+require(jpeg)
+require(grid)
 
 options("getSymbols.warning4.0"=FALSE)
 # require(see)
@@ -184,10 +186,9 @@ I. A **threshold**
 
 ```{r Image1, echo=F, include=T, out.width='60%', caption='Scott Cunninghams Twitter', message = F, warning=F}
 # knitr::include_graphics('RD_Federalism.jpg')
-# 
-require(jpeg)
+
 img <-jpeg::readJPEG('RD_Federalism.jpg')
-require(grid)
+
 grid.raster(img)
 ```
 
@@ -439,7 +440,10 @@ class: MSU
 $$\color{blue}{y_{i} = \beta_0 + \beta_1 D_i + \beta_2 x_{i,r} + u_{i}}$$
 
 ```{r RV1, echo=F, include=T, out.width='80%'}
-knitr::include_graphics('MMfig43a.png')
+# knitr::include_graphics('MMfig43a.png')
+# 
+img <- readPNG("MMfig43a.png")
+grid.raster(img)
 ```
 
 ---
@@ -449,7 +453,10 @@ class: MSU
 $$\color{green}{y_{i} = \beta_0 + \beta_1 D_i + \beta_2 x_{i,r} + \beta_3 x_{i,r}^2 + \beta_4 x_{i,r}^3 + u_{i}}$$
 
 ```{r RV2, echo=F, include=T, out.width='80%'}
-knitr::include_graphics('MMfig43b.png')
+# knitr::include_graphics('MMfig43b.png')
+
+img <- readPNG("MMfig43b.png")
+grid.raster(img)
 ```
 
 
@@ -461,7 +468,10 @@ $$\color{brown}{y_{i} = \beta_0 + \beta_1 D_i + \beta_2 (x_{i,r}-\tau) + \beta_3
 Here, we let the *slope* of the coefficient on the running variable change when it crosses the threshold. To the left of the threshold, $\frac{dy}{dx_{i,r}}=\beta_2$, and to the right, it is $\beta_2 + \beta_3$ (dashed line).
 
 ```{r RV3x, echo=F, include=T, out.width='60%'}
-knitr::include_graphics('MMfig44.png')
+# knitr::include_graphics('MMfig44.png')
+
+img <- readPNG("MMfig44.png")
+grid.raster(img)
 ```
 
 ---
@@ -469,7 +479,10 @@ class: MSU
 # Running Variables
 
 ```{r RV3, echo=F, include=T, out.width='80%'}
-knitr::include_graphics('MMfig43c.png')
+# knitr::include_graphics('MMfig43c.png')
+
+img <- readPNG("MMfig43c.png")
+grid.raster(img)
 ```
 
 This one is not so good - the dashed line fits a possible non-linear trend.
@@ -500,7 +513,10 @@ class: MSU
 # RD Diagnostics
 
 ```{r RV4, echo=F, include=T, out.width='80%'}
-knitr::include_graphics('MMfig45.PNG')
+# knitr::include_graphics('MMfig45.PNG')
+
+img <- readPNG("MMfig45.png")
+grid.raster(img)
 ```
 
 
