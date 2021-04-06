@@ -94,12 +94,12 @@ class: MSU
 
 ### We saw examples where that seemed like a pretty safe assumption:
 ```{r echo=F, include=T, out.width='70%'}
-knitr::include_graphics('MMfig54.png')
+# knitr::include_graphics('MMfig54.png')
 # 
 
 
-# img <- readPNG("MMfig54.png")
-# grid.raster(img)
+img <- readPNG("MMfig54.png")
+grid.raster(img)
 ```
 
 
