@@ -38,6 +38,7 @@ require(wbstats)
 require(lubridate)
 require(scales)
 require(broom)
+require(PNG)
 
 options("getSymbols.warning4.0"=FALSE)
 # require(see)
@@ -181,8 +182,13 @@ I. A **threshold**
   - Usually from a policy
   - Arbitrary policies are...great!
 
-```{r Image1, echo=F, include=T, out.width='60%', caption='Scott Cunninghams Twitter'}
-knitr::include_graphics('RD_Federalism.jpg')
+```{r Image1, echo=F, include=T, out.width='60%', caption='Scott Cunninghams Twitter', message = F, warning=F}
+# knitr::include_graphics('RD_Federalism.jpg')
+# 
+require(jpeg)
+img <-jpeg::readJPEG('RD_Federalism.jpg')
+require(grid)
+grid.raster(img)
 ```
 
 ---
@@ -548,3 +554,20 @@ We rarely get a threshold that is perfectly "sharp".
 ### So fuzzy is more common in the literature
 - And remember: when you have an instrument that is almost perfectly correlated with the endogenous variable, IV turns into OLS.
   - If the first stage $Z$ has a perfect prediction of $D$, then $\hat{D}=D=Z$
+
+
+
+
+```{r outputChromePrint, include=F, eval=F}
+
+require(pagedown)
+currentfile = gsub(pattern='\\.Rmd', '', basename(rstudioapi::getSourceEditorContext()$path))
+inputpath = paste0('https://ajkirkpatrick.github.io/EC420MSU/',currentfile, '/', paste0(currentfile, '.html'))
+browseURL(inputpath)
+pagedown::chrome_print(input = inputpath,
+                   output = file.path( paste0(currentfile, '.pdf')),
+                   #wait = 3,
+                   timeout = 300,
+                   format = 'pdf')
+
+```
