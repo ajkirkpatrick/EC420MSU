@@ -21,6 +21,7 @@ options(htmltools.dir.version = FALSE)
 library(knitr)
 library(kableExtra)
 opts_chunk$set(
+  root.dir = '/15-Synthetic-controls-general-panel',
   fig.align="center",fig.height=4, #fig.width=7,# out.width="748px", #out.length="520.75px",
   dpi=300, #fig.path='Figs/',
   cache=T,
@@ -39,7 +40,7 @@ require(wbstats)
 require(lubridate)
 require(scales)
 require(broom)
-require(here)
+# require(here)
 
 options("getSymbols.warning4.0"=FALSE)
 # require(see)
@@ -73,7 +74,6 @@ class: MSU
 - Past the *parallel trends* assumption
 
 - Synthetic Counterfactual Method (SCM)
-
 
 ---
 class: MSU
