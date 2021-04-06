@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Synthetic controls and general panel data methods</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Justin Kirkpatrick" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="EC420_S21.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Synthetic controls and general panel data methods
+## EC420 MSU
+### Justin Kirkpatrick
+### Last updated April 06, 2021
+
+---
+
+
+
+layout: true
+
+&lt;div class="msu-header"&gt;&lt;/div&gt; 
+
+
+---
+class: MSU
+name: Overview
+
+# Last class(es)
+
+Difference-in-differences
+- Control for unobserved heterogeneity in `\(i\)` and And for overall time trends in `\(t\)`
+- Develop a counterfactual: `\(E[Y_0 | D=1]\)`
+- Constructed with *treatment* and *control* groups
+- Regression specification to get "*DiD Estimtor*"
+- **Parallel trends assumption**
+
+
+---
+class: MSU
+# Today
+
+- Past the *parallel trends* assumption
+
+- Synthetic Counterfactual Method (SCM)
+
+---
+class: MSU
+# Parallel Trends
+
+### Recall that DiD's *identifying assumption* is that:
+&gt; In the absence of treatment, the trends in both groups would have been the same.
+
+### And recall that we can't directly test this
+- We can look at pre-treatment trends
+- But we would need to see the actual `\(E[Y_0|D=1]\)` in order to ensure that it follows the same trend as `\(E[Y_0|D=0]\)`, the untreated group.
+
+---
+class: MSU
+# Parallel Trends
+
+### We saw examples where that seemed like a pretty safe assumption:
+&lt;img src="MMfig54.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+
+---
+class: MSU
+# Parallel Trends
+
+### And some where it didn't necessarily hold
+&lt;img src="MMfig55.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+
+---
+class: MSU
+# Synthetic Counterfactual
+
+### What are we really after?
+- We want a good `\(E[Y_0|D=1]\)`, the counterfactual for the treated group.
+&lt;br&gt;&lt;br&gt;
+### DiD gets us this by making that link between `\(E[Y_0|D=0]\)` and `\(E[Y_0|D=1]\)`
+--
+&lt;br&gt;&lt;br&gt;
+So what if we are a little more flexible on how that link is made...?
+
+---
+class: MSU
+# Synthetic Counterfactual
+
+### Let's start with a DiD specification, but with `\(i\)` individual fixed effects:
+`$$y_{it} = \beta_0 + \phi_i + \beta_2 POST_t + \beta_3 TREAT_i * POST_t + u_{it}$$`
+Our assumption here is that, once we condition on the `\(\phi_i\)` - that is, once we let each `\(i\)` have its own intercept, the *trends* are going to be the same.
+
+But what drives those trends...? What moves all `\(i\)` together? And what if there were things that moved, say, 1/2 of the `\(i\)`'s?
+
+---
+class: MSU
+# Synthetic Counterfactual
+
+### Let's say we're looking at city-level unemployment rates over different cities across the US
+We want to know the effect of worker safety regulations on unemployment.
+
+### Let's pretend there is one observed thing and *one unobserved thing* that drives the trends:
+- **Observed**: national unemployment rate.
+- **Unobserved**: Price of canned tomatos.
+
+--
+
+### Why *price of canned tomatoes*?
+- Some `\(i\)` have tomato processing facilities in them, and some don't!
+- We don't observe this. 
+- Treatment may be correlated (tomato processing is particularly dangerous for workers?)
+
+
+---
+class: MSU
+# Synthetic Counterfactual
+
+### Would you agree that:
+- If the price of tomatoes is very high, there will likely be more employment in tomato-processing facilities?
+- And thus, unemployment would be lower (better) in those cities with tomato-processing facilities?
+
+--
+
+### And would you agree that:
+- If our treatment is somehow correlated with the presence of tomato-processing facilities, we could be in trouble with our "parallel trends" assumption?
+- Treatment may be endogenous (more worker safety rules when more dangerous employment)
+- The effect may just be confounded by changes in tomato prices
+
+---
+class: MSU
+# Synthetic Counterfactual
+
+### What would "tomato prices" do as a confounder?
+- If tomato prices go up, **some** `\(i\)`'s (the ones with unobserved tomato processing facilities) will have lower unemployment
+- So the *parallel trends* assumption is broken:
+  - In the absence of treatment, a tomato-processing city would **not** follow the same trend as an untreated non-tomato-processing city.
+  
+---
+class: MSU
+# Synthetic Counterfactual
+
+### A "factor loading" model:
+- Let `\(\lambda^{tomato}_{i} = 1(\text{has tomato facility})\)`
+- Let `\(p^{tomato}_t\)` be the national price of tomatos. 
+
+`$$y_{it} = \beta_0 + \beta_1(\lambda^{tomato}_i * p^{tomato}_t) + \beta_2 D_{it} + \phi_i + \delta_t + u_{it}$$`
+
+This is just a model of unemployment `\(y\)` as a function of `\(i\)` specific traits, `\(t\)` specific trends in national unemployment rates, and *the effect of tomato prices on unemployment in tomato-processing cities*. 
+
+If `\(\lambda^{tomato}_i=0\)`, then price of tomatos has no effect. If `\(\lambda^{tomato}_i=1\)`, then the price of tomatos does have an effect `\((\beta_1)\)`.
+
+---
+class: MSU
+# Synthetic Counterfactual
+
+### A "factor loading" model:
+`$$y_{it} = \beta_0 + \beta_1(\lambda^{tomato}_i * p^{tomato}_t) + \beta_2 D_{it} + \phi_i + \delta_t + u_{it}$$`
+
+Parallel trends will not hold between a `\(\lambda^{tomato}_i = 1\)` city and a `\(\lambda^{tomato}_i=0\)` city.
+
+### If we observed `\(\lambda^{tomato}_i\)`, we'd be fine
+We would just control for it (include it in our `\(X\)`'s)
+
+But...we don't.
+
+---
+class: MSU
+# Synthetic Counterfactual
+
+### The Synthetic Counterfactual does its best to account for these unobserved factors
+- Even without observing tomato processing facilities or the price of tomatos, we **would** expect that pre-treatment unemployment in tomato processing cities **would look like other tomato processing cities**.
+
+- That is, since the tomato processing cities are subject to the same price of tomatos, then all of them will be a little higher on unemployment when tomato prices are low.
+
+- The Synthetic Counterfactual Method looks for similarity in the pre-treatment trend and develops the counterfactual for `\(i\)` using all `\(j\)`'s that have similar pre-treatment "paths".
+
+---
+class: MSU
+# Synthetic Counterfactual
+
+&lt;img src="15-Synthetic-controls-general-panel_files/figure-html/SynthSetup-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+---
+class: MSU
+# Synthetic Counterfactual
+
+### The intuition is that parallel trends assumption is best met by choosing a control pool that...follows parallel trends!
+
+--
+
+All the SCM does is find the controls that
+- Are not treated
+- But have similar pre-treatment trends
+
+Since it's  straightforward to have parallel trends for **one** treatment unit and some selection of potential controls, the SCM only handles one single treatment unit
+- Great for comparative policy analysis
+- Some methods for combining results from many SCM's
+
+---
+class: MSU
+# Synthetic Control
+
+### Implementation
+- Usually with a pre-packaged routine in R - `Synth`
+- Requires panel data 
+
+User specifies:
+- **One** treatment unit
+- **Many** potential control units (untreated)
+- A treatment start time
+
+---
+class: MSU
+# Synthetic Control
+
+The Synthetic is estimated by finding weights `\(w\)` that are used to combine all of the un-treated units in the control group.
+
+### Implementation
+- R  makes a guess at `\(w\)`, weights on each of the control units
+  - Let's say the guess is that the weights are `\((.5, .5, 0, \cdots, 0)\)`
+  - That is, the first two untreated `\(i\)`'s are weighted at .5 and .5, the rest are 0.
+  
+- The pre-treatment "synthetic" outcome at any pre-treatment time `\(t\)` is:
+  - `\(y^{synth}_{t} = .5 \times y_{1,t} + .5 \times y_{2,t} + 0 \times y_{3,t} + \cdots\)`
+  
+---
+class: MSU
+# Synthetic Control
+
+### Implementation con't.
+- The distance between `\(y^{synth}_t\)` and `\(y^{actual}_t\)` is checked. Much like OLS, synth sums the squared difference:
+  - `\((y^{synth}_t - y^{actual}_t)^2 + (y^{synth}_{t-1} - y^{actual}_{t-1})^2 + \cdots)\)` over the pre-treatment period
+  - Obviously, post-treatment, we think there will be a difference. Comparing pre-treatment lets us match up tomato-processing cities!
+  
+- R *guesses* at the weights over and over again until the smalled squared sum of errors is found. Observed covariates can be included as well.
+
+- Those weights define the Synthetic Counterfactual in both the pre-treatment period *and* in the post-treatment.
+
+
+
+---
+class: MSU
+# Synthetic Control
+
+If we get a very good match between `\(y^{synth}_t\)` and `\(y^{actual}_t\)` for all `\(t\)` in the pre-treatment, we would naturally think we have controlled for the unobserved factors (the tomato plants, etc.). 
+
+- If we have controlled for these confounders, *even the unobserved ones*, then we can claim that treatment is "as good as exogenous".
+  - `\((Y_{0it}, Y_{1it}) \perp D\)`
+  
+- Thus, the difference between `\(Y^{synth}_t\)` and `\(Y^{actual}_t\)` **in the post-treatment periods** is the `\(ATE\)`
+  - `\(E[Y_0 | D = 1] = E[Y_0^{synth}]\)`, and the latter is observed.
+
+Let's pull up the Kirkpatrick and Bennear paper and look at the synth implementation there. 
+
+We'll focus on the intuition of the method - how do we claim that we are identifying a *causal* effect of PACE?
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
