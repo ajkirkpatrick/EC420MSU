@@ -24,8 +24,7 @@ opts_chunk$set(
   fig.align="center",fig.height=4, #fig.width=7,# out.width="748px", #out.length="520.75px",
   dpi=300, #fig.path='Figs/',
   cache=T,
-  echo=F,
-  engine.path=list(stata="C:/Program Files/Stata16/StataIC-64.exe")#, warning=F, message=F
+  echo=F
   )
 library(tidyverse)
 require(cowplot)
