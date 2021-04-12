@@ -7,7 +7,7 @@ output:
   xaringan::moon_reader:
     lib_dir: libs
     yolo: false
-    css: [default, metropolis, metropolis-fonts, ajk_css]
+    css: [default, metropolis, metropolis-fonts, "EC420_S21.css"]
     nature: 
       highlightStyle: github
       highlightLines: true
@@ -472,3 +472,18 @@ Which is $t\sigma^2_e$, so it changes over time!
 ### A Random Walk is not stationary and TSR.1'-TSR.5' do not hold!
 
 ### Nor is a Random Walk covariance-stationary (depends on $t$), and is not weakly dependent.
+
+
+```{r outputChromePrint, include=F, eval=F}
+
+require(pagedown)
+currentfile = gsub(pattern='\\.Rmd', '', basename(rstudioapi::getSourceEditorContext()$path))
+inputpath = paste0('https://ajkirkpatrick.github.io/EC420MSU/',currentfile, '/', paste0(currentfile, '.html'))
+browseURL(inputpath)
+pagedown::chrome_print(input = inputpath,
+                   output = file.path( paste0(currentfile, '.pdf')),
+                   #wait = 3,
+                   timeout = 300,
+                   format = 'pdf')
+
+```
