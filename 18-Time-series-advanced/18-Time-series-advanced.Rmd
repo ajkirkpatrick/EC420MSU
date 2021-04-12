@@ -143,7 +143,7 @@ class: MSU
 # Stationary TS
 
 ### Why is non-stationarity a problem?
-> (I)f we want to understand the relationship between tow or more variables using regression analysis, we need to asssume some sort of stability over time. If we allow the relationship between two variables to change arbitrarily in each time period, then we cannot hope to learn much about how a change in one affects the other(...)
+> (I)f we want to understand the relationship between two or more variables using regression analysis, we need to asssume some sort of stability over time. If we allow the relationship between two variables to change arbitrarily in each time period, then we cannot hope to learn much about how a change in one affects the other(...)
 
 <br>
 
