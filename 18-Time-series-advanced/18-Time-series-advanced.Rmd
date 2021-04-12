@@ -50,21 +50,6 @@ layout: true
 <div class="msu-header"></div> 
 
 
----
-class: inverseMSU
-# Class Business
-
-
-Syllabus update:
-- We cover *Logit Models* on Monday. 
-  - There is a quiz on Wednesday
-  - A reading response is due for Monday the 20th
-  - We will not cover Poisson and Maximum Likelihood
-  - We will instead talk about clustered standard errors and measurement error
-
-Two HW assignments still:
-- One posted today (I swear) that is short (I promise)
-- One by the end of the week
 
 
 ---
@@ -81,7 +66,7 @@ class: MSU
   - No.
   
 ---
-class: inverseMSU
+class: MSU
 # This Class
 
 ## Time series
